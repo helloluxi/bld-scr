@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customizable 3BLD Scrambler</title>
+  <script src="./min2phase.js"></script>
+  <script src="./scrambler.js"></script>
+  <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --primary: #84afff;
+      --text-color: #e0e0e0;
+      --text-secondary: #a0a0a0;
+      --border-color: #333;
+      --hover-color: #2c2c2c;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    h1 {
+      margin-bottom: 2rem;
+      color: var(--primary);
+      text-align: center;
+    }
+    
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+    
+    .input-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    
+    .input-group label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .input-wrapper {
+      position: relative;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+    
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    input[type="text"]:disabled {
+      background-color: var(--bg-color);
+      color: var(--text-secondary);
+      border-color: var(--border-color);
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .history-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      z-index: 10;
+    }
+    
+    .history-item {
+      padding: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .history-item:hover {
+      background-color: var(--hover-color);
+    }
+    
+    /* Highlight for the selected history item */
+    .history-item.selected {
+      background-color: var(--primary);
+      color: #000;
+    }
+    
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    
+    .delete-history {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    
+    .delete-history:hover {
+      color: var(--text-color);
+    }
+    
+    .show-history {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 0.5rem;
+      accent-color: var(--primary);
+      width: 18px;
+      height: 18px;
+    }
+    
+    .slider-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .slider-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    input[type="range"] {
+      flex-grow: 1;
+      appearance: none;
+      height: 6px;
+      background: var(--bg-color);
+      border-radius: 3px;
+      outline: none;
+      accent-color: var(--primary);
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: var(--primary);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    
+    .slider-value {
+      min-width: 30px;
+      text-align: center;
+    }
+    
+    .mini-text {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      text-align: center;
+      font-style: italic;
+    }
+    
+    .button {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      margin-bottom: 1.5rem;
+    }
+    
+    .button:hover {
+      opacity: 0.9;
+    }
+    
+    .output-container {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+    
+    .output-panel {
+      width: 100%;
+      min-height: 180px;
+      padding: 0.75rem;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-color);
+      font-family: monospace;
+      resize: none;
+      margin-bottom: 0.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-color) var(--bg-color);
+    }
+    
+    .output-panel::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    .output-panel::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+    
+    .output-panel::-webkit-scrollbar-thumb {
+      background-color: var(--border-color);
+      border-radius: 3px;
+    }
+    
+    .output-panel::-webkit-scrollbar-thumb:hover {
+      background-color: var(--primary);
+    }
+    
+    .copy-button {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background-color: var(--card-bg);
+      color: var(--text-secondary);
+      border: none;
+      border-radius: 4px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    
+    .copy-button:hover {
+      color: var(--text-color);
+    }
+    
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      padding: 1rem 0;
+      background-color: var(--bg-color);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Customizable 3BLD Scrambler</h1>
+    
+    <div class="card">
+      <div class="input-group">
+        <label for="edge-input">Edge</label>
+        <div class="input-wrapper">
+          <input type="text" id="edge-input" placeholder="Variables: parity, cycles, algs, float1, bad1, ..., float5, bad5" name=""edge-input" autocomplete="off" autocorrect="off" spellcheck="false">
+          <div class="history-dropdown" id="edge-history">
+            <!-- Filtered history items will be inserted here -->
+          </div>
+        </div>
+      </div>
+      
+      <div class="input-group">
+        <label for="corner-input">Corner</label>
+        <div class="input-wrapper">
+          <input type="text" id="corner-input" placeholder="Variables: parity, cycles, algs, float1, bad1, ..., float5, bad5" name=""edge-input" autocomplete="off" autocorrect="off" spellcheck="false">
+          <div class="history-dropdown" id="corner-history">
+            <!-- Filtered history items will be inserted here -->
+          </div>
+        </div>
+      </div>
+      
+      <div class="checkbox-group">
+        <input type="checkbox" id="same-checkbox">
+        <label for="same-checkbox">Same as above</label>
+      </div>
+      
+      <div class="slider-group">
+        <label for="amount-slider">Amount</label>
+        <div class="slider-container">
+          <input type="range" id="amount-slider" min="1" max="10" value="1">
+          <span class="slider-value" id="slider-value">1</span>
+        </div>
+      </div>
+      
+      <div class="mini-text" id="mini-text">Probability: 100.00%</div>
+      
+      <button class="button" id="scramble-button">Scramble!</button>
+      
+      <div class="output-container">
+        <textarea class="output-panel" id="output-panel" readonly></textarea>
+        <button class="copy-button" id="copy-button">Copy</button>
+      </div>
+    </div>
+    
+    <footer>
+      &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" underline>GitHub</a>
+      <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+      </script>
+    </footer>
+  </div>
+
+  <script>
+    // DOM elements
+    const edgeInput = document.getElementById('edge-input');
+    const cornerInput = document.getElementById('corner-input');
+    const sameCheckbox = document.getElementById('same-checkbox');
+    const amountSlider = document.getElementById('amount-slider');
+    const sliderValue = document.getElementById('slider-value');
+    const miniText = document.getElementById('mini-text');
+    const scrambleButton = document.getElementById('scramble-button');
+    const outputPanel = document.getElementById('output-panel');
+    const copyButton = document.getElementById('copy-button');
+    const edgeHistory = document.getElementById('edge-history');
+    const cornerHistory = document.getElementById('corner-history');
+    
+    // History storage
+    let edgeHistoryItems = localStorage.getItem('he') ? JSON.parse(localStorage.getItem('he')) : [];
+    let cornerHistoryItems = localStorage.getItem('hc') ? JSON.parse(localStorage.getItem('hc')) : [];
+    
+    // For tracking the highlighted (selected) history item (-1 means no selection)
+    let edgeSelectedIndex = -1;
+    let cornerSelectedIndex = -1;
+    
+    // Display the slider value
+    sliderValue.textContent = amountSlider.value;
+    amountSlider.addEventListener('input', () => {
+      sliderValue.textContent = amountSlider.value;
+    });
+    
+    // Same as above checkbox
+    sameCheckbox.addEventListener('change', () => {
+      if (sameCheckbox.checked) {
+        cornerInput.value = edgeInput.value;
+        cornerInput.disabled = true;
+      } else {
+        cornerInput.disabled = false;
+      }
+      updateProbability();
+    });
+    
+    function updateProbability() {
+      const prob = getProbability(edgeInput.value, cornerInput.value);
+      if (isNaN(prob)) {
+        miniText.textContent = 'Probability: NaN';
+      } else if (prob === 0){
+        miniText.textContent = 'Probability: 0 (Cannot scramble)';
+      } else {
+        miniText.textContent = `Probability: ${(prob * 100).toFixed(2)}%`;
+      }
+    }
+    
+    // Reset selection when input changes
+    edgeInput.addEventListener('input', () => {
+      if (sameCheckbox.checked) {
+        cornerInput.value = edgeInput.value;
+      }
+      updateProbability();
+      edgeSelectedIndex = -1;
+      updateHistoryUI('e');
+      if (edgeHistory.children.length > 0) {
+        edgeHistory.classList.add('show-history');
+      } else {
+        edgeHistory.classList.remove('show-history');
+      }
+    });
+    
+    cornerInput.addEventListener('input', () => {
+      updateProbability();
+      cornerSelectedIndex = -1;
+      updateHistoryUI('c');
+      if (cornerHistory.children.length > 0) {
+        cornerHistory.classList.add('show-history');
+      } else {
+        cornerHistory.classList.remove('show-history');
+      }
+    });
+    
+    // Focus/blur events for history dropdowns with filtered UI
+    edgeInput.addEventListener('focus', () => {
+      updateHistoryUI('e');
+      if (edgeHistory.children.length > 0) {
+        edgeHistory.classList.add('show-history');
+      }
+    });
+    
+    edgeInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        edgeHistory.classList.remove('show-history');
+      }, 200);
+    });
+    
+    cornerInput.addEventListener('focus', () => {
+      updateHistoryUI('c');
+      if (cornerHistory.children.length > 0) {
+        cornerHistory.classList.add('show-history');
+      }
+    });
+    
+    cornerInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        cornerHistory.classList.remove('show-history');
+      }, 200);
+    });
+    
+    // Update history UI with filtering based on current input
+    function updateHistoryUI(tag) {
+      const historyElement = tag === 'e' ? edgeHistory : cornerHistory;
+      const historyArray = tag === 'e' ? edgeHistoryItems : cornerHistoryItems;
+      const inputElement = tag === 'e' ? edgeInput : cornerInput;
+      const userInput = inputElement.value.trim();
+      historyElement.innerHTML = '';
+      
+      // Filter items that start with the user input (case-insensitive)
+      const filteredItems = historyArray.filter(item =>
+        item.toLowerCase().startsWith(userInput)
+      );
+      
+      filteredItems.forEach((item, index) => {
+        const historyItem = document.createElement('div');
+        historyItem.classList.add('history-item');
+        if ( (tag === 'e' && index === edgeSelectedIndex) || (tag === 'c' && index === cornerSelectedIndex) ) {
+          historyItem.classList.add('selected');
+        }
+        const itemText = document.createElement('span');
+        itemText.style.flexGrow = '1';
+        itemText.textContent = item;
+        const itemTextClick = (e) => {
+          e.stopPropagation();
+          inputElement.value = item;
+          if (tag === 'e' && sameCheckbox.checked) {
+            cornerInput.value = item;
+          }
+          updateProbability();
+          historyElement.classList.remove('show-history');
+        };
+        itemText.addEventListener('click', itemTextClick);
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-history');
+        deleteButton.textContent = '×';
+        const deleteButtonClick = () => {
+          const indexInArray = historyArray.indexOf(item);
+          if (indexInArray > -1) {
+            historyArray.splice(indexInArray, 1);
+            updateHistoryUI(tag);
+            localStorage.setItem(`h${tag}`, JSON.stringify(historyArray));
+          }
+        };
+        deleteButton.addEventListener('click', deleteButtonClick);
+        
+        historyItem.appendChild(itemText);
+        historyItem.appendChild(deleteButton);
+        historyElement.appendChild(historyItem);
+      });
+    }
+    
+    // Helper to update visual selection in the history dropdown
+    function updateHistorySelection(tag) {
+      const historyElement = tag === 'e' ? edgeHistory : cornerHistory;
+      const selectedIndex = tag === 'e' ? edgeSelectedIndex : cornerSelectedIndex;
+      Array.from(historyElement.children).forEach((child, index) => {
+        if (index === selectedIndex) {
+          child.classList.add('selected');
+        } else {
+          child.classList.remove('selected');
+        }
+      });
+    }
+    
+    // Add to history
+    function tryAddToHistory(tag, value) {
+      const historyArray = tag === 'e' ? edgeHistoryItems : cornerHistoryItems;
+      if (!value || historyArray.includes(value)) return;
+      
+      historyArray.unshift(value);
+      if (historyArray.length > 5) {
+        historyArray.pop();
+      }
+      
+      updateHistoryUI(tag);
+      localStorage.setItem(`h${tag}`, JSON.stringify(historyArray));
+    }
+    
+    // Function to handle scramble generation
+    function generateScramble() {
+      updateProbability();
+      if (typeof valid !== 'undefined' && valid) {
+        tryAddToHistory('e', edgeInput.value.trim());
+        tryAddToHistory('c', cornerInput.value.trim());
+        outputPanel.value = Array.from({ length: amountSlider.value }, () => getScramble()).join('\n');
+      }
+    }
+    
+    // Keydown event for edgeInput to handle arrow navigation and enter key
+    edgeInput.addEventListener('keydown', (e) => {
+      if (edgeHistory.classList.contains('show-history')) {
+        const items = Array.from(edgeHistory.children);
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          edgeSelectedIndex = (edgeSelectedIndex + 1 < items.length) ? edgeSelectedIndex + 1 : items.length - 1;
+          updateHistorySelection('e');
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          edgeSelectedIndex = (edgeSelectedIndex - 1 >= -1) ? edgeSelectedIndex - 1 : -1;
+          updateHistorySelection('e');
+        } else if (e.key === "Enter") {
+          if (edgeSelectedIndex >= 0) {
+            e.preventDefault();
+            const selectedItem = items[edgeSelectedIndex];
+            if (selectedItem) {
+              const selectedText = selectedItem.querySelector('span').textContent;
+              edgeInput.value = selectedText;
+              if (sameCheckbox.checked) {
+                cornerInput.value = selectedText;
+              }
+              edgeHistory.classList.remove('show-history');
+              updateProbability();
+              edgeSelectedIndex = -1;
+            }
+          } else {
+            e.preventDefault();
+            generateScramble();
+          }
+        }
+      }
+    });
+    
+    // Keydown event for cornerInput for arrow navigation and enter key
+    cornerInput.addEventListener('keydown', (e) => {
+      if (cornerHistory.classList.contains('show-history')) {
+        const items = Array.from(cornerHistory.children);
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          cornerSelectedIndex = (cornerSelectedIndex + 1 < items.length) ? cornerSelectedIndex + 1 : items.length - 1;
+          updateHistorySelection('c');
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          cornerSelectedIndex = (cornerSelectedIndex - 1 >= -1) ? cornerSelectedIndex - 1 : -1;
+          updateHistorySelection('c');
+        } else if (e.key === "Enter") {
+          if (cornerSelectedIndex >= 0) {
+            e.preventDefault();
+            const selectedItem = items[cornerSelectedIndex];
+            if (selectedItem) {
+              cornerInput.value = selectedItem.querySelector('span').textContent;
+              cornerHistory.classList.remove('show-history');
+              updateProbability();
+              cornerSelectedIndex = -1;
+            }
+          } else {
+            e.preventDefault();
+            generateScramble();
+          }
+        }
+      }
+    });
+    
+    // Also keep the original Enter listener for cases when dropdown is not visible
+    edgeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !edgeHistory.classList.contains('show-history')) {
+        e.preventDefault();
+        generateScramble();
+      }
+    });
+    
+    cornerInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !cornerHistory.classList.contains('show-history')) {
+        e.preventDefault();
+        generateScramble();
+      }
+    });
+    
+    // Copy button
+    copyButton.addEventListener('click', () => {
+      outputPanel.select();
+      document.execCommand('copy');
+      const originalText = copyButton.textContent;
+      copyButton.textContent = 'Copied!';
+      setTimeout(() => {
+        copyButton.textContent = originalText;
+      }, 1500);
+    });
+    
+    // Scramble button click
+    scrambleButton.addEventListener('click', generateScramble);
+  </script>
+</body>
+</html>
