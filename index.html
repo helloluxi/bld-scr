@@ -364,8 +364,8 @@
     const cornerHistory = document.getElementById('corner-history');
     
     // History storage
-    let edgeHistoryItems = localStorage.getItem('he') ? JSON.parse(localStorage.getItem('he')) : [];
-    let cornerHistoryItems = localStorage.getItem('hc') ? JSON.parse(localStorage.getItem('hc')) : [];
+    const edgeHistoryItems = JSON.parse(localStorage.getItem('scr.he') || '[]');
+    const cornerHistoryItems = JSON.parse(localStorage.getItem('scr.hc') || '[]');
     
     // For tracking the highlighted (selected) history item (-1 means no selection)
     let edgeSelectedIndex = -1;
@@ -493,7 +493,7 @@
           if (indexInArray > -1) {
             historyArray.splice(indexInArray, 1);
             updateHistoryUI(tag);
-            localStorage.setItem(`h${tag}`, JSON.stringify(historyArray));
+            localStorage.setItem(`scr.h${tag}`, JSON.stringify(historyArray));
           }
         };
         deleteButton.addEventListener('click', deleteButtonClick);
@@ -528,7 +528,7 @@
       }
       
       updateHistoryUI(tag);
-      localStorage.setItem(`h${tag}`, JSON.stringify(historyArray));
+      localStorage.setItem(`scr.h${tag}`, JSON.stringify(historyArray));
     }
     
     // Function to handle scramble generation
