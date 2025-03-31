@@ -536,9 +536,21 @@
     function generateScramble() {
       updateProbability();
       if (typeof valid !== 'undefined' && valid) {
+        const urlParams = new URLSearchParams();
+        if (edgeInput.value.trim()) {
+          urlParams.set('e', edgeInput.value.trim());
+        }
+        if (cornerInput.value.trim()) {
+          urlParams.set('c', cornerInput.value.trim());
+        }
+        if (amountSlider.value > 1) {
+          urlParams.set('n', amountSlider.value);
+        }
+        history.replaceState(null, '', '?' + urlParams.toString());
         tryAddToHistory('e', edgeInput.value.trim());
         tryAddToHistory('c', cornerInput.value.trim());
         outputPanel.value = Array.from({ length: amountSlider.value }, () => getScramble()).join('\n');
+        copyButton.click();
       }
     }
     
@@ -634,6 +646,19 @@
     
     // Scramble button click
     scrambleButton.addEventListener('click', generateScramble);
+
+    // Read URL parameters on page load
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('e')) {
+      edgeInput.value = decodeURIComponent(urlParams.get('e'));
+    }
+    if (urlParams.has('c')) {
+      cornerInput.value = decodeURIComponent(urlParams.get('c'));
+    }
+    if (urlParams.has('n')) {
+      amountSlider.value = urlParams.get('n');
+      sliderValue.textContent = amountSlider.value;
+    }
   </script>
 </body>
 </html>
