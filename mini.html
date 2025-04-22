@@ -455,6 +455,20 @@
       content: '☀';
       font-family: monospace;
     }
+
+    .range-container.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .range-container.disabled .range-selected {
+      background-color: var(--text-secondary);
+    }
+
+    .range-container.disabled .range-thumb {
+      background-color: var(--text-secondary);
+      border-color: var(--border-color);
+    }
   </style>
 </head>
 <body>
@@ -711,16 +725,16 @@
     // Load saved values from localStorage
     function loadSavedValues() {
       document.getElementById('edge-algs-min').value = localStorage.getItem('scr.mini.edge-algs-min') || '0';
-      document.getElementById('edge-algs-max').value = localStorage.getItem('scr.mini.edge-algs-max') || '8.5';
+      document.getElementById('edge-algs-max').value = localStorage.getItem('scr.mini.edge-algs-max') || '5';
       document.getElementById('corner-algs-min').value = localStorage.getItem('scr.mini.corner-algs-min') || '0';
-      document.getElementById('corner-algs-max').value = localStorage.getItem('scr.mini.corner-algs-max') || '5.5';
+      document.getElementById('corner-algs-max').value = localStorage.getItem('scr.mini.corner-algs-max') || '3';
       document.getElementById('amount-slider').value = localStorage.getItem('scr.mini.amount-slider') || '1';
-      document.getElementById('parity-even').checked = localStorage.getItem('scr.mini.parity-even') === 'true';
+      document.getElementById('parity-even').checked = localStorage.getItem('scr.mini.parity-even') !== 'false';
       document.getElementById('parity-odd').checked = localStorage.getItem('scr.mini.parity-odd') === 'true';
-      document.getElementById('edge-scr').checked = localStorage.getItem('scr.mini.edge-scr') === 'true';
+      document.getElementById('edge-scr').checked = localStorage.getItem('scr.mini.edge-scr') !== 'false';
       document.getElementById('edge-cycle').checked = localStorage.getItem('scr.mini.edge-cycle') === 'true';
       document.getElementById('edge-flip').checked = localStorage.getItem('scr.mini.edge-flip') === 'true';
-      document.getElementById('corn-scr').checked = localStorage.getItem('scr.mini.corn-scr') === 'true';
+      document.getElementById('corn-scr').checked = localStorage.getItem('scr.mini.corn-scr') !== 'false';
       document.getElementById('corn-cycle').checked = localStorage.getItem('scr.mini.corn-cycle') === 'true';
       document.getElementById('corn-twist').checked = localStorage.getItem('scr.mini.corn-twist') === 'true';
 
@@ -790,16 +804,40 @@
     document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
       checkbox.addEventListener('change', () => {
         updateProbability();
+        updateSliderStates();
       });
     });
+
+    // Function to update slider states based on checkbox values
+    function updateSliderStates() {
+      const edgeScrambleChecked = document.getElementById('edge-scr').checked;
+      const cornerScrambleChecked = document.getElementById('corn-scr').checked;
+      
+      const edgeAlgsMin = document.getElementById('edge-algs-min');
+      const edgeAlgsMax = document.getElementById('edge-algs-max');
+      const cornerAlgsMin = document.getElementById('corner-algs-min');
+      const cornerAlgsMax = document.getElementById('corner-algs-max');
+      
+      const edgeAlgsContainer = document.getElementById('edge-algs-container');
+      const cornerAlgsContainer = document.getElementById('corner-algs-container');
+      
+      if (edgeAlgsContainer && edgeAlgsMin && edgeAlgsMax) {
+        edgeAlgsContainer.classList.toggle('disabled', !edgeScrambleChecked);
+        edgeAlgsMin.disabled = !edgeScrambleChecked;
+        edgeAlgsMax.disabled = !edgeScrambleChecked;
+      }
+      
+      if (cornerAlgsContainer && cornerAlgsMin && cornerAlgsMax) {
+        cornerAlgsContainer.classList.toggle('disabled', !cornerScrambleChecked);
+        cornerAlgsMin.disabled = !cornerScrambleChecked;
+        cornerAlgsMax.disabled = !cornerScrambleChecked;
+      }
+    }
 
     // Initialize all range containers
     document.querySelectorAll('.range-container').forEach(container => {
       initializeRangeContainer(container);
     });
-
-    // Load saved values when the page loads
-    document.addEventListener('DOMContentLoaded', loadSavedValues);
 
     // Add event listener for amount slider
     if (amountSlider) {
@@ -873,6 +911,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       initTheme();
       loadSavedValues();
+      updateSliderStates();
     });
   </script>
 </body>

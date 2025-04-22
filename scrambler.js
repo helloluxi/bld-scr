@@ -197,7 +197,6 @@ const scrambler = (() => {
         });
         let oddCornerProbability = oddCornerCDF[oddCornerCDF.length - 1] / 88179840;
         
-        console.log(evenEdgeCount, evenCornerCount, oddEdgeCount, oddCornerCount);
         const prob = (evenEdgeProbability * evenCornerProbability + oddEdgeProbability * oddCornerProbability) * 2;
         oddProb = oddEdgeProbability * oddCornerProbability * 2 / prob;
         return prob;
