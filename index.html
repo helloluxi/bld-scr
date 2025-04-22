@@ -390,7 +390,7 @@
     });
     
     function updateProbability() {
-      const prob = getProbability(edgeInput.value, cornerInput.value);
+      const prob = scrambler.getProbabilityFromFilter(edgeInput.value, cornerInput.value);
       if (isNaN(prob)) {
         miniText.textContent = 'Probability: NaN';
       } else if (prob === 0){
@@ -535,7 +535,7 @@
     // Function to handle scramble generation
     function generateScramble() {
       updateProbability();
-      if (typeof valid !== 'undefined' && valid) {
+      if (scrambler.isVsVal()) {
         const urlParams = new URLSearchParams();
         if (edgeInput.value.trim()) {
           urlParams.set('e', edgeInput.value.trim());
@@ -549,8 +549,10 @@
         history.replaceState(null, '', '?' + urlParams.toString());
         tryAddToHistory('e', edgeInput.value.trim());
         tryAddToHistory('c', cornerInput.value.trim());
-        outputPanel.value = Array.from({ length: amountSlider.value }, () => getScramble()).join('\n');
+        outputPanel.value = Array.from({ length: amountSlider.value }, () => scrambler.getScramble()).join('\n');
         copyButton.click();
+      } else {
+        miniText.textContent = 'No valid scrambles.';
       }
     }
     

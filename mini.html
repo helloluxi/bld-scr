@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <title>BLD Master Mini</title>
+  <script src="./min2phase.js"></script>
+  <script src="./scrambler.js"></script>
+  <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --primary: #84afff;
+      --text-color: #e0e0e0;
+      --text-secondary: #a0a0a0;
+      --border-color: #333;
+      --hover-color: #2c2c2c;
+    }
+    
+    :root[data-theme="light"] {
+      --bg-color: #f5f5f5;
+      --card-bg: #ffffff;
+      --primary: #1976d2;
+      --text-color: #333333;
+      --text-secondary: #666666;
+      --border-color: #e0e0e0;
+      --hover-color: #f0f0f0;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    h1 {
+      margin-bottom: 2rem;
+      color: var(--primary);
+      text-align: center;
+    }
+    
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+    
+    .input-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    
+    .input-group label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .input-wrapper {
+      position: relative;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+    
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    input[type="text"]:disabled {
+      background-color: var(--bg-color);
+      color: var(--text-secondary);
+      border-color: var(--border-color);
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 0.5rem;
+      accent-color: var(--primary);
+      width: 18px;
+      height: 18px;
+    }
+    
+    .slider-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+    }
+    
+    .slider-group label {
+      min-width: 100px;
+      margin-bottom: 0;
+      text-align: left;
+    }
+    
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+      max-width: 500px;
+      margin-left: auto;
+    }
+    
+    input[type="range"] {
+      flex-grow: 1;
+      appearance: none;
+      height: 20px;
+      background: var(--bg-color);
+      border-radius: 10px;
+      outline: none;
+      accent-color: var(--primary);
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid var(--border-color);
+    }
+    
+    .slider-value {
+      min-width: 30px;
+      text-align: center;
+    }
+    
+    .mini-text {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      text-align: center;
+      font-style: italic;
+    }
+    
+    .button {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      margin-bottom: 1.5rem;
+    }
+    
+    [data-theme="light"] .button {
+      color: #fff;
+    }
+    
+    .button:hover {
+      opacity: 0.9;
+    }
+    
+    .output-container {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+    
+    .output-panel {
+      width: 100%;
+      min-height: 180px;
+      padding: 0.75rem;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-color);
+      font-family: monospace;
+      resize: none;
+      margin-bottom: 0.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-color) var(--bg-color);
+    }
+    
+    .output-panel::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    .output-panel::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+    
+    .output-panel::-webkit-scrollbar-thumb {
+      background-color: var(--border-color);
+      border-radius: 3px;
+    }
+    
+    .output-panel::-webkit-scrollbar-thumb:hover {
+      background-color: var(--primary);
+    }
+    
+    .copy-button {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background-color: var(--card-bg);
+      color: var(--text-secondary);
+      border: none;
+      border-radius: 4px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    
+    .copy-button:hover {
+      color: var(--text-color);
+    }
+    
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      padding: 1rem 0;
+      background-color: var(--bg-color);
+    }
+    
+    .setting-group {
+      background-color: #2a2a2a;
+      padding: 1rem;
+      border-radius: 8px;
+      flex: 1;
+    }
+    
+    .setting-group h3 {
+      margin-top: 0;
+      color: var(--text-secondary);
+    }
+    
+    .setting-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1rem 0;
+      gap: 1rem;
+    }
+    
+    .setting-value {
+      min-width: 4rem;
+      text-align: right;
+    }
+    
+    .range-wrapper {
+      width: 200px;
+    }
+    
+    .range-container {
+      position: relative;
+      height: 20px;
+      background: var(--bg-color);
+      border-radius: 10px;
+      margin: 0.5rem 0;
+    }
+    
+    .range-selected {
+      position: absolute;
+      height: 100%;
+      background: var(--primary);
+      border-radius: 10px;
+      pointer-events: none;
+    }
+    
+    .range-slider {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0;
+    }
+    
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      pointer-events: auto;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: 2px solid var(--border-color);
+      opacity: 1;
+    }
+    
+    .range-thumb {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      border: 2px solid var(--border-color);
+      border-radius: 50%;
+      pointer-events: none;
+      top: 0;
+      transform: translateX(-50%);
+    }
+
+    /* Add styles for single value case */
+    .range-container.single-value .range-selected {
+      width: 20px;
+      border-radius: 50%;
+      left: calc(50% - 10px);
+    }
+
+    .range-container.single-value .range-slider {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .parity-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .parity-label {
+      color: var(--text-color);
+      font-size: 0.9rem;
+      margin-right: auto;
+    }
+
+    .parity-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--bg-color);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    .parity-checkbox input[type="checkbox"] {
+      accent-color: var(--primary);
+      width: 18px;
+      height: 18px;
+    }
+
+    .parity-checkbox label {
+      color: var(--text-color);
+      font-size: 0.9rem;
+    }
+
+    .option-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .option-label {
+      color: var(--text-color);
+      font-size: 0.9rem;
+      margin-right: auto;
+    }
+
+    .option-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--bg-color);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    .option-checkbox input[type="checkbox"] {
+      accent-color: var(--primary);
+      width: 18px;
+      height: 18px;
+    }
+
+    .option-checkbox label {
+      color: var(--text-color);
+      font-size: 0.9rem;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .theme-toggle:hover {
+      background-color: var(--hover-color);
+    }
+
+    .theme-toggle::before {
+      content: '☽';
+      font-family: monospace;
+    }
+
+    [data-theme="light"] .theme-toggle::before {
+      content: '☀';
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="theme-toggle"></button>
+  <div class="container">
+    <h1>BLD Master Mini</h1>
+    
+    <div class="card">
+      <div class="parity-group">
+        <span class="parity-label">Parity</span>
+        <div class="parity-checkbox">
+          <input type="checkbox" id="parity-even" checked>
+          <label for="parity-even">even</label>
+        </div>
+        <div class="parity-checkbox">
+          <input type="checkbox" id="parity-odd" checked>
+          <label for="parity-odd">odd</label>
+        </div>
+      </div>
+
+      <div class="parity-group">
+        <span class="parity-label">Edge</span>
+        <div class="parity-checkbox">
+          <input type="checkbox" id="edge-scr" checked>
+          <label for="edge-scr">Scramble</label>
+        </div>
+        <div class="parity-checkbox">
+          <input type="checkbox" id="edge-cycle" checked>
+          <label for="edge-cycle">Cycle Break</label>
+        </div>
+        <div class="parity-checkbox">
+          <input type="checkbox" id="edge-flip" checked>
+          <label for="edge-flip">Flip</label>
+        </div>
+      </div>
+
+      <div class="parity-group">
+        <span class="parity-label">Corner</span>
+        <div class="parity-checkbox">
+          <input type="checkbox" id="corn-scr" checked>
+          <label for="corn-scr">Scramble</label>
+        </div>
+        <div class="parity-checkbox">
+          <input type="checkbox" id="corn-cycle" checked>
+          <label for="corn-cycle">Cycle Break</label>
+        </div>
+        <div class="parity-checkbox">
+          <input type="checkbox" id="corn-twist" checked>
+          <label for="corn-twist">Twist</label>
+        </div>
+      </div>
+
+      <div class="slider-group">
+        <label for="edge-algs-slider">Edge Algs</label>
+        <div class="slider-container">
+          <div class="range-container" id="edge-algs-container" style="flex-grow: 1;">
+            <div class="range-selected"></div>
+            <input type="range" min="0" max="8.5" value="0"   step="0.5" class="range-slider" id="edge-algs-min">
+            <input type="range" min="0" max="8.5" value="8.5" step="0.5" class="range-slider" id="edge-algs-max">
+          </div>
+          <span class="slider-value" id="edge-algs-value">0-8.5</span>
+        </div>
+      </div>
+
+      <div class="slider-group">
+        <label for="corner-algs-slider">Corner Algs</label>
+        <div class="slider-container">
+          <div class="range-container" id="corner-algs-container" style="flex-grow: 1;">
+            <div class="range-selected"></div>
+            <input type="range" min="0" max="5.5" value="0"   step="0.5" class="range-slider" id="corner-algs-min">
+            <input type="range" min="0" max="5.5" value="5.5" step="0.5" class="range-slider" id="corner-algs-max">
+          </div>
+          <span class="slider-value" id="corner-algs-value">0-5.5</span>
+        </div>
+      </div>
+
+      <div class="slider-group">
+        <label for="amount-slider">Amount</label>
+        <div class="slider-container">
+          <div class="range-container" style="flex-grow: 1;">
+            <div class="range-selected"></div>
+            <input type="range" min="0" max="10" value="1" step="1" class="range-slider" id="amount-slider">
+            <div class="range-thumb"></div>
+          </div>
+          <span class="slider-value" id="slider-value">1</span>
+        </div>
+      </div>
+      
+      <div class="mini-text" id="mini-text">Probability: 100.00%</div>
+      
+      <button class="button" id="scramble-button">Scramble!</button>
+      
+      <div class="output-container">
+        <textarea class="output-panel" id="output-panel" readonly></textarea>
+        <button class="copy-button" id="copy-button">Copy</button>
+      </div>
+    </div>
+    
+    <footer>
+      &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" underline>GitHub</a>
+      <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+      </script>
+    </footer>
+  </div>
+
+  <script>
+    // DOM elements
+    const amountSlider = document.getElementById('amount-slider');
+    const sliderValue = document.getElementById('slider-value');
+    const miniText = document.getElementById('mini-text');
+    const scrambleButton = document.getElementById('scramble-button');
+    const outputPanel = document.getElementById('output-panel');
+    const copyButton = document.getElementById('copy-button');
+    
+    // Display the slider value
+    sliderValue.textContent = amountSlider.value;
+    amountSlider.addEventListener('input', (e) => {
+      // Prevent value from going below 1
+      if (parseInt(e.target.value) < 1) {
+        e.target.value = 1;
+        return;
+      }
+      updateAmountSlider();
+    });
+    
+    function updateProbability() {
+      const allowParityEven = document.getElementById('parity-even').checked;
+      const allowParityOdd = document.getElementById('parity-odd').checked;
+
+      const edgeAlgsMin = Number(document.getElementById('edge-algs-min').value);
+      const edgeAlgsMax = Number(document.getElementById('edge-algs-max').value);
+      const cornerAlgsMin = Number(document.getElementById('corner-algs-min').value);
+      const cornerAlgsMax = Number(document.getElementById('corner-algs-max').value);
+
+      const edgeScramble = document.getElementById('edge-scr').checked;
+      const edgeCycle = document.getElementById('edge-cycle').checked;
+      const edgeFlip = document.getElementById('edge-flip').checked;
+
+      const cornerScramble = document.getElementById('corn-scr').checked;
+      const cornerCycle = document.getElementById('corn-cycle').checked;
+      const cornerFlip = document.getElementById('corn-twist').checked;
+
+      const edgeScrambleCond = edgeScramble ? x => x.algs + x.float3 >= edgeAlgsMin && x.algs + x.float3 <= edgeAlgsMax : x => x.algs == 0;
+      const edgeCycleCond = edgeCycle ? x => true : x => x.cycles == 0;
+      const edgeFlipCond = edgeFlip ? x => true : x => x.bad1 == 0;
+      const edgeParityCond = x => x.parity == 0 ? allowParityEven : allowParityOdd;
+      const edgeCond = x => edgeScrambleCond(x) && edgeCycleCond(x) && edgeFlipCond(x) && edgeParityCond(x);
+
+      const cornerScrambleCond = cornerScramble ? x => x.algs + x.float3 >= cornerAlgsMin && x.algs + x.float3 <= cornerAlgsMax : x => x.algs == 0;
+      const cornerCycleCond = cornerCycle ? x => true : x => x.cycles == 0;
+      const cornerFlipCond = cornerFlip ? x => true : x => x.bad1 == 0;
+      const cornerParityCond = x => x.parity == 0 ? allowParityEven : allowParityOdd;
+      const cornerCond = x => cornerScrambleCond(x) && cornerCycleCond(x) && cornerFlipCond(x) && cornerParityCond(x);
+
+      let prob = scrambler.getProbability(edgeCond, cornerCond);
+      miniText.textContent = `Probability: ${(prob * 100).toFixed(2)}%`;
+    }
+    
+    // Function to handle scramble generation
+    function generateScramble() {
+      updateProbability();
+      if (scrambler.isValid()) {
+        outputPanel.value = Array.from({ length: amountSlider.value }, () => scrambler.getScramble()).join('\n');
+        copyButton.click();
+        saveValues();
+      } else {
+        miniText.textContent = 'No valid scrambles.';
+      }
+    }
+    
+    // Copy button
+    copyButton.addEventListener('click', () => {
+      outputPanel.select();
+      document.execCommand('copy');
+      window.getSelection().removeAllRanges();
+      const originalText = copyButton.textContent;
+      copyButton.textContent = 'Copied!';
+      
+      setTimeout(() => {
+        copyButton.textContent = originalText;
+      }, 1500);
+    });
+    
+    // Scramble button click
+    scrambleButton.addEventListener('click', generateScramble);
+
+    // Function to update range slider UI
+    function updateRangeSlider(baseId, save = true) {
+      const minSlider = document.getElementById(baseId + '-min');
+      const maxSlider = document.getElementById(baseId + '-max');
+      
+      if (minSlider && maxSlider) {
+        const container = minSlider.parentElement;
+        const selected = container.querySelector('.range-selected');
+        const thumbs = container.querySelectorAll('.range-thumb');
+        
+        const min = parseFloat(minSlider.value);
+        const max = parseFloat(maxSlider.value);
+        
+        // Update value display
+        const valueDisplay = document.getElementById(baseId + '-value');
+        if (valueDisplay) {
+          valueDisplay.textContent = `${min}-${max}`;
+        }
+        
+        // Only update range UI if it's a range container
+        if (container.classList.contains('range-container') && selected && thumbs.length === 2) {
+          const minPos = (min / parseFloat(minSlider.max)) * 100;
+          const maxPos = (max / parseFloat(maxSlider.max)) * 100;
+          
+          // Toggle single-value class based on min and max equality
+          if (min === max) {
+            container.classList.add('single-value');
+            // Position the single round at the correct value
+            const pos = (min / parseFloat(minSlider.max)) * 100;
+            selected.style.left = `calc(${pos}% - 10px)`;
+          } else {
+            container.classList.remove('single-value');
+            selected.style.left = minPos + '%';
+            selected.style.width = (maxPos - minPos) + '%';
+          }
+          
+          thumbs[0].style.left = minPos + '%';
+          thumbs[1].style.left = maxPos + '%';
+        }
+        
+        if (save) {
+          saveValues();
+        }
+      }
+    }
+
+    // Initialize thumbs for a range container
+    function initializeRangeContainer(container) {
+      // Only initialize thumbs for edge and corner algs sliders
+      if (container.id !== 'edge-algs-container' && container.id !== 'corner-algs-container') {
+        return;
+      }
+      
+      // Remove any existing thumbs
+      const existingThumbs = container.querySelectorAll('.range-thumb');
+      existingThumbs.forEach(thumb => thumb.remove());
+      
+      // Create new thumbs
+      const thumb1 = document.createElement('div');
+      const thumb2 = document.createElement('div');
+      thumb1.className = 'range-thumb';
+      thumb2.className = 'range-thumb';
+      container.appendChild(thumb1);
+      container.appendChild(thumb2);
+    }
+
+    // Load saved values from localStorage
+    function loadSavedValues() {
+      document.getElementById('edge-algs-min').value = localStorage.getItem('scr.mini.edge-algs-min') || '0';
+      document.getElementById('edge-algs-max').value = localStorage.getItem('scr.mini.edge-algs-max') || '8.5';
+      document.getElementById('corner-algs-min').value = localStorage.getItem('scr.mini.corner-algs-min') || '0';
+      document.getElementById('corner-algs-max').value = localStorage.getItem('scr.mini.corner-algs-max') || '5.5';
+      document.getElementById('amount-slider').value = localStorage.getItem('scr.mini.amount-slider') || '1';
+      document.getElementById('parity-even').checked = localStorage.getItem('scr.mini.parity-even') === 'true';
+      document.getElementById('parity-odd').checked = localStorage.getItem('scr.mini.parity-odd') === 'true';
+      document.getElementById('edge-scr').checked = localStorage.getItem('scr.mini.edge-scr') === 'true';
+      document.getElementById('edge-cycle').checked = localStorage.getItem('scr.mini.edge-cycle') === 'true';
+      document.getElementById('edge-flip').checked = localStorage.getItem('scr.mini.edge-flip') === 'true';
+      document.getElementById('corn-scr').checked = localStorage.getItem('scr.mini.corn-scr') === 'true';
+      document.getElementById('corn-cycle').checked = localStorage.getItem('scr.mini.corn-cycle') === 'true';
+      document.getElementById('corn-twist').checked = localStorage.getItem('scr.mini.corn-twist') === 'true';
+
+      updateRangeSlider('edge-algs', false);
+      updateRangeSlider('corner-algs', false);
+      updateAmountSlider();
+    }
+
+    // Save values to localStorage
+    function saveValues() {
+      localStorage.setItem('scr.mini.edge-algs-min', document.getElementById('edge-algs-min').value);
+      localStorage.setItem('scr.mini.edge-algs-max', document.getElementById('edge-algs-max').value);
+      localStorage.setItem('scr.mini.corner-algs-min', document.getElementById('corner-algs-min').value);
+      localStorage.setItem('scr.mini.corner-algs-max', document.getElementById('corner-algs-max').value);
+      localStorage.setItem('scr.mini.amount-slider', document.getElementById('amount-slider').value);
+      localStorage.setItem('scr.mini.parity-even', document.getElementById('parity-even').checked);
+      localStorage.setItem('scr.mini.parity-odd', document.getElementById('parity-odd').checked);
+      localStorage.setItem('scr.mini.edge-scr', document.getElementById('edge-scr').checked);
+      localStorage.setItem('scr.mini.edge-cycle', document.getElementById('edge-cycle').checked);
+      localStorage.setItem('scr.mini.edge-flip', document.getElementById('edge-flip').checked);
+      localStorage.setItem('scr.mini.corn-scr', document.getElementById('corn-scr').checked);
+      localStorage.setItem('scr.mini.corn-cycle', document.getElementById('corn-cycle').checked);
+      localStorage.setItem('scr.mini.corn-twist', document.getElementById('corn-twist').checked);
+    }
+
+    // Add event listeners for edge algs sliders
+    const edgeAlgsMinElem = document.getElementById('edge-algs-min');
+    const edgeAlgsMaxElem = document.getElementById('edge-algs-max');
+    if (edgeAlgsMinElem && edgeAlgsMaxElem) {
+      edgeAlgsMinElem.addEventListener('input', function() {
+        if (parseFloat(edgeAlgsMaxElem.value) < parseFloat(this.value)) {
+          edgeAlgsMaxElem.value = this.value;
+        }
+        updateRangeSlider('edge-algs');
+      });
+
+      edgeAlgsMaxElem.addEventListener('input', function() {
+        if (parseFloat(edgeAlgsMinElem.value) > parseFloat(this.value)) {
+          edgeAlgsMinElem.value = this.value;
+        }
+        updateRangeSlider('edge-algs');
+      });
+      updateRangeSlider('edge-algs', false);
+    }
+
+    // Add event listeners for corner algs sliders
+    const cornerAlgsMinElem = document.getElementById('corner-algs-min');
+    const cornerAlgsMaxElem = document.getElementById('corner-algs-max');
+    if (cornerAlgsMinElem && cornerAlgsMaxElem) {
+      cornerAlgsMinElem.addEventListener('input', function() {
+        if (parseFloat(cornerAlgsMaxElem.value) < parseFloat(this.value)) {
+          cornerAlgsMaxElem.value = this.value;
+        }
+        updateRangeSlider('corner-algs');
+      });
+
+      cornerAlgsMaxElem.addEventListener('input', function() {
+        if (parseFloat(cornerAlgsMinElem.value) > parseFloat(this.value)) {
+          cornerAlgsMinElem.value = this.value;
+        }
+        updateRangeSlider('corner-algs');
+      });
+      updateRangeSlider('corner-algs', false);
+    }
+
+    // Add event listeners for all checkboxes
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+        updateProbability();
+      });
+    });
+
+    // Initialize all range containers
+    document.querySelectorAll('.range-container').forEach(container => {
+      initializeRangeContainer(container);
+    });
+
+    // Load saved values when the page loads
+    document.addEventListener('DOMContentLoaded', loadSavedValues);
+
+    // Add event listener for amount slider
+    if (amountSlider) {
+      // Initialize amount slider UI
+      function updateAmountSlider() {
+        const container = amountSlider.parentElement;
+        const selected = container.querySelector('.range-selected');
+        const thumb = container.querySelector('.range-thumb');
+        
+        // Ensure value is at least 1
+        if (amountSlider.value < 1) {
+          amountSlider.value = 1;
+        }
+        
+        const value = parseFloat(amountSlider.value);
+        const max = parseFloat(amountSlider.max);
+        const min = parseFloat(amountSlider.min);
+        // Calculate position relative to the full range (0-10)
+        const pos = (value / max) * 100;
+        
+        selected.style.width = pos + '%';
+        thumb.style.left = pos + '%';
+        sliderValue.textContent = value;
+      }
+
+      // Update on input
+      amountSlider.addEventListener('input', (e) => {
+        // Prevent value from going below 1
+        if (parseInt(e.target.value) < 1) {
+          e.target.value = 1;
+          return;
+        }
+        updateAmountSlider();
+      });
+
+      // Initial update
+      updateAmountSlider();
+    }
+
+    // Theme switching functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+    }
+    
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+    }
+    
+    // Initialize theme
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        setTheme(savedTheme);
+      } else if (prefersDarkScheme.matches) {
+        setTheme('dark');
+      } else {
+        setTheme('light');
+      }
+    }
+    
+    // Add event listener for theme toggle
+    themeToggle.addEventListener('click', toggleTheme);
+    
+    // Initialize theme when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      loadSavedValues();
+    });
+  </script>
+</body>
+</html>
