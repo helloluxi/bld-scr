@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <title>BLD Master - Help</title>
+  <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --primary: #84afff;
+      --text-color: #e0e0e0;
+      --text-secondary: #a0a0a0;
+      --border-color: #333;
+      --hover-color: #2c2c2c;
+      --code-bg: #2d2d2d;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 2rem;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    h1 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-size: 2.5rem;
+    }
+    
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .example {
+      background-color: var(--code-bg);
+      padding: 0 1.5rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+      font-family: 'Consolas', monospace;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+    
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      padding: 1rem 0;
+      background-color: var(--bg-color);
+    }
+    
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>BLD Master - Help</h1>
+    </header>
+
+    <p>I personally use more specific training tools, and I am too lazy to write a documentation, but anyway here are some examples that you may find useful.</p>
+    
+    <div class="card">
+      Beginner? Try this: (It's recommended to master this class of scrambles before learning anything about parity, cycle breaks, flips or twists)
+      <div class="example">
+Edge: cycles==0&&bad1==0&&parity==0
+Corner: cycles==0&&bad1==0
+      </div>
+      <br>
+      Want to train 3-twist? Try this:
+      <div class="example">
+Corner: bad1==2
+      </div>
+      <br>
+      Want to master edge floating 3-style? Try this:
+      <div class="example">
+Edge: float3>1
+      </div>
+    </div>
+    
+    <footer>
+      &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr">GitHub</a>
+      <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+      </script>
+    </footer>
+  </div>
+</body>
+</html>

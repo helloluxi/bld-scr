@@ -292,6 +292,15 @@
       padding: 1rem 0;
       background-color: var(--bg-color);
     }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -343,7 +352,7 @@
     </div>
     
     <footer>
-      &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" underline>GitHub</a>
+      &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" underline>GitHub</a> | <a href="help.html" underline>Help</a> | <a href="https://helloluxi.github.io/bld-scr/mini.html" underline>Beginner This Way</a>
       <script>
         document.getElementById('year').textContent = new Date().getFullYear();
       </script>
