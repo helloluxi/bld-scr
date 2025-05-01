@@ -595,14 +595,44 @@
     
     // Display the slider value
     sliderValue.textContent = amountSlider.value;
-    amountSlider.addEventListener('input', (e) => {
-      // Prevent value from going below 1
-      if (parseInt(e.target.value) < 1) {
-        e.target.value = 1;
-        return;
+    
+    // Function to update amount slider UI
+    function updateAmountSlider() {
+      const container = amountSlider.parentElement;
+      const selected = container.querySelector('.range-selected');
+      const thumb = container.querySelector('.range-thumb');
+      
+      // Ensure value is at least 1
+      if (amountSlider.value < 1) {
+        amountSlider.value = 1;
       }
+      
+      const value = parseFloat(amountSlider.value);
+      const max = parseFloat(amountSlider.max);
+      const min = parseFloat(amountSlider.min);
+      // Calculate position relative to the full range (0-10)
+      const pos = (value / max) * 100;
+      
+      selected.style.width = pos + '%';
+      thumb.style.left = pos + '%';
+      sliderValue.textContent = value;
+    }
+
+    // Add event listener for amount slider
+    if (amountSlider) {
+      amountSlider.addEventListener('input', (e) => {
+        // Prevent value from going below 1
+        if (parseInt(e.target.value) < 1) {
+          e.target.value = 1;
+          return;
+        }
+        updateAmountSlider();
+        updateProbability();
+      });
+
+      // Initial update
       updateAmountSlider();
-    });
+    }
     
     function updateProbability() {
       const allowParityEven = document.getElementById('parity-even').checked;
@@ -778,6 +808,7 @@
           edgeAlgsMaxElem.value = this.value;
         }
         updateRangeSlider('edge-algs');
+        updateProbability();
       });
 
       edgeAlgsMaxElem.addEventListener('input', function() {
@@ -785,6 +816,7 @@
           edgeAlgsMinElem.value = this.value;
         }
         updateRangeSlider('edge-algs');
+        updateProbability();
       });
       updateRangeSlider('edge-algs', false);
     }
@@ -798,6 +830,7 @@
           cornerAlgsMaxElem.value = this.value;
         }
         updateRangeSlider('corner-algs');
+        updateProbability();
       });
 
       cornerAlgsMaxElem.addEventListener('input', function() {
@@ -805,6 +838,7 @@
           cornerAlgsMinElem.value = this.value;
         }
         updateRangeSlider('corner-algs');
+        updateProbability();
       });
       updateRangeSlider('corner-algs', false);
     }
@@ -848,44 +882,6 @@
       initializeRangeContainer(container);
     });
 
-    // Add event listener for amount slider
-    if (amountSlider) {
-      // Initialize amount slider UI
-      function updateAmountSlider() {
-        const container = amountSlider.parentElement;
-        const selected = container.querySelector('.range-selected');
-        const thumb = container.querySelector('.range-thumb');
-        
-        // Ensure value is at least 1
-        if (amountSlider.value < 1) {
-          amountSlider.value = 1;
-        }
-        
-        const value = parseFloat(amountSlider.value);
-        const max = parseFloat(amountSlider.max);
-        const min = parseFloat(amountSlider.min);
-        // Calculate position relative to the full range (0-10)
-        const pos = (value / max) * 100;
-        
-        selected.style.width = pos + '%';
-        thumb.style.left = pos + '%';
-        sliderValue.textContent = value;
-      }
-
-      // Update on input
-      amountSlider.addEventListener('input', (e) => {
-        // Prevent value from going below 1
-        if (parseInt(e.target.value) < 1) {
-          e.target.value = 1;
-          return;
-        }
-        updateAmountSlider();
-      });
-
-      // Initial update
-      updateAmountSlider();
-    }
-
     // Theme switching functionality
     const themeToggle = document.getElementById('theme-toggle');
     const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
@@ -921,6 +917,9 @@
       initTheme();
       loadSavedValues();
       updateSliderStates();
+      setTimeout(() => {
+        updateProbability();
+      }, 100);
     });
   </script>
 </body>
