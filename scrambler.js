@@ -72,28 +72,15 @@ const scrambler = (() => {
                     let float3 = grouped.slice(1).filter(cycle => cycle.perm == 3 && cycle.ori == 0).length;
                     let baseLength = grouped.slice(1).reduce((sum, cycle) => sum + (cycle.perm > 1 ? cycle.perm + 1 : 0), 0) + grouped[0].perm - 1;
                     let twistAlgs = 0;
-                    let twistOris = grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori > 0).map(cycle => cycle.ori);
+                    let twist1Count = grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori == 0).length;
+                    let twist2Count = grouped.slice(1).filter(cycle => cycle.perm == 2 && cycle.ori == 0).length;
                     if (_Ori == 2){
-                        twistAlgs += Math.ceil(twistOris.length / 4);
+                        twistAlgs += Math.ceil(twist1Count / 4);
                     }
                     else{
-                        for (let i = 0; i < twistOris.length - 2; i++) {
-                            if (twistOris[i] == twistOris[i + 1] && twistOris[i] == twistOris[i + 2]) {
-                                twistOris.splice(i, 3);
-                                twistAlgs += 1;
-                                i -= 1;
-                            }
-                        }
-                        for (let i = 0; i < twistOris.length - 1; i++) {
-                            if (twistOris[i] != twistOris[i + 1]) {
-                                twistOris.splice(i, 2);
-                                twistAlgs += 1;
-                                i -= 1;
-                            }
-                        }
-                        if (twistOris.length > 0) {
-                            twistAlgs += 1;
-                        }
+                        twistAlgs += Math.floor(twist1Count / 3);
+                        twistAlgs += Math.floor(twist2Count / 3);
+                        twistAlgs += Math.ceil((twist1Count % 3 + twist2Count % 3) / 3);
                     }
 
                     return {
