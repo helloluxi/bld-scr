@@ -62,6 +62,41 @@
       margin-bottom: 2rem;
     }
     
+    .card h2 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+    
+    .card h3 {
+      color: var(--primary);
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+    
+    .card p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    .card ul {
+      margin-bottom: 1rem;
+    }
+    
+    .card li {
+      margin-bottom: 0.5rem;
+      line-height: 1.6;
+    }
+    
+    code {
+      background-color: var(--code-bg);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.9rem;
+    }
+    
     .example {
       background-color: var(--code-bg);
       padding: 0 1.5rem;
@@ -73,16 +108,12 @@
     }
     
     footer {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
+      margin-top: 3rem;
       text-align: center;
       color: var(--text-secondary);
       font-size: 0.8rem;
-      padding: 1rem 0;
-      background-color: var(--bg-color);
+      padding: 2rem 0;
+      border-top: 1px solid var(--border-color);
     }
     
     footer a {
@@ -100,25 +131,54 @@
     <header>
       <h1>BLD Master - Help</h1>
     </header>
-
-    <p>I personally use more specific training tools, and I am too lazy to write a documentation, but anyway here are some examples that you may find useful.</p>
     
     <div class="card">
-      Beginner? Try this: (It's recommended to master this class of scrambles before learning anything about parity, cycle breaks, flips or twists)
-      <div class="example">
-Edge: cycles==0&&bad1==0&&parity==0
-Corner: cycles==0&&bad1==0
-      </div>
-      <br>
-      Want to train 3-twist? Try this:
-      <div class="example">
-Corner: bad1==2
-      </div>
-      <br>
-      Want to master edge floating 3-style? Try this:
-      <div class="example">
-Edge: float3>1
-      </div>
+      <h2>🎯 What is BLD Master?</h2>
+      <p>BLD Master generates cube scrambles based on specific criteria you define. Instead of random scrambles, you can practice specific scenarios like edge cycles, corner twists, parity cases, and more.</p>
+    </div>
+    
+    <div class="card">
+      <h2>🔧 Basic Usage</h2>
+      <p><strong>Edge & Corner Input Fields:</strong> Enter JavaScript boolean expressions to filter scrambles. Leave empty to allow any case. Use these variables in your filter expressions:</p>
+      <ul style="margin-left: 2rem; margin-top: 1rem;">
+        <li><strong>parity</strong> - Cube parity (0 = even, 1 = odd).</li>
+        <li><strong>cycles</strong> - Number of cycle breaks.</li>
+        <li><strong>algs</strong> - Estimated alg count (2 letters 1 alg). A float 3-cycle / corner 3-twist / edge 4-flip is counted as 1 alg. Parity is counted as 0.5 algs in both edge and corner.</li>
+        <li><strong>float1</strong> - Number of solved edges/corners.</li>
+        <li><strong>bad1</strong> - Number of flipped edges/twisted corners.</li>
+        <li><strong>float2,float3,float4,float5</strong> - Number of 2,3,4,5-cycles with correct orientation.</li>
+        <li><strong>bad2,bad3,bad4,bad5</strong> - Number of 2,3,4,5-cycles with wrong orientation.</li>
+      </ul>
+    </div>
+    
+    <div class="card">
+      <h2>🎓 Examples</h2>
+      
+      <h3>Absolute Beginner</h3>
+      <p>Retired cubers like me could start with the simplest cases - no cycles, twists, or parity:</p>
+      <div class="example">Edge: cycles==0&&bad1==0&&parity==0
+Corner: cycles==0&&bad1==0</div>
+      
+      <h3>Corner 3-Twists Training</h3>
+      <p>Practice twisted corners:</p>
+      <div class="example">Corner: bad1==2</div>
+      
+      <h3>3-Style Edge Training</h3>
+      <p>Master edge floating 3-style algorithms:</p>
+      <div class="example">Edge: float3>0</div>
+      
+      <h3>Complex Cycles</h3>
+      <p>Mixed scenarios with multiple cycles:</p>
+      <div class="example">Edge: cycles>=2
+Corner: cycles>=2</div>
+    </div>
+    
+    <div class="card">
+      <h2>⚡ Tips</h2>
+      <ul style="margin-left: 2rem; margin-top: 1rem;">
+        <li><strong>Buffer and Orientation:</strong> UF UFR buffer only, scramble in your own orientation.</li>
+        <li><strong>URL Sharing:</strong> Your filters are saved in the URL - bookmark or share specific training setups.</li>
+      </ul>
     </div>
     
     <footer>
