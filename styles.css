@@ -1,0 +1,703 @@
+/* BLD Master - Shared Styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+:root {
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --primary: #84afff;
+  --text-color: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --border-color: #333;
+  --hover-color: #2c2c2c;
+  --code-bg: #2d2d2d;
+}
+
+:root[data-theme="light"] {
+  --bg-color: #f5f5f5;
+  --card-bg: #ffffff;
+  --primary: #1976d2;
+  --text-color: #333333;
+  --text-secondary: #666666;
+  --border-color: #e0e0e0;
+  --hover-color: #f0f0f0;
+  --code-bg: #f8f8f8;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Container and Layout */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 2rem;
+}
+
+/* Headers */
+h1 {
+  margin-bottom: 2rem;
+  color: var(--primary);
+  text-align: center;
+  font-size: 2.5rem;
+}
+
+h2 {
+  color: var(--primary);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+h3 {
+  color: var(--primary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+/* Cards */
+.card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+/* Input Groups */
+.input-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.input-group label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+/* Input Fields */
+input[type="text"] {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+input[type="text"]:disabled {
+  background-color: var(--bg-color);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Checkboxes */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: var(--primary);
+  width: 18px;
+  height: 18px;
+}
+
+/* Sliders */
+.slider-group {
+  margin-bottom: 1.5rem;
+}
+
+.slider-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+input[type="range"] {
+  flex-grow: 1;
+  appearance: none;
+  height: 6px;
+  background: var(--bg-color);
+  border-radius: 3px;
+  outline: none;
+  accent-color: var(--primary);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.slider-value {
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Mini Slider Styles (for mini.html) */
+.slider-group.mini {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.slider-group.mini label {
+  min-width: 100px;
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.slider-group.mini .slider-container {
+  flex: 1;
+  max-width: 500px;
+  margin-left: auto;
+}
+
+.slider-group.mini input[type="range"] {
+  height: 20px;
+  border-radius: 10px;
+}
+
+.slider-group.mini input[type="range"]::-webkit-slider-thumb {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+}
+
+/* Range Containers (for mini.html) */
+.range-container {
+  position: relative;
+  height: 20px;
+  background: var(--bg-color);
+  border-radius: 10px;
+  margin: 0.5rem 0;
+}
+
+.range-selected {
+  position: absolute;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+.range-slider {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: 2px solid var(--border-color);
+  opacity: 1;
+}
+
+.range-thumb {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--primary);
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  pointer-events: none;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+.range-container.single-value .range-selected {
+  width: 20px;
+  border-radius: 50%;
+  left: calc(50% - 10px);
+}
+
+.range-container.single-value .range-slider {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.range-container.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.range-container.disabled .range-selected {
+  background-color: var(--text-secondary);
+}
+
+.range-container.disabled .range-thumb {
+  background-color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+/* Parity and Option Groups (for mini.html) */
+.parity-group, .option-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.parity-label, .option-label {
+  color: var(--text-color);
+  font-size: 0.9rem;
+  margin-right: auto;
+}
+
+.parity-checkbox, .option-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--bg-color);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.parity-checkbox input[type="checkbox"],
+.option-checkbox input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 18px;
+  height: 18px;
+}
+
+.parity-checkbox label,
+.option-checkbox label {
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+/* Setting Groups (for mini.html) */
+.setting-group {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-radius: 8px;
+  flex: 1;
+}
+
+.setting-group h3 {
+  margin-top: 0;
+  color: var(--text-secondary);
+}
+
+.setting-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+  gap: 1rem;
+}
+
+.setting-value {
+  min-width: 4rem;
+  text-align: right;
+}
+
+.range-wrapper {
+  width: 200px;
+}
+
+/* Text Elements */
+.mini-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-style: italic;
+}
+
+p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+ul {
+  margin-bottom: 1rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+/* Code Elements */
+code {
+  background-color: var(--code-bg);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-family: 'Consolas', monospace;
+  font-size: 0.9rem;
+}
+
+.example {
+  background-color: var(--code-bg);
+  padding: 0 1.5rem;
+  border-radius: 6px;
+  margin: 1rem 0;
+  font-family: 'Consolas', monospace;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+/* Buttons */
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--primary);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  margin-bottom: 1.5rem;
+}
+
+[data-theme="light"] .button {
+  color: #fff;
+}
+
+.button:hover {
+  opacity: 0.9;
+}
+
+.button::before {
+  content: 'shuffle';
+  font-family: 'Material Symbols Outlined';
+  font-size: 1.2rem;
+}
+
+/* Delete history button with Material Icon */
+.delete-history {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: 'Material Symbols Outlined';
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.delete-history:hover {
+  color: var(--text-color);
+  background-color: var(--hover-color);
+}
+
+.delete-history::before {
+  content: 'close';
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.theme-toggle:hover {
+  background-color: var(--hover-color);
+}
+
+.theme-toggle::before {
+  content: 'dark_mode';
+}
+
+[data-theme="light"] .theme-toggle::before {
+  content: 'light_mode';
+}
+
+/* Copy Button with Material Icon */
+.copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background-color: var(--card-bg);
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.copy-button:hover {
+  color: var(--text-color);
+}
+
+.copy-button::before {
+  content: 'content_copy';
+  font-family: 'Material Symbols Outlined';
+  font-size: 1rem;
+}
+
+.copy-button.copied::before {
+  content: 'check';
+}
+
+/* Output Panel */
+.output-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.output-panel {
+  width: 100%;
+  min-height: 180px;
+  padding: 0.75rem;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-color);
+  font-family: monospace;
+  resize: none;
+  margin-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--bg-color);
+}
+
+.output-panel::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.output-panel::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+.output-panel::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 3px;
+}
+
+.output-panel::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary);
+}
+
+/* History Dropdown */
+.history-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  z-index: 10;
+}
+
+.history-item {
+  padding: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.history-item:hover {
+  background-color: var(--hover-color);
+}
+
+.history-item.selected {
+  background-color: var(--primary);
+  color: #000;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.delete-history {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: 'Material Symbols Outlined';
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.delete-history:hover {
+  color: var(--text-color);
+  background-color: var(--hover-color);
+}
+
+.delete-history::before {
+  content: 'close';
+}
+
+.show-history {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Footer */
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  padding: 1rem 0;
+  background-color: var(--bg-color);
+}
+
+/* Help page footer override */
+body:has(header) footer {
+  position: static;
+  transform: none;
+  left: auto;
+  margin-top: 3rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+footer a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Header Styles (for help.html) */
+header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* User Selection Override (for mini.html) */
+.no-select * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Page-specific max-width overrides */
+.container.narrow {
+  max-width: 600px;
+}
+
+.container.wide {
+  max-width: 800px;
+}
+
+/* Mini page specific styles */
+.mini-page {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Mini slider group overrides */
+.mini-page .slider-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mini-page .slider-group label {
+  min-width: 100px;
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.mini-page .slider-group .slider-container {
+  flex: 1;
+  max-width: 500px;
+  margin-left: auto;
+}

@@ -4,308 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="./styles.css">
   <title>BLD Master</title>
   <script src="./min2phase.js"></script>
   <script src="./cycler.js"></script>
   <script src="./scrambler.js"></script>
-  <style>
-    :root {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --primary: #84afff;
-      --text-color: #e0e0e0;
-      --text-secondary: #a0a0a0;
-      --border-color: #333;
-      --hover-color: #2c2c2c;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      padding: 2rem;
-    }
-    
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    
-    h1 {
-      margin-bottom: 2rem;
-      color: var(--primary);
-      text-align: center;
-    }
-    
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-bottom: 2rem;
-    }
-    
-    .input-group {
-      margin-bottom: 1.5rem;
-      position: relative;
-    }
-    
-    .input-group label {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-    
-    .input-wrapper {
-      position: relative;
-    }
-    
-    input[type="text"] {
-      width: 100%;
-      padding: 0.75rem;
-      background-color: var(--bg-color);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      color: var(--text-color);
-      font-size: 1rem;
-    }
-    
-    input[type="text"]:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-    
-    input[type="text"]:disabled {
-      background-color: var(--bg-color);
-      color: var(--text-secondary);
-      border-color: var(--border-color);
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    
-    .history-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-top: none;
-      border-radius: 0 0 4px 4px;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      z-index: 10;
-    }
-    
-    .history-item {
-      padding: 0.75rem;
-      display: flex;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    .history-item:hover {
-      background-color: var(--hover-color);
-    }
-    
-    /* Highlight for the selected history item */
-    .history-item.selected {
-      background-color: var(--primary);
-      color: #000;
-    }
-    
-    .history-item:last-child {
-      border-bottom: none;
-    }
-    
-    .delete-history {
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    
-    .delete-history:hover {
-      color: var(--text-color);
-    }
-    
-    .show-history {
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-    
-    .checkbox-group input[type="checkbox"] {
-      margin-right: 0.5rem;
-      accent-color: var(--primary);
-      width: 18px;
-      height: 18px;
-    }
-    
-    .slider-group {
-      margin-bottom: 1.5rem;
-    }
-    
-    .slider-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-    }
-    
-    .slider-container {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    input[type="range"] {
-      flex-grow: 1;
-      appearance: none;
-      height: 6px;
-      background: var(--bg-color);
-      border-radius: 3px;
-      outline: none;
-      accent-color: var(--primary);
-    }
-    
-    input[type="range"]::-webkit-slider-thumb {
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      background: var(--primary);
-      border-radius: 50%;
-      cursor: pointer;
-    }
-    
-    .slider-value {
-      min-width: 30px;
-      text-align: center;
-    }
-    
-    .mini-text {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      margin-bottom: 1.5rem;
-      text-align: center;
-      font-style: italic;
-    }
-    
-    .button {
-      display: block;
-      width: 100%;
-      padding: 0.75rem;
-      background-color: var(--primary);
-      color: #000;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s ease;
-      margin-bottom: 1.5rem;
-    }
-    
-    .button:hover {
-      opacity: 0.9;
-    }
-    
-    .output-container {
-      position: relative;
-      margin-bottom: 1.5rem;
-    }
-    
-    .output-panel {
-      width: 100%;
-      min-height: 180px;
-      padding: 0.75rem;
-      background-color: var(--bg-color);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      color: var(--text-color);
-      font-family: monospace;
-      resize: none;
-      margin-bottom: 0.5rem;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border-color) var(--bg-color);
-    }
-    
-    .output-panel::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    
-    .output-panel::-webkit-scrollbar-track {
-      background: var(--bg-color);
-    }
-    
-    .output-panel::-webkit-scrollbar-thumb {
-      background-color: var(--border-color);
-      border-radius: 3px;
-    }
-    
-    .output-panel::-webkit-scrollbar-thumb:hover {
-      background-color: var(--primary);
-    }
-    
-    .copy-button {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      background-color: var(--card-bg);
-      color: var(--text-secondary);
-      border: none;
-      border-radius: 4px;
-      padding: 0.25rem 0.5rem;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: color 0.2s ease;
-    }
-    
-    .copy-button:hover {
-      color: var(--text-color);
-    }
-    
-    footer {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      text-align: center;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      padding: 1rem 0;
-      background-color: var(--bg-color);
-    }
-
-    footer a {
-      color: var(--primary);
-      text-decoration: none;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <script src="./theme.js"></script>
 </head>
 <body>
-  <div class="container">
+  <button class="theme-toggle" id="theme-toggle"></button>
+  <div class="container narrow">
     <h1>BLD Master</h1>
     
     <div class="card">
@@ -348,15 +56,12 @@
       
       <div class="output-container">
         <textarea class="output-panel" id="output-panel" readonly></textarea>
-        <button class="copy-button" id="copy-button">Copy</button>
+        <button class="copy-button" id="copy-button"></button>
       </div>
     </div>
     
     <footer>
       &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" underline>GitHub</a> | <a href="help.html" target="_blank" underline>Help</a> | <a href="mini.html" underline>Beginner This Way</a>
-      <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-      </script>
     </footer>
   </div>
 
@@ -649,10 +354,9 @@
     copyButton.addEventListener('click', () => {
       outputPanel.select();
       document.execCommand('copy');
-      const originalText = copyButton.textContent;
-      copyButton.textContent = 'Copied!';
+      copyButton.classList.add('copied');
       setTimeout(() => {
-        copyButton.textContent = originalText;
+        copyButton.classList.remove('copied');
       }, 1500);
     });
     

@@ -4,130 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="./styles.css">
   <title>BLD Master - Help</title>
-  <style>
-    :root {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --primary: #84afff;
-      --text-color: #e0e0e0;
-      --text-secondary: #a0a0a0;
-      --border-color: #333;
-      --hover-color: #2c2c2c;
-      --code-bg: #2d2d2d;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      line-height: 1.6;
-    }
-    
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      width: 100%;
-      padding: 2rem;
-    }
-    
-    header {
-      text-align: center;
-      margin-bottom: 3rem;
-      padding: 2rem 0;
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    h1 {
-      color: var(--primary);
-      margin-bottom: 1rem;
-      font-size: 2.5rem;
-    }
-    
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-top: 2rem;
-      margin-bottom: 2rem;
-    }
-    
-    .card h2 {
-      color: var(--primary);
-      margin-bottom: 1rem;
-      font-size: 1.5rem;
-    }
-    
-    .card h3 {
-      color: var(--primary);
-      margin-top: 1.5rem;
-      margin-bottom: 0.5rem;
-      font-size: 1.2rem;
-    }
-    
-    .card p {
-      margin-bottom: 1rem;
-      line-height: 1.6;
-    }
-    
-    .card ul {
-      margin-bottom: 1rem;
-    }
-    
-    .card li {
-      margin-bottom: 0.5rem;
-      line-height: 1.6;
-    }
-    
-    code {
-      background-color: var(--code-bg);
-      padding: 0.2rem 0.4rem;
-      border-radius: 3px;
-      font-family: 'Consolas', monospace;
-      font-size: 0.9rem;
-    }
-    
-    .example {
-      background-color: var(--code-bg);
-      padding: 0 1.5rem;
-      border-radius: 6px;
-      margin: 1rem 0;
-      font-family: 'Consolas', monospace;
-      white-space: pre-wrap;
-      overflow-x: auto;
-    }
-    
-    footer {
-      margin-top: 3rem;
-      text-align: center;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-      padding: 2rem 0;
-      border-top: 1px solid var(--border-color);
-    }
-    
-    footer a {
-      color: var(--primary);
-      text-decoration: none;
-    }
-    
-    footer a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <script src="./theme.js"></script>
 </head>
 <body>
-  <div class="container">
+  <button class="theme-toggle" id="theme-toggle"></button>
+  <div class="container wide">
     <header>
       <h1>BLD Master - Help</h1>
     </header>
@@ -183,9 +66,6 @@ Corner: breaks>=2</div>
     
     <footer>
       &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr">GitHub</a>
-      <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-      </script>
     </footer>
   </div>
 </body>
