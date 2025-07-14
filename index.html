@@ -6,6 +6,7 @@
   <link rel="icon" href="./favicon.ico" type="image/x-icon">
   <title>BLD Master</title>
   <script src="./min2phase.js"></script>
+  <script src="./cycler.js"></script>
   <script src="./scrambler.js"></script>
   <style>
     :root {
@@ -321,7 +322,7 @@
       <div class="input-group">
         <label for="corner-input">Corner</label>
         <div class="input-wrapper">
-          <input type="text" id="corner-input" placeholder="Variables: parity, cycles, algs, float1, bad1, ..., float5, bad5" name=""edge-input" autocomplete="off" autocorrect="off" spellcheck="false">
+          <input type="text" id="corner-input" placeholder="Variables: parity, breaks, algs, float1, bad1, ..., float5, bad5" name=""edge-input" autocomplete="off" autocorrect="off" spellcheck="false">
           <div class="history-dropdown" id="corner-history">
             <!-- Filtered history items will be inserted here -->
           </div>
@@ -352,7 +353,7 @@
     </div>
     
     <footer>
-      &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" underline>GitHub</a> | <a href="help.html" underline>Help</a> | <a href="https://helloluxi.github.io/bld-scr/mini.html" underline>Beginner This Way</a>
+      &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" underline>GitHub</a> | <a href="help.html" target="_blank" underline>Help</a> | <a href="mini.html" underline>Beginner This Way</a>
       <script>
         document.getElementById('year').textContent = new Date().getFullYear();
       </script>
@@ -399,7 +400,7 @@
     });
     
     function updateProbability() {
-      const prob = scrambler.getProbabilityFromFilter(edgeInput.value, cornerInput.value);
+      const prob = scrambler.getProbabilityFromTextFilter(edgeInput.value, cornerInput.value);
       if (isNaN(prob)) {
         miniText.textContent = 'Probability: NaN';
       } else if (prob === 0){
@@ -544,7 +545,7 @@
     // Function to handle scramble generation
     function generateScramble() {
       updateProbability();
-      if (scrambler.isVsVal()) {
+      if (scrambler.isValid()) {
         const urlParams = new URLSearchParams();
         if (edgeInput.value.trim()) {
           urlParams.set('e', edgeInput.value.trim());

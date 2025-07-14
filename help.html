@@ -134,7 +134,7 @@
     
     <div class="card">
       <h2>🎯 What is BLD Master?</h2>
-      <p>BLD Master generates cube scrambles based on specific criteria you define. Instead of random scrambles, you can practice specific scenarios like edge cycles, corner twists, parity cases, and more.</p>
+      <p>BLD Master generates cube scrambles based on specific criteria you define. Instead of random scrambles, you can practice specific scenarios like edge cycle breaks, corner twists, parity cases, and more.</p>
     </div>
     
     <div class="card">
@@ -142,7 +142,7 @@
       <p><strong>Edge & Corner Input Fields:</strong> Enter JavaScript boolean expressions to filter scrambles. Leave empty to allow any case. Use these variables in your filter expressions:</p>
       <ul style="margin-left: 2rem; margin-top: 1rem;">
         <li><strong>parity</strong> - Cube parity (0 = even, 1 = odd).</li>
-        <li><strong>cycles</strong> - Number of cycle breaks.</li>
+        <li><strong>breaks</strong> - Number of cycle breaks.</li>
         <li><strong>algs</strong> - Estimated alg count (2 letters 1 alg). A float 3-cycle / corner 3-twist / edge 4-flip is counted as 1 alg. Parity is counted as 0.5 algs in both edge and corner.</li>
         <li><strong>float1</strong> - Number of solved edges/corners.</li>
         <li><strong>bad1</strong> - Number of flipped edges/twisted corners.</li>
@@ -155,9 +155,9 @@
       <h2>🎓 Examples</h2>
       
       <h3>Absolute Beginner</h3>
-      <p>Retired cubers like me could start with the simplest cases - no cycles, twists, or parity:</p>
-      <div class="example">Edge: cycles==0&&bad1==0&&parity==0
-Corner: cycles==0&&bad1==0</div>
+      <p>Retired cubers like me could start with the simplest cases - no cycle breaks, twists, or parity:</p>
+      <div class="example">Edge: breaks==0&&bad1==0&&parity==0
+Corner: breaks==0&&bad1==0</div>
       
       <h3>Corner 3-Twists Training</h3>
       <p>Practice twisted corners:</p>
@@ -167,10 +167,10 @@ Corner: cycles==0&&bad1==0</div>
       <p>Master edge floating 3-style algorithms:</p>
       <div class="example">Edge: float3>0</div>
       
-      <h3>Complex Cycles</h3>
-      <p>Mixed scenarios with multiple cycles:</p>
-      <div class="example">Edge: cycles>=2
-Corner: cycles>=2</div>
+      <h3>Complex Cycle Breaks</h3>
+      <p>Mixed scenarios with multiple cycle breaks:</p>
+      <div class="example">Edge: breaks>=2
+Corner: breaks>=2</div>
     </div>
     
     <div class="card">

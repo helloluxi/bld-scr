@@ -35,91 +35,15 @@ const scrambler = (() => {
         return cube.join('');
     }
 
-    let ee_ls = [], ec_ls = [], oe_ls = [], oc_ls = [];
-    document.addEventListener('DOMContentLoaded', async function() {
-        const factorials = [];
-        for (let i = 0; i <= 11; i++) {
-            factorials[i] = i === 0 ? 1 : factorials[i - 1] * i;
-        }
-
-        const fileNames = ['ee.txt', 'ec.txt', 'oe.txt', 'oc.txt'];
-        const fetchData = fileName => fetch(`assets/${fileName}`)
-            .then(response => response.text())
-            .then(text => {
-                const lines = text.trim().split('\n');
-                const data = lines.map(line => {
-                    const numbers = line.split(',').map(Number);
-                    const grouped = [];
-                    for (let i = 0; i < numbers.length; i += 2) {
-                        grouped.push({ perm: numbers[i], ori: numbers[i + 1] });
-                    }
-                    const _Perm = fileName[1] === 'e' ? 12 : 8;
-                    const _Ori = fileName[1] === 'e' ? 2 : 3;
-
-                    let Count = factorials[_Perm - 1];
-                    grouped.slice(1).forEach(cycle => {
-                        Count /= cycle.perm;
-                    });
-                    Count *= Math.pow(_Ori, (_Perm - grouped.length));
-                    grouped.slice(1).reduce((acc, cycle) => {
-                        const count = acc.get(cycle.perm<<2|cycle.ori) || 0;
-                        acc.set(cycle.perm<<2|cycle.ori, count + 1);
-                        return acc;
-                    }, new Map()).forEach((count, cycle) => {
-                        Count /= factorials[count];
-                    });
-
-                    let float3 = grouped.slice(1).filter(cycle => cycle.perm == 3 && cycle.ori == 0).length;
-                    let baseLength = grouped.slice(1).reduce((sum, cycle) => sum + (cycle.perm > 1 ? cycle.perm + 1 : 0), 0) + grouped[0].perm - 1;
-                    let twistAlgs = 0;
-                    let twist1Count = grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori == 0).length;
-                    let twist2Count = grouped.slice(1).filter(cycle => cycle.perm == 2 && cycle.ori == 0).length;
-                    if (_Ori == 2){
-                        twistAlgs += Math.ceil(twist1Count / 4);
-                    }
-                    else{
-                        twistAlgs += Math.floor(twist1Count / 3);
-                        twistAlgs += Math.floor(twist2Count / 3);
-                        twistAlgs += Math.ceil((twist1Count % 3 + twist2Count % 3) / 3);
-                    }
-
-                    return {
-                        group: grouped,
-                        parity: fileName[0] === 'e' ? 0 : 1,
-                        cycles: grouped.slice(1).filter(cycle => cycle.perm > 1).length,
-                        float1: grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori == 0).length,
-                        bad1: grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori != 0).length,
-                        float2: grouped.slice(1).filter(cycle => cycle.perm == 2 && cycle.ori == 0).length,
-                        bad2: grouped.slice(1).filter(cycle => cycle.perm == 2 && cycle.ori != 0).length,
-                        float3: float3,
-                        bad3: grouped.slice(1).filter(cycle => cycle.perm == 3 && cycle.ori != 0).length,
-                        float4: grouped.slice(1).filter(cycle => cycle.perm == 4 && cycle.ori == 0).length,
-                        bad4: grouped.slice(1).filter(cycle => cycle.perm == 4 && cycle.ori != 0).length,
-                        float5: grouped.slice(1).filter(cycle => cycle.perm == 5 && cycle.ori == 0).length,
-                        bad5: grouped.slice(1).filter(cycle => cycle.perm == 5 && cycle.ori != 0).length,
-                        algs: twistAlgs - float3 + baseLength * 0.5,
-                        count: Count
-                    };
-                });
-                if (fileName === 'ee.txt') ee_ls = data;
-                if (fileName === 'ec.txt') ec_ls = data;
-                if (fileName === 'oe.txt') oe_ls = data;
-                if (fileName === 'oc.txt') oc_ls = data;
-            })
-            .catch(error => console.error('Error reading file:', fileName, error));
-
-        await Promise.all(fileNames.map(fetchData));
-    });
-
     let evenEdgeCDF, oddEdgeCDF, evenCornerCDF, oddCornerCDF, oddProb;
     let evenEdgeCount = 0, oddEdgeCount = 0, evenCornerCount = 0, oddCornerCount = 0;
 
     function parseCond(text) {
         try {
-            const regex = /\b(group|parity|cycles|algs|(float|bad)[1-5])\b/g;
+            const regex = /\b(parity|breaks|algs|(float|bad)[1-5])\b/g;
             const replacedInput = text.replace(regex, 'x.$1');
             const parsedFunc = new Function('x', `return ${replacedInput};`);
-            if (typeof parsedFunc(ee_ls[0]) === 'boolean') {
+            if (typeof parsedFunc(cycler.evenEdges[0]) === 'boolean') {
                 return parsedFunc;
             }
             throw new Error('Invalid function');
@@ -128,7 +52,7 @@ const scrambler = (() => {
         }
     }
 
-    function getProbabilityFromFilter(edgeText, cornerText) {
+    function getProbabilityFromTextFilter(edgeText, cornerText) {
         let edgeCond = x => true;
         let cornerCond = x => true;
         evenEdgeCount = 0;
@@ -138,7 +62,7 @@ const scrambler = (() => {
         
         if (edgeText.trim() != '') {
             edgeCond = parseCond(edgeText);
-            if (typeof edgeCond(ee_ls[0]) !== 'boolean') {
+            if (typeof edgeCond(cycler.evenEdges[0]) !== 'boolean') {
                 edgeCond = x => false;
                 return NaN;
             }
@@ -146,15 +70,15 @@ const scrambler = (() => {
         
         if (cornerText.trim() != '') {
             cornerCond = parseCond(cornerText);
-            if (typeof cornerCond(ec_ls[0]) !== 'boolean') {
+            if (typeof cornerCond(cycler.evenCorners[0]) !== 'boolean') {
                 cornerCond = x => false;
                 return NaN;
             }
         }
-        return getProbability(edgeCond, cornerCond);
+        return getProbabilityFromBoolFunction(edgeCond, cornerCond);
     }
 
-    function getProbability(edgeCond, cornerCond){
+    function getProbabilityFromBoolFunction(edgeCond, cornerCond){
         evenEdgeCDF = [];
         oddEdgeCDF = [];
         evenCornerCDF = [];
@@ -164,22 +88,22 @@ const scrambler = (() => {
         evenCornerCount = 0;
         oddCornerCount = 0;
 
-        ee_ls.forEach(x => {
+        cycler.evenEdges.forEach(x => {
             evenEdgeCDF.push((evenEdgeCount += edgeCond(x) ? x.count : 0));
         });
         let evenEdgeProbability = evenEdgeCDF[evenEdgeCDF.length - 1] / 980995276800;
 
-        oe_ls.forEach(x => {
+        cycler.oddEdges.forEach(x => {
             oddEdgeCDF.push((oddEdgeCount += edgeCond(x) ? x.count : 0));
         });
         let oddEdgeProbability = oddEdgeCDF[oddEdgeCDF.length - 1] / 980995276800;
 
-        ec_ls.forEach(x => {
+        cycler.evenCorners.forEach(x => {
             evenCornerCDF.push((evenCornerCount += cornerCond(x) ? x.count : 0));
         });
         let evenCornerProbability = evenCornerCDF[evenCornerCDF.length - 1] / 88179840;
 
-        oc_ls.forEach(x => {
+        cycler.oddCorners.forEach(x => {
             oddCornerCDF.push((oddCornerCount += cornerCond(x) ? x.count : 0));
         });
         let oddCornerProbability = oddCornerCDF[oddCornerCDF.length - 1] / 88179840;
@@ -225,10 +149,10 @@ const scrambler = (() => {
         while (edgeIdx < edgeCDF.length && edgeCDF[edgeIdx] < edgeRand) edgeIdx++;
         while (cornerIdx < cornerCDF.length && cornerCDF[cornerIdx] < cornerRand) cornerIdx++;
         const scr = min2phase.scramble(genCube(genCode(
-            parity == 0 ? ee_ls[edgeIdx].group : oe_ls[edgeIdx].group,
+            parity == 0 ? cycler.evenEdges[edgeIdx].cycles : cycler.oddEdges[edgeIdx].cycles,
             edgeCode, 12, 2
         ) + genCode(
-            parity == 0 ? ec_ls[cornerIdx].group : oc_ls[cornerIdx].group,
+            parity == 0 ? cycler.evenCorners[cornerIdx].cycles : cycler.oddCorners[cornerIdx].cycles,
             cornerCode, 8, 3
         )));
         return scr.length === 0 ? 'Seriously? You are not even trying.' : scr;
@@ -236,8 +160,8 @@ const scrambler = (() => {
 
     return {
         isValid,
-        getProbability,
-        getProbabilityFromFilter,
+        getProbabilityFromBoolFunction,
+        getProbabilityFromTextFilter,
         getScramble,
     };
 })();

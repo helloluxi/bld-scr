@@ -6,6 +6,7 @@
   <link rel="icon" href="./favicon.ico" type="image/x-icon">
   <title>BLD Master Mini</title>
   <script src="./min2phase.js"></script>
+  <script src="./cycler.js"></script>
   <script src="./scrambler.js"></script>
   <style>
     :root {
@@ -531,7 +532,7 @@
       </div>
 
       <div class="slider-group">
-        <label for="edge-algs-slider">Edge Algs</label>
+        <label for="edge-algs-min">Edge Algs</label>
         <div class="slider-container">
           <div class="range-container" id="edge-algs-container" style="flex-grow: 1;">
             <div class="range-selected"></div>
@@ -543,7 +544,7 @@
       </div>
 
       <div class="slider-group">
-        <label for="corner-algs-slider">Corner Algs</label>
+        <label for="corner-algs-min">Corner Algs</label>
         <div class="slider-container">
           <div class="range-container" id="corner-algs-container" style="flex-grow: 1;">
             <div class="range-selected"></div>
@@ -577,7 +578,7 @@
     </div>
     
     <footer>
-      &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" underline>GitHub</a>
+      &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" underline>GitHub</a> | <a href="help.html" target="_blank" underline>Help</a> | <a href="." underline>Pro This Way</a>
       <script>
         document.getElementById('year').textContent = new Date().getFullYear();
       </script>
@@ -651,19 +652,19 @@
       const cornerCycle = document.getElementById('corn-cycle').checked;
       const cornerFlip = document.getElementById('corn-twist').checked;
 
-      const edgeScrambleCond = edgeScramble ? x => x.algs + x.float3 >= edgeAlgsMin && x.algs + x.float3 <= edgeAlgsMax : x => x.algs == 0;
-      const edgeCycleCond = edgeCycle ? x => true : x => x.cycles == 0;
+      const edgeScrambleCond = edgeScramble ? x => x.algs >= edgeAlgsMin && x.algs <= edgeAlgsMax : x => x.algs == 0;
+      const edgeCycleCond = edgeCycle ? x => true : x => x.breaks == 0;
       const edgeFlipCond = edgeFlip ? x => true : x => x.bad1 == 0;
       const edgeParityCond = x => x.parity == 0 ? allowParityEven : allowParityOdd;
       const edgeCond = x => edgeScrambleCond(x) && edgeCycleCond(x) && edgeFlipCond(x) && edgeParityCond(x);
 
-      const cornerScrambleCond = cornerScramble ? x => x.algs + x.float3 >= cornerAlgsMin && x.algs + x.float3 <= cornerAlgsMax : x => x.algs == 0;
-      const cornerCycleCond = cornerCycle ? x => true : x => x.cycles == 0;
+      const cornerScrambleCond = cornerScramble ? x => x.algs >= cornerAlgsMin && x.algs <= cornerAlgsMax : x => x.algs == 0;
+      const cornerCycleCond = cornerCycle ? x => true : x => x.breaks == 0;
       const cornerFlipCond = cornerFlip ? x => true : x => x.bad1 == 0;
       const cornerParityCond = x => x.parity == 0 ? allowParityEven : allowParityOdd;
       const cornerCond = x => cornerScrambleCond(x) && cornerCycleCond(x) && cornerFlipCond(x) && cornerParityCond(x);
 
-      let prob = scrambler.getProbability(edgeCond, cornerCond);
+      let prob = scrambler.getProbabilityFromBoolFunction(edgeCond, cornerCond);
       miniText.textContent = `Probability: ${(prob * 100).toFixed(2)}%`;
     }
     
