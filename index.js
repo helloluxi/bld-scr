@@ -10,24 +10,27 @@ const panelHelp = document.getElementById('panel-help');
 const scrambleUI = document.getElementById('scramble-ui');
 
 function switchTab(tab) {
-  tabMini.classList.toggle('active', tab === 'mini');
-  tabPro.classList.toggle('active',  tab === 'pro');
-  tabDist.classList.toggle('active', tab === 'dist');
-  tabHelp.classList.toggle('active', tab === 'help');
-  panelMini.style.display = tab === 'mini' ? '' : 'none';
-  panelPro.style.display  = tab === 'pro'  ? '' : 'none';
-  panelDist.style.display = tab === 'dist' ? '' : 'none';
-  panelHelp.style.display = tab === 'help' ? '' : 'none';
-  scrambleUI.style.display = (tab === 'help' || tab === 'dist') ? 'none' : '';
+  tabMini.classList.toggle('active', tab === 'basic');
+  tabPro.classList.toggle('active',  tab === 'advanced');
+  tabDist.classList.toggle('active', tab === 'distribution');
+  tabHelp.classList.toggle('active', tab === 'about');
+  panelMini.style.display = tab === 'basic'        ? '' : 'none';
+  panelPro.style.display  = tab === 'advanced'     ? '' : 'none';
+  panelDist.style.display = tab === 'distribution' ? '' : 'none';
+  panelHelp.style.display = tab === 'about'        ? '' : 'none';
+  scrambleUI.style.display = (tab === 'about' || tab === 'distribution') ? 'none' : '';
   localStorage.setItem('scr.tab', tab);
-  if (tab === 'mini' || tab === 'pro') updateProbability();
-  if (tab === 'dist') updateChart(document.getElementById('dist-input').value);
+  const params = new URLSearchParams(window.location.search);
+  params.set('tab', tab);
+  history.replaceState(null, '', '?' + params.toString());
+  if (tab === 'basic' || tab === 'advanced') updateProbability();
+  if (tab === 'distribution') updateChart(document.getElementById('dist-input').value);
 }
 
-tabMini.addEventListener('click', () => switchTab('mini'));
-tabPro.addEventListener('click',  () => switchTab('pro'));
-tabDist.addEventListener('click', () => switchTab('dist'));
-tabHelp.addEventListener('click', () => switchTab('help'));
+tabMini.addEventListener('click', () => switchTab('basic'));
+tabPro.addEventListener('click',  () => switchTab('advanced'));
+tabDist.addEventListener('click', () => switchTab('distribution'));
+tabHelp.addEventListener('click', () => switchTab('about'));
 
 // DOM elements
 const edgeInput    = document.getElementById('edge-input');
@@ -439,7 +442,7 @@ function generateScramble() {
   if (scrambler.isValid()) {
     if (panelPro.style.display !== 'none') {
       const params = new URLSearchParams();
-      params.set('tab', 'pro');
+      params.set('tab', 'advanced');
       if (edgeInput.value.trim())  params.set('e', edgeInput.value.trim());
       if (cornerInput.value.trim()) params.set('c', cornerInput.value.trim());
       if (amountSlider.value > 1)  params.set('n', amountSlider.value);
@@ -449,7 +452,7 @@ function generateScramble() {
     } else {
       saveMiniValues();
       const params = new URLSearchParams();
-      params.set('tab', 'mini');
+      params.set('tab', 'basic');
       const bools = { pe:'parity-even', po:'parity-odd' };
       Object.entries(bools).forEach(([k, id]) => { if (!document.getElementById(id).checked) params.set(k, '0'); });
       const urlSliderKeys = {
@@ -493,12 +496,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Restore URL params (set values before switchTab so probability is correct on first paint)
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('tab') === 'pro' || urlParams.has('e') || urlParams.has('c')) {
+  if (urlParams.get('tab') === 'advanced' || urlParams.has('e') || urlParams.has('c')) {
     if (urlParams.has('e')) edgeInput.value = decodeURIComponent(urlParams.get('e'));
     if (urlParams.has('c')) cornerInput.value = decodeURIComponent(urlParams.get('c'));
     if (urlParams.has('n')) { amountSlider.value = urlParams.get('n'); updateAmountSlider(); }
-    switchTab('pro');
-  } else if (urlParams.get('tab') === 'mini') {
+    switchTab('advanced');
+  } else if (urlParams.get('tab') === 'basic') {
     const bools = { pe:'parity-even', po:'parity-odd' };
     Object.entries(bools).forEach(([k, id]) => { document.getElementById(id).checked = urlParams.get(k) !== '0'; });
     const urlSliderKeys = {
@@ -517,11 +520,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     miniSliderIds.forEach(baseId => updateRangeSlider(baseId, false));
     if (urlParams.has('n')) { amountSlider.value = urlParams.get('n'); updateAmountSlider(); }
-    switchTab('mini');
+    switchTab('basic');
   } else {
     // No URL params — restore last tab from localStorage (safe here: all consts initialized)
     const savedTab = localStorage.getItem('scr.tab');
-    if (savedTab === 'pro' || savedTab === 'dist' || savedTab === 'help') switchTab(savedTab);
+    if (savedTab === 'advanced' || savedTab === 'distribution' || savedTab === 'about') switchTab(savedTab);
   }
 
   setTimeout(() => updateProbability(), 100);

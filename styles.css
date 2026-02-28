@@ -355,12 +355,26 @@ code {
 
 .example {
   background-color: var(--code-bg);
+  color: var(--code-color);
   padding: 0 1.5rem;
   border-radius: 6px;
   margin: 1rem 0;
   font-family: 'Consolas', monospace;
   white-space: pre-wrap;
   overflow-x: auto;
+}
+
+.collapse-link {
+  display: block;
+  text-align: right;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.collapse-link:hover {
+  color: var(--text-color);
 }
 
 /* Buttons */

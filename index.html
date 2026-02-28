@@ -17,12 +17,36 @@
 
     <div class="card">
       <div class="tab-bar">
-        <button class="tab active" id="tab-mini">Quick Setup</button>
+        <button class="tab" id="tab-help">About</button>
+        <button class="tab active" id="tab-mini">Basic</button>
         <button class="tab" id="tab-pro">Advanced</button>
         <button class="tab" id="tab-dist">Distribution</button>
-        <button class="tab" id="tab-help">Guide</button>
 
       </div>
+
+      <!-- Help Panel -->
+      <div id="panel-help" style="display:none;">
+
+        <h2>What is this?</h2>
+        <p>3BLD Scrambler generates 3x3 scrambles filtered by the <em>structure</em> of their BLD solution — letting you drill specific cases instead of solving whatever comes up randomly. You pick exactly what kind of memo you want to practice, and the tool generates scrambles that guarantee it.</p>
+        <p>Buffers are <strong>UF</strong> (edges) and <strong>UFR</strong> (corners). Scramble in your own orientation.</p>
+        <p>This project is actually a vibe-coded remastering of another tool when I just started learning programming and wanted to make something fun. It just works. While I can't think of practical use case of this project, I would self-promote another tool of mine — <a href="https://helloluxi.github.io/ufufr" target="_blank" underline>LuTimer</a> for more serious training.</p>
+
+        <h2>Concepts</h2>
+        <ul>
+          <li><strong>Parity — even / odd:</strong> whether the scramble has BLD parity. Unticking both gives zero results.</li>
+          <li><strong>Flips / Twists:</strong> number of in-place misoriented pieces (flipped edges or twisted corners).</li>
+          <li><strong>Cycle Breaks:</strong> how many times the memo must jump to a new starting piece.</li>
+          <li><strong>Float 3-style:</strong> number of floating 3-cycles (orientation-clean secondary 3-cycles).</li>
+          <li><strong>Algs:</strong> estimated algorithm count (each 3-style pair = 1 alg; a float-3 / 3-twist / 4-flip saves 1; parity adds 0.5).</li>
+        </ul>
+        <p>The <em>Probability</em> line shows what fraction of all scrambles match your current filter — useful to gauge how rare your target case is. Hitting Scramble! updates the URL so you can bookmark or share your current setup.</p>
+
+        <h2>How does it work?</h2>
+        <p>For the full mathematical background — cycle structure counting, scramble weights, and sampling — see the <a href="help.html" target="_blank">How It Works</a> page.</p>
+
+      </div>
+
 
       <!-- Mini Panel -->
       <div id="panel-mini">
@@ -139,6 +163,46 @@
 
       <!-- Custom JS Panel -->
       <div id="panel-pro" style="display:none;">
+        <details>
+          <summary>Help</summary>
+          <p>Write a JavaScript boolean expression directly. The expression is evaluated for each possible cycle structure; only scrambles whose structure satisfies <em>both</em> the edge and corner conditions are generated.</p>
+          <p>Available variables — all integers unless noted:</p>
+          <ul>
+            <li><strong>parity</strong> — 0 (even) or 1 (odd).</li>
+            <li><strong>breaks</strong> — number of cycle breaks, i.e. how many times the memo had to jump to a new starting piece.</li>
+            <li><strong>algs</strong> — estimated algorithm count: each memo pair costs 0.5, a floating 3-cycle / 3-twist group / 4-flip saves 1 compared to letter-pairs alone. Parity adds 0.5.</li>
+            <li><strong>float1</strong> — solved pieces in-place with correct orientation (free, no alg needed).</li>
+            <li><strong>bad1</strong> — pieces in-place but misoriented: flipped edges or twisted corners.</li>
+            <li><strong>float2 … float5</strong> — clean k-cycles (correct orientation) that appear as secondary cycles.</li>
+            <li><strong>bad2 … bad5</strong> — k-cycles with at least one misoriented piece.</li>
+          </ul>
+          <p>The <strong>Same as above</strong> checkbox mirrors the edge expression to corners, useful when you want identical structure constraints.</p>
+          <p>Your last 5 expressions are saved per-field. Use ↑↓ in the input to navigate history. Hitting Enter generates scrambles. The URL updates so you can bookmark or share a filter.</p>
+        <h2>Examples</h2>
+
+        <h3>Beginner — clean single cycle, no twists, even parity</h3>
+        <div class="example">Edge:   breaks==0 &amp;&amp; bad1==0 &amp;&amp; parity==0
+Corner: breaks==0 &amp;&amp; bad1==0</div>
+
+        <h3>Parity only</h3>
+        <div class="example">Edge:   parity==1
+Corner: parity==1</div>
+
+        <h3>Twisted corners (3-twist group)</h3>
+        <div class="example">Corner: bad1==2</div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Two twisted-in-place corners means one clockwise and one counter-clockwise — handled as a single 3-twist alg.</p>
+
+        <h3>Floating 3-cycle edges</h3>
+        <div class="example">Edge: float3&gt;0</div>
+
+        <h3>Exactly 4 edge algs, no cycle breaks</h3>
+        <div class="example">Edge: algs==4 &amp;&amp; breaks==0</div>
+
+        <h3>Heavy memo — many cycle breaks</h3>
+        <div class="example">Edge:   breaks&gt;=2
+Corner: breaks&gt;=2</div>
+        <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">▲ Collapse</a>
+        </details>
         <div class="input-group">
           <label for="edge-input">Edge</label>
           <div class="input-wrapper">
@@ -163,8 +227,18 @@
 
       <!-- Distribution Panel -->
       <div id="panel-dist" style="display:none;">
+        <details>
+          <summary>Help</summary>
+          <p>Enter a JavaScript expression using the same variables as Advanced mode. The tab shows a bar chart of how that expression is distributed across all possible scrambles — independently for edges and corners.</p>
+          <p>Leave the field empty (or enter <code>algs</code>) to see the alg-count distribution. The chart title shows mean and standard deviation. Hitting Enter updates the chart.</p>
+          <h3>Examples</h3>
+          <h3>Cycle Breaks</h3>
+          <div class="example">breaks</div>
+          <h3>Edge Flips / Corner Twists</h3>
+          <div class="example">bad1</div>
+          <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">▲ Collapse</a>
+        </details>
         <input type="text" class="dist-input" id="dist-input" placeholder="Custom JS expression (default: algs)" autocomplete="off" autocorrect="off" spellcheck="false">
-        <p style="text-align:center; color:var(--text-secondary); font-size:0.8rem; margin-bottom:0.5rem;">Variables: parity, breaks, algs, float1, bad1, ..., float5, bad5</p>
         <div id="dist-error" style="display:none; color:red; text-align:center; margin-bottom:1rem;"></div>
         <div class="chart-wrapper">
           <div class="y-axis-label">Prob.</div>
@@ -181,74 +255,6 @@
           <div class="x-axis-label" id="corner-x-axis-label">Corner Algs</div>
         </div>
       </div>
-
-      <!-- Help Panel -->
-      <div id="panel-help" style="display:none;">
-
-        <h2>What is this?</h2>
-        <p>3BLD Scrambler generates 3x3 scrambles filtered by the <em>structure</em> of their BLD solution — letting you drill specific cases instead of solving whatever comes up randomly. You pick exactly what kind of memo you want to practice, and the tool generates scrambles that guarantee it.</p>
-        <p>Buffers are <strong>UF</strong> (edges) and <strong>UFR</strong> (corners). Scramble in your own orientation.</p>
-        <p>This project is actually a vibe-coded remastering of another tool when I just started learning programming and wanted to make something fun. It just works. While I can't think of practical use case of this project, I would self-promote another tool of mine — <a href="https://helloluxi.github.io/ufufr" target="_blank" underline>LuTimer</a> for more serious training.</p>
-
-        <h2>Quick Setup tab</h2>
-        <p>Use the double-ended sliders to set a min/max range for each property. Only scrambles whose cycle structure falls within <em>all</em> selected ranges are generated:</p>
-        <ul>
-          <li><strong>Parity — even / odd:</strong> whether the scramble has BLD parity. Unticking both gives zero results.</li>
-          <li><strong>Flips / Twists:</strong> number of in-place misoriented pieces (flipped edges or twisted corners).</li>
-          <li><strong>Cycle Breaks:</strong> how many times the memo must jump to a new starting piece.</li>
-          <li><strong>Float 3-style:</strong> number of floating 3-cycles (orientation-clean secondary 3-cycles).</li>
-          <li><strong>Algs:</strong> estimated algorithm count (each memo pair ≈ 0.5 algs; a float-3 / 3-twist / 4-flip saves 1; parity adds 0.5).</li>
-        </ul>
-        <p>The <em>Probability</em> line shows what fraction of all scrambles match your current filter — useful to gauge how rare your target case is. Hitting Scramble! updates the URL so you can bookmark or share your current setup.</p>
-
-        <h2>Advanced tab</h2>
-        <p>Write a JavaScript boolean expression directly. The expression is evaluated for each possible cycle structure; only scrambles whose structure satisfies <em>both</em> the edge and corner conditions are generated.</p>
-        <p>Available variables — all integers unless noted:</p>
-        <ul>
-          <li><strong>parity</strong> — 0 (even) or 1 (odd).</li>
-          <li><strong>breaks</strong> — number of cycle breaks, i.e. how many times the memo had to jump to a new starting piece.</li>
-          <li><strong>algs</strong> — estimated algorithm count: each memo pair costs 0.5, a floating 3-cycle / 3-twist group / 4-flip saves 1 compared to letter-pairs alone. Parity adds 0.5.</li>
-          <li><strong>float1</strong> — solved pieces in-place with correct orientation (free, no alg needed).</li>
-          <li><strong>bad1</strong> — pieces in-place but misoriented: flipped edges or twisted corners.</li>
-          <li><strong>float2 … float5</strong> — clean k-cycles (correct orientation) that appear as secondary cycles.</li>
-          <li><strong>bad2 … bad5</strong> — k-cycles with at least one misoriented piece.</li>
-        </ul>
-        <p>The <strong>Same as above</strong> checkbox mirrors the edge expression to corners, useful when you want identical structure constraints.</p>
-        <p>Your last 5 expressions are saved per-field. Use ↑↓ in the input to navigate history. Hitting Enter generates scrambles. The URL updates so you can bookmark or share a filter.</p>
-
-        <h2>Examples</h2>
-
-        <h3>Beginner — clean single cycle, no twists, even parity</h3>
-        <div class="example">Edge:   breaks==0 &amp;&amp; bad1==0 &amp;&amp; parity==0
-Corner: breaks==0 &amp;&amp; bad1==0</div>
-
-        <h3>Parity only</h3>
-        <div class="example">Edge:   parity==1
-Corner: parity==1</div>
-
-        <h3>Twisted corners (3-twist group)</h3>
-        <div class="example">Corner: bad1==2</div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">Two twisted-in-place corners means one clockwise and one counter-clockwise — handled as a single 3-twist alg.</p>
-
-        <h3>Floating 3-cycle edges</h3>
-        <div class="example">Edge: float3&gt;0</div>
-
-        <h3>Exactly 4 edge algs, no cycle breaks</h3>
-        <div class="example">Edge: algs==4 &amp;&amp; breaks==0</div>
-
-        <h3>Heavy memo — many cycle breaks</h3>
-        <div class="example">Edge:   breaks&gt;=2
-Corner: breaks&gt;=2</div>
-
-        <h2>Distribution tab</h2>
-        <p>Enter a JavaScript expression using the same variables as Advanced mode. The tab shows a bar chart of how that expression is distributed across all possible scrambles — independently for edges and corners.</p>
-        <p>Leave the field empty (or enter <code>algs</code>) to see the alg-count distribution. The chart title shows mean and standard deviation.</p>
-
-        <h2>How does it work?</h2>
-        <p>For the full mathematical background — cycle structure counting, scramble weights, and sampling — see the <a href="help.html" target="_blank">How It Works</a> page.</p>
-
-      </div>
-
       <!-- Shared (hidden when Help tab active) -->
       <div id="scramble-ui">
       <div class="slider-group">
