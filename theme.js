@@ -15,6 +15,8 @@ function setTheme(theme) {
     root.removeAttribute('data-theme');
   }
   localStorage.setItem('theme', theme);
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) themeToggle.textContent = theme === 'light' ? 'Light Theme' : 'Dark Theme';
 }
 
 function toggleTheme() {
@@ -28,10 +30,10 @@ function toggleTheme() {
 document.addEventListener('DOMContentLoaded', function() {
   initializeTheme();
   
-  // Add theme toggle button event listener
+  // Add theme toggle event listener
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
-    themeToggle.addEventListener('click', toggleTheme);
+    themeToggle.addEventListener('click', e => { e.preventDefault(); toggleTheme(); });
   }
   
   // Set current year in footer

@@ -1,1 +1,5 @@
 .vscode/
+.memory/
+
+*.md
+!README.md

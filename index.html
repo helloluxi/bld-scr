@@ -5,376 +5,280 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="./favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="./styles.css">
-  <title>BLD Master</title>
+  <title>3BLD Scrambler</title>
   <script src="./min2phase.js"></script>
   <script src="./cycler.js"></script>
   <script src="./scrambler.js"></script>
   <script src="./theme.js"></script>
 </head>
 <body>
-  <button class="theme-toggle" id="theme-toggle"></button>
-  <div class="container narrow">
-    <h1>BLD Master</h1>
-    
+  <div class="container wide">
+    <h1>3BLD Scrambler</h1>
+
     <div class="card">
-      <div class="input-group">
-        <label for="edge-input">Edge</label>
-        <div class="input-wrapper">
-          <input type="text" id="edge-input" placeholder="Custom JS Boolean expression here..." name=""edge-input" autocomplete="off" autocorrect="off" spellcheck="false">
-          <div class="history-dropdown" id="edge-history">
-            <!-- Filtered history items will be inserted here -->
+      <div class="tab-bar">
+        <button class="tab active" id="tab-mini">Quick Setup</button>
+        <button class="tab" id="tab-pro">Advanced</button>
+        <button class="tab" id="tab-dist">Distribution</button>
+        <button class="tab" id="tab-help">Guide</button>
+
+      </div>
+
+      <!-- Mini Panel -->
+      <div id="panel-mini">
+        <div class="setting-line">
+          <span>Parity</span>
+          <div class="parity-checkbox-row">
+            <div class="parity-checkbox">
+              <input type="checkbox" id="parity-even" checked>
+              <label for="parity-even">even</label>
+            </div>
+            <div class="parity-checkbox">
+              <input type="checkbox" id="parity-odd" checked>
+              <label for="parity-odd">odd</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <h3>Edge</h3>
+          <div class="setting-line">
+            <span>Flips</span>
+            <div class="range-wrapper">
+              <div class="range-container" id="edge-flips-container">
+                <div class="range-selected"></div>
+                <input type="range" min="0" max="11" value="0"  step="1" class="range-slider" id="edge-flips-min">
+                <input type="range" min="0" max="11" value="11" step="1" class="range-slider" id="edge-flips-max">
+              </div>
+              <span class="setting-value" id="edge-flips-value">0-11</span>
+            </div>
+          </div>
+          <div class="setting-line">
+            <span>Cycle Breaks</span>
+            <div class="range-wrapper">
+              <div class="range-container" id="edge-breaks-container">
+                <div class="range-selected"></div>
+                <input type="range" min="0" max="5" value="0" step="1" class="range-slider" id="edge-breaks-min">
+                <input type="range" min="0" max="5" value="5" step="1" class="range-slider" id="edge-breaks-max">
+              </div>
+              <span class="setting-value" id="edge-breaks-value">0-5</span>
+            </div>
+          </div>
+          <div class="setting-line">
+            <span>Float 3-style</span>
+            <div class="range-wrapper">
+              <div class="range-container" id="edge-float3-container">
+                <div class="range-selected"></div>
+                <input type="range" min="0" max="3" value="0" step="1" class="range-slider" id="edge-float3-min">
+                <input type="range" min="0" max="3" value="3" step="1" class="range-slider" id="edge-float3-max">
+              </div>
+              <span class="setting-value" id="edge-float3-value">0-3</span>
+            </div>
+          </div>
+          <div class="setting-line">
+            <span>Algs</span>
+            <div class="range-wrapper">
+              <div class="range-container" id="edge-algs-container">
+                <div class="range-selected"></div>
+                <input type="range" min="0" max="8.5" value="0"   step="0.5" class="range-slider" id="edge-algs-min">
+                <input type="range" min="0" max="8.5" value="8.5" step="0.5" class="range-slider" id="edge-algs-max">
+              </div>
+              <span class="setting-value" id="edge-algs-value">0-8.5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <h3>Corner</h3>
+          <div class="setting-line">
+            <span>Twists</span>
+            <div class="range-wrapper">
+              <div class="range-container" id="corner-flips-container">
+                <div class="range-selected"></div>
+                <input type="range" min="0" max="7" value="0" step="1" class="range-slider" id="corner-flips-min">
+                <input type="range" min="0" max="7" value="7" step="1" class="range-slider" id="corner-flips-max">
+              </div>
+              <span class="setting-value" id="corner-flips-value">0-7</span>
+            </div>
+          </div>
+          <div class="setting-line">
+            <span>Cycle Breaks</span>
+            <div class="range-wrapper">
+              <div class="range-container" id="corner-breaks-container">
+                <div class="range-selected"></div>
+                <input type="range" min="0" max="3" value="0" step="1" class="range-slider" id="corner-breaks-min">
+                <input type="range" min="0" max="3" value="3" step="1" class="range-slider" id="corner-breaks-max">
+              </div>
+              <span class="setting-value" id="corner-breaks-value">0-3</span>
+            </div>
+          </div>
+          <div class="setting-line">
+            <span>Float 3-style</span>
+            <div class="range-wrapper">
+              <div class="range-container" id="corner-float3-container">
+                <div class="range-selected"></div>
+                <input type="range" min="0" max="2" value="0" step="1" class="range-slider" id="corner-float3-min">
+                <input type="range" min="0" max="2" value="2" step="1" class="range-slider" id="corner-float3-max">
+              </div>
+              <span class="setting-value" id="corner-float3-value">0-2</span>
+            </div>
+          </div>
+          <div class="setting-line">
+            <span>Algs</span>
+            <div class="range-wrapper">
+              <div class="range-container" id="corner-algs-container">
+                <div class="range-selected"></div>
+                <input type="range" min="0" max="5.5" value="0"   step="0.5" class="range-slider" id="corner-algs-min">
+                <input type="range" min="0" max="5.5" value="5.5" step="0.5" class="range-slider" id="corner-algs-max">
+              </div>
+              <span class="setting-value" id="corner-algs-value">0-5.5</span>
+            </div>
           </div>
         </div>
       </div>
-      
-      <div class="input-group">
-        <label for="corner-input">Corner</label>
-        <div class="input-wrapper">
-          <input type="text" id="corner-input" placeholder="Variables: parity, breaks, algs, float1, bad1, ..., float5, bad5" name=""edge-input" autocomplete="off" autocorrect="off" spellcheck="false">
-          <div class="history-dropdown" id="corner-history">
-            <!-- Filtered history items will be inserted here -->
+
+      <!-- Custom JS Panel -->
+      <div id="panel-pro" style="display:none;">
+        <div class="input-group">
+          <label for="edge-input">Edge</label>
+          <div class="input-wrapper">
+            <input type="text" id="edge-input" placeholder="Custom JS Boolean expression here..." autocomplete="off" autocorrect="off" spellcheck="false">
+            <div class="history-dropdown" id="edge-history"></div>
           </div>
         </div>
+
+        <div class="input-group">
+          <label for="corner-input">Corner</label>
+          <div class="input-wrapper">
+            <input type="text" id="corner-input" placeholder="Variables: parity, breaks, algs, float1, bad1, ..., float5, bad5" autocomplete="off" autocorrect="off" spellcheck="false">
+            <div class="history-dropdown" id="corner-history"></div>
+          </div>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="same-checkbox">
+          <label for="same-checkbox">Same as above</label>
+        </div>
       </div>
-      
-      <div class="checkbox-group">
-        <input type="checkbox" id="same-checkbox">
-        <label for="same-checkbox">Same as above</label>
+
+      <!-- Distribution Panel -->
+      <div id="panel-dist" style="display:none;">
+        <input type="text" class="dist-input" id="dist-input" placeholder="Custom JS expression (default: algs)" autocomplete="off" autocorrect="off" spellcheck="false">
+        <p style="text-align:center; color:var(--text-secondary); font-size:0.8rem; margin-bottom:0.5rem;">Variables: parity, breaks, algs, float1, bad1, ..., float5, bad5</p>
+        <div id="dist-error" style="display:none; color:red; text-align:center; margin-bottom:1rem;"></div>
+        <div class="chart-wrapper">
+          <div class="y-axis-label">Prob.</div>
+          <div class="grid-lines" id="edge-grid-lines"></div>
+          <div class="chart-container" id="edge-chart"></div>
+          <div class="x-axis" id="edge-x-axis"></div>
+          <div class="x-axis-label" id="edge-x-axis-label">Edge Algs</div>
+        </div>
+        <div class="chart-wrapper">
+          <div class="y-axis-label">Prob.</div>
+          <div class="grid-lines" id="corner-grid-lines"></div>
+          <div class="chart-container" id="corner-chart"></div>
+          <div class="x-axis" id="corner-x-axis"></div>
+          <div class="x-axis-label" id="corner-x-axis-label">Corner Algs</div>
+        </div>
       </div>
-      
+
+      <!-- Help Panel -->
+      <div id="panel-help" style="display:none;">
+
+        <h2>What is this?</h2>
+        <p>3BLD Scrambler generates 3x3 scrambles filtered by the <em>structure</em> of their BLD solution — letting you drill specific cases instead of solving whatever comes up randomly. You pick exactly what kind of memo you want to practice, and the tool generates scrambles that guarantee it.</p>
+        <p>Buffers are <strong>UF</strong> (edges) and <strong>UFR</strong> (corners). Scramble in your own orientation.</p>
+        <p>This project is actually a vibe-coded remastering of another tool when I just started learning programming and wanted to make something fun. It just works. While I can't think of practical use case of this project, I would self-promote another tool of mine — <a href="https://helloluxi.github.io/ufufr" target="_blank" underline>LuTimer</a> for more serious training.</p>
+
+        <h2>Quick Setup tab</h2>
+        <p>Use the double-ended sliders to set a min/max range for each property. Only scrambles whose cycle structure falls within <em>all</em> selected ranges are generated:</p>
+        <ul>
+          <li><strong>Parity — even / odd:</strong> whether the scramble has BLD parity. Unticking both gives zero results.</li>
+          <li><strong>Flips / Twists:</strong> number of in-place misoriented pieces (flipped edges or twisted corners).</li>
+          <li><strong>Cycle Breaks:</strong> how many times the memo must jump to a new starting piece.</li>
+          <li><strong>Float 3-style:</strong> number of floating 3-cycles (orientation-clean secondary 3-cycles).</li>
+          <li><strong>Algs:</strong> estimated algorithm count (each memo pair ≈ 0.5 algs; a float-3 / 3-twist / 4-flip saves 1; parity adds 0.5).</li>
+        </ul>
+        <p>The <em>Probability</em> line shows what fraction of all scrambles match your current filter — useful to gauge how rare your target case is. Hitting Scramble! updates the URL so you can bookmark or share your current setup.</p>
+
+        <h2>Advanced tab</h2>
+        <p>Write a JavaScript boolean expression directly. The expression is evaluated for each possible cycle structure; only scrambles whose structure satisfies <em>both</em> the edge and corner conditions are generated.</p>
+        <p>Available variables — all integers unless noted:</p>
+        <ul>
+          <li><strong>parity</strong> — 0 (even) or 1 (odd).</li>
+          <li><strong>breaks</strong> — number of cycle breaks, i.e. how many times the memo had to jump to a new starting piece.</li>
+          <li><strong>algs</strong> — estimated algorithm count: each memo pair costs 0.5, a floating 3-cycle / 3-twist group / 4-flip saves 1 compared to letter-pairs alone. Parity adds 0.5.</li>
+          <li><strong>float1</strong> — solved pieces in-place with correct orientation (free, no alg needed).</li>
+          <li><strong>bad1</strong> — pieces in-place but misoriented: flipped edges or twisted corners.</li>
+          <li><strong>float2 … float5</strong> — clean k-cycles (correct orientation) that appear as secondary cycles.</li>
+          <li><strong>bad2 … bad5</strong> — k-cycles with at least one misoriented piece.</li>
+        </ul>
+        <p>The <strong>Same as above</strong> checkbox mirrors the edge expression to corners, useful when you want identical structure constraints.</p>
+        <p>Your last 5 expressions are saved per-field. Use ↑↓ in the input to navigate history. Hitting Enter generates scrambles. The URL updates so you can bookmark or share a filter.</p>
+
+        <h2>Examples</h2>
+
+        <h3>Beginner — clean single cycle, no twists, even parity</h3>
+        <div class="example">Edge:   breaks==0 &amp;&amp; bad1==0 &amp;&amp; parity==0
+Corner: breaks==0 &amp;&amp; bad1==0</div>
+
+        <h3>Parity only</h3>
+        <div class="example">Edge:   parity==1
+Corner: parity==1</div>
+
+        <h3>Twisted corners (3-twist group)</h3>
+        <div class="example">Corner: bad1==2</div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Two twisted-in-place corners means one clockwise and one counter-clockwise — handled as a single 3-twist alg.</p>
+
+        <h3>Floating 3-cycle edges</h3>
+        <div class="example">Edge: float3&gt;0</div>
+
+        <h3>Exactly 4 edge algs, no cycle breaks</h3>
+        <div class="example">Edge: algs==4 &amp;&amp; breaks==0</div>
+
+        <h3>Heavy memo — many cycle breaks</h3>
+        <div class="example">Edge:   breaks&gt;=2
+Corner: breaks&gt;=2</div>
+
+        <h2>Distribution tab</h2>
+        <p>Enter a JavaScript expression using the same variables as Advanced mode. The tab shows a bar chart of how that expression is distributed across all possible scrambles — independently for edges and corners.</p>
+        <p>Leave the field empty (or enter <code>algs</code>) to see the alg-count distribution. The chart title shows mean and standard deviation.</p>
+
+        <h2>How does it work?</h2>
+        <p>For the full mathematical background — cycle structure counting, scramble weights, and sampling — see the <a href="help.html" target="_blank">How It Works</a> page.</p>
+
+      </div>
+
+      <!-- Shared (hidden when Help tab active) -->
+      <div id="scramble-ui">
       <div class="slider-group">
         <label for="amount-slider">Amount</label>
         <div class="slider-container">
-          <input type="range" id="amount-slider" min="1" max="10" value="1">
+          <div class="range-container" style="flex-grow: 1;">
+            <div class="range-selected"></div>
+            <input type="range" min="0" max="12" value="1" step="1" class="range-slider" id="amount-slider">
+            <div class="range-thumb"></div>
+          </div>
           <span class="slider-value" id="slider-value">1</span>
         </div>
       </div>
-      
+
       <div class="mini-text" id="mini-text">Probability: 100.00%</div>
-      
+
       <button class="button" id="scramble-button">Scramble!</button>
-      
+
       <div class="output-container">
         <textarea class="output-panel" id="output-panel" readonly></textarea>
         <button class="copy-button" id="copy-button"></button>
       </div>
+      </div><!-- end #scramble-ui -->
     </div>
-    
+
     <footer>
-      &copy; <span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" underline>GitHub</a> | <a href="help.html" target="_blank" underline>Help</a> | <a href="mini.html" underline>Beginner This Way</a>
+      &copy; 2025-<span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" target="_blank" underline>GitHub</a> | <a href="#" id="theme-toggle" underline>Dark Theme</a>
     </footer>
   </div>
 
-  <script>
-    // DOM elements
-    const edgeInput = document.getElementById('edge-input');
-    const cornerInput = document.getElementById('corner-input');
-    const sameCheckbox = document.getElementById('same-checkbox');
-    const amountSlider = document.getElementById('amount-slider');
-    const sliderValue = document.getElementById('slider-value');
-    const miniText = document.getElementById('mini-text');
-    const scrambleButton = document.getElementById('scramble-button');
-    const outputPanel = document.getElementById('output-panel');
-    const copyButton = document.getElementById('copy-button');
-    const edgeHistory = document.getElementById('edge-history');
-    const cornerHistory = document.getElementById('corner-history');
-    
-    // History storage
-    const edgeHistoryItems = JSON.parse(localStorage.getItem('scr.he') || '[]');
-    const cornerHistoryItems = JSON.parse(localStorage.getItem('scr.hc') || '[]');
-    
-    // For tracking the highlighted (selected) history item (-1 means no selection)
-    let edgeSelectedIndex = -1;
-    let cornerSelectedIndex = -1;
-    
-    // Display the slider value
-    sliderValue.textContent = amountSlider.value;
-    amountSlider.addEventListener('input', () => {
-      sliderValue.textContent = amountSlider.value;
-    });
-    
-    // Same as above checkbox
-    sameCheckbox.addEventListener('change', () => {
-      if (sameCheckbox.checked) {
-        cornerInput.value = edgeInput.value;
-        cornerInput.disabled = true;
-      } else {
-        cornerInput.disabled = false;
-      }
-      updateProbability();
-    });
-    
-    function updateProbability() {
-      const prob = scrambler.getProbabilityFromTextFilter(edgeInput.value, cornerInput.value);
-      if (isNaN(prob)) {
-        miniText.textContent = 'Probability: NaN';
-      } else if (prob === 0){
-        miniText.textContent = 'Probability: 0 (Cannot scramble)';
-      } else {
-        miniText.textContent = `Probability: ${(prob * 100).toFixed(2)}%`;
-      }
-    }
-    
-    // Reset selection when input changes
-    edgeInput.addEventListener('input', () => {
-      if (sameCheckbox.checked) {
-        cornerInput.value = edgeInput.value;
-      }
-      updateProbability();
-      edgeSelectedIndex = -1;
-      updateHistoryUI('e');
-      if (edgeHistory.children.length > 0) {
-        edgeHistory.classList.add('show-history');
-      } else {
-        edgeHistory.classList.remove('show-history');
-      }
-    });
-    
-    cornerInput.addEventListener('input', () => {
-      updateProbability();
-      cornerSelectedIndex = -1;
-      updateHistoryUI('c');
-      if (cornerHistory.children.length > 0) {
-        cornerHistory.classList.add('show-history');
-      } else {
-        cornerHistory.classList.remove('show-history');
-      }
-    });
-    
-    // Focus/blur events for history dropdowns with filtered UI
-    edgeInput.addEventListener('focus', () => {
-      updateHistoryUI('e');
-      if (edgeHistory.children.length > 0) {
-        edgeHistory.classList.add('show-history');
-      }
-    });
-    
-    edgeInput.addEventListener('blur', () => {
-      setTimeout(() => {
-        edgeHistory.classList.remove('show-history');
-      }, 200);
-    });
-    
-    cornerInput.addEventListener('focus', () => {
-      updateHistoryUI('c');
-      if (cornerHistory.children.length > 0) {
-        cornerHistory.classList.add('show-history');
-      }
-    });
-    
-    cornerInput.addEventListener('blur', () => {
-      setTimeout(() => {
-        cornerHistory.classList.remove('show-history');
-      }, 200);
-    });
-    
-    // Update history UI with filtering based on current input
-    function updateHistoryUI(tag) {
-      const historyElement = tag === 'e' ? edgeHistory : cornerHistory;
-      const historyArray = tag === 'e' ? edgeHistoryItems : cornerHistoryItems;
-      const inputElement = tag === 'e' ? edgeInput : cornerInput;
-      const userInput = inputElement.value.trim();
-      historyElement.innerHTML = '';
-      
-      // Filter items that start with the user input (case-insensitive)
-      const filteredItems = historyArray.filter(item =>
-        item.toLowerCase().startsWith(userInput)
-      );
-      
-      filteredItems.forEach((item, index) => {
-        const historyItem = document.createElement('div');
-        historyItem.classList.add('history-item');
-        if ( (tag === 'e' && index === edgeSelectedIndex) || (tag === 'c' && index === cornerSelectedIndex) ) {
-          historyItem.classList.add('selected');
-        }
-        const itemText = document.createElement('span');
-        itemText.style.flexGrow = '1';
-        itemText.textContent = item;
-        const itemTextClick = (e) => {
-          e.stopPropagation();
-          inputElement.value = item;
-          if (tag === 'e' && sameCheckbox.checked) {
-            cornerInput.value = item;
-          }
-          updateProbability();
-          historyElement.classList.remove('show-history');
-        };
-        itemText.addEventListener('click', itemTextClick);
-        
-        const deleteButton = document.createElement('button');
-        deleteButton.classList.add('delete-history');
-        deleteButton.textContent = '×';
-        const deleteButtonClick = () => {
-          const indexInArray = historyArray.indexOf(item);
-          if (indexInArray > -1) {
-            historyArray.splice(indexInArray, 1);
-            updateHistoryUI(tag);
-            localStorage.setItem(`scr.h${tag}`, JSON.stringify(historyArray));
-          }
-        };
-        deleteButton.addEventListener('click', deleteButtonClick);
-        
-        historyItem.appendChild(itemText);
-        historyItem.appendChild(deleteButton);
-        historyElement.appendChild(historyItem);
-      });
-    }
-    
-    // Helper to update visual selection in the history dropdown
-    function updateHistorySelection(tag) {
-      const historyElement = tag === 'e' ? edgeHistory : cornerHistory;
-      const selectedIndex = tag === 'e' ? edgeSelectedIndex : cornerSelectedIndex;
-      Array.from(historyElement.children).forEach((child, index) => {
-        if (index === selectedIndex) {
-          child.classList.add('selected');
-        } else {
-          child.classList.remove('selected');
-        }
-      });
-    }
-    
-    // Add to history
-    function tryAddToHistory(tag, value) {
-      const historyArray = tag === 'e' ? edgeHistoryItems : cornerHistoryItems;
-      if (!value || historyArray.includes(value)) return;
-      
-      historyArray.unshift(value);
-      if (historyArray.length > 5) {
-        historyArray.pop();
-      }
-      
-      updateHistoryUI(tag);
-      localStorage.setItem(`scr.h${tag}`, JSON.stringify(historyArray));
-    }
-    
-    // Function to handle scramble generation
-    function generateScramble() {
-      updateProbability();
-      if (scrambler.isValid()) {
-        const urlParams = new URLSearchParams();
-        if (edgeInput.value.trim()) {
-          urlParams.set('e', edgeInput.value.trim());
-        }
-        if (cornerInput.value.trim()) {
-          urlParams.set('c', cornerInput.value.trim());
-        }
-        if (amountSlider.value > 1) {
-          urlParams.set('n', amountSlider.value);
-        }
-        history.replaceState(null, '', '?' + urlParams.toString());
-        tryAddToHistory('e', edgeInput.value.trim());
-        tryAddToHistory('c', cornerInput.value.trim());
-        outputPanel.value = Array.from({ length: amountSlider.value }, () => scrambler.getScramble()).join('\n');
-        copyButton.click();
-      } else {
-        miniText.textContent = 'No valid scrambles.';
-      }
-    }
-    
-    // Keydown event for edgeInput to handle arrow navigation and enter key
-    edgeInput.addEventListener('keydown', (e) => {
-      if (edgeHistory.classList.contains('show-history')) {
-        const items = Array.from(edgeHistory.children);
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          edgeSelectedIndex = (edgeSelectedIndex + 1 < items.length) ? edgeSelectedIndex + 1 : items.length - 1;
-          updateHistorySelection('e');
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          edgeSelectedIndex = (edgeSelectedIndex - 1 >= -1) ? edgeSelectedIndex - 1 : -1;
-          updateHistorySelection('e');
-        } else if (e.key === "Enter") {
-          if (edgeSelectedIndex >= 0) {
-            e.preventDefault();
-            const selectedItem = items[edgeSelectedIndex];
-            if (selectedItem) {
-              const selectedText = selectedItem.querySelector('span').textContent;
-              edgeInput.value = selectedText;
-              if (sameCheckbox.checked) {
-                cornerInput.value = selectedText;
-              }
-              edgeHistory.classList.remove('show-history');
-              updateProbability();
-              edgeSelectedIndex = -1;
-            }
-          } else {
-            e.preventDefault();
-            generateScramble();
-          }
-        }
-      }
-    });
-    
-    // Keydown event for cornerInput for arrow navigation and enter key
-    cornerInput.addEventListener('keydown', (e) => {
-      if (cornerHistory.classList.contains('show-history')) {
-        const items = Array.from(cornerHistory.children);
-        if (e.key === "ArrowDown") {
-          e.preventDefault();
-          cornerSelectedIndex = (cornerSelectedIndex + 1 < items.length) ? cornerSelectedIndex + 1 : items.length - 1;
-          updateHistorySelection('c');
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          cornerSelectedIndex = (cornerSelectedIndex - 1 >= -1) ? cornerSelectedIndex - 1 : -1;
-          updateHistorySelection('c');
-        } else if (e.key === "Enter") {
-          if (cornerSelectedIndex >= 0) {
-            e.preventDefault();
-            const selectedItem = items[cornerSelectedIndex];
-            if (selectedItem) {
-              cornerInput.value = selectedItem.querySelector('span').textContent;
-              cornerHistory.classList.remove('show-history');
-              updateProbability();
-              cornerSelectedIndex = -1;
-            }
-          } else {
-            e.preventDefault();
-            generateScramble();
-          }
-        }
-      }
-    });
-    
-    // Also keep the original Enter listener for cases when dropdown is not visible
-    edgeInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' && !edgeHistory.classList.contains('show-history')) {
-        e.preventDefault();
-        generateScramble();
-      }
-    });
-    
-    cornerInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' && !cornerHistory.classList.contains('show-history')) {
-        e.preventDefault();
-        generateScramble();
-      }
-    });
-    
-    // Copy button
-    copyButton.addEventListener('click', () => {
-      outputPanel.select();
-      document.execCommand('copy');
-      copyButton.classList.add('copied');
-      setTimeout(() => {
-        copyButton.classList.remove('copied');
-      }, 1500);
-    });
-    
-    // Scramble button click
-    scrambleButton.addEventListener('click', generateScramble);
-
-    // Read URL parameters on page load
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('e')) {
-      edgeInput.value = decodeURIComponent(urlParams.get('e'));
-    }
-    if (urlParams.has('c')) {
-      cornerInput.value = decodeURIComponent(urlParams.get('c'));
-    }
-    if (urlParams.has('n')) {
-      amountSlider.value = urlParams.get('n');
-      sliderValue.textContent = amountSlider.value;
-    }
-  </script>
+  <script src="./index.js"></script>
 </body>
 </html>
