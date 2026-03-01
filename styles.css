@@ -182,56 +182,87 @@ input[type="range"]::-webkit-slider-thumb {
 /* Range Containers (for mini.html) */
 .range-container {
   position: relative;
-  height: 20px;
-  background: var(--bg-color);
-  border-radius: 10px;
-  margin: 0.5rem 0;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  margin: 12px 0;
 }
 
 .range-selected {
   position: absolute;
   height: 100%;
   background: var(--primary);
-  border-radius: 10px;
+  border-radius: 3px;
   pointer-events: none;
 }
 
 .range-slider {
   position: absolute;
   width: 100%;
-  height: 100%;
+  height: 28px;
+  top: 50%;
+  transform: translateY(-50%);
   pointer-events: none;
   opacity: 0;
+  z-index: 1;
+}
+
+.range-slider#edge-flips-max,
+.range-slider#edge-breaks-max,
+.range-slider#edge-float3-max,
+.range-slider#edge-algs-max,
+.range-slider#corner-flips-max,
+.range-slider#corner-breaks-max,
+.range-slider#corner-float3-max,
+.range-slider#corner-algs-max {
+  z-index: 2;
 }
 
 .range-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   pointer-events: auto;
-  height: 20px;
-  width: 20px;
+  height: 18px;
+  width: 18px;
   border-radius: 50%;
   background: var(--primary);
-  cursor: pointer;
-  border: 2px solid var(--border-color);
+  cursor: grab;
+  border: none;
   opacity: 1;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.range-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.2);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.range-slider::-moz-range-thumb {
+  pointer-events: auto;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: grab;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
 }
 
 .range-thumb {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   background: var(--primary);
-  border: 2px solid var(--border-color);
   border-radius: 50%;
   pointer-events: none;
-  top: 0;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  transition: transform 0.1s, box-shadow 0.1s;
 }
 
 .range-container.single-value .range-selected {
-  width: 20px;
-  border-radius: 50%;
-  left: calc(50% - 10px);
+  display: none;
 }
 
 .range-container.single-value .range-slider {

@@ -12,30 +12,29 @@ const scrambleUI = document.getElementById('scramble-ui');
 function switchTab(tab) {
   tabMini.classList.toggle('active', tab === 'basic');
   tabPro.classList.toggle('active',  tab === 'advanced');
-  tabDist.classList.toggle('active', tab === 'distribution');
+  tabDist.classList.toggle('active', tab === 'stat');
   tabHelp.classList.toggle('active', tab === 'about');
   panelMini.style.display = tab === 'basic'        ? '' : 'none';
   panelPro.style.display  = tab === 'advanced'     ? '' : 'none';
-  panelDist.style.display = tab === 'distribution' ? '' : 'none';
+  panelDist.style.display = tab === 'stat' ? '' : 'none';
   panelHelp.style.display = tab === 'about'        ? '' : 'none';
-  scrambleUI.style.display = (tab === 'about' || tab === 'distribution') ? 'none' : '';
+  scrambleUI.style.display = (tab === 'about' || tab === 'stat') ? 'none' : '';
   localStorage.setItem('scr.tab', tab);
   const params = new URLSearchParams(window.location.search);
   params.set('tab', tab);
   history.replaceState(null, '', '?' + params.toString());
   if (tab === 'basic' || tab === 'advanced') updateProbability();
-  if (tab === 'distribution') updateChart(document.getElementById('dist-input').value);
+  if (tab === 'stat') updateChart(document.getElementById('dist-input').value);
 }
 
 tabMini.addEventListener('click', () => switchTab('basic'));
 tabPro.addEventListener('click',  () => switchTab('advanced'));
-tabDist.addEventListener('click', () => switchTab('distribution'));
+tabDist.addEventListener('click', () => switchTab('stat'));
 tabHelp.addEventListener('click', () => switchTab('about'));
 
 // DOM elements
 const edgeInput    = document.getElementById('edge-input');
 const cornerInput  = document.getElementById('corner-input');
-const sameCheckbox = document.getElementById('same-checkbox');
 const amountSlider = document.getElementById('amount-slider');
 const sliderValue  = document.getElementById('slider-value');
 const miniText     = document.getElementById('mini-text');
@@ -121,7 +120,7 @@ function updateRangeSlider(baseId, save = true) {
     const maxPos = ((max - parseFloat(maxSlider.min)) / (parseFloat(maxSlider.max) - parseFloat(maxSlider.min))) * 100;
     if (min === max) {
       container.classList.add('single-value');
-      selected.style.left = `calc(${minPos}% - 10px)`;
+      selected.style.left = minPos + '%';
     } else {
       container.classList.remove('single-value');
       selected.style.left  = minPos + '%';
@@ -148,11 +147,13 @@ miniSliderIds.forEach(baseId => {
   const maxEl = document.getElementById(baseId + '-max');
   minEl.addEventListener('input', function() {
     if (parseFloat(maxEl.value) < parseFloat(this.value)) maxEl.value = this.value;
+    minEl.style.zIndex = 2; maxEl.style.zIndex = 1;
     updateRangeSlider(baseId);
     updateProbability();
   });
   maxEl.addEventListener('input', function() {
     if (parseFloat(minEl.value) > parseFloat(this.value)) minEl.value = this.value;
+    maxEl.style.zIndex = 2; minEl.style.zIndex = 1;
     updateRangeSlider(baseId);
     updateProbability();
   });
@@ -221,14 +222,7 @@ function updateProProbability() {
   }
 }
 
-sameCheckbox.addEventListener('change', () => {
-  if (sameCheckbox.checked) { cornerInput.value = edgeInput.value; cornerInput.disabled = true; }
-  else cornerInput.disabled = false;
-  updateProbability();
-});
-
 edgeInput.addEventListener('input', () => {
-  if (sameCheckbox.checked) cornerInput.value = edgeInput.value;
   updateProbability();
   edgeSelectedIndex = -1;
   updateHistoryUI('e');
@@ -263,7 +257,6 @@ function updateHistoryUI(tag) {
     span.addEventListener('click', e => {
       e.stopPropagation();
       inputEl.value = item;
-      if (tag === 'e' && sameCheckbox.checked) cornerInput.value = item;
       updateProbability();
       histEl.classList.remove('show-history');
     });
@@ -315,7 +308,6 @@ function makeKeydownHandler(tag) {
         e.preventDefault();
         const text = items[idx].querySelector('span').textContent;
         inputEl.value = text;
-        if (tag === 'e' && sameCheckbox.checked) cornerInput.value = text;
         histEl.classList.remove('show-history');
         updateProbability();
         if (tag === 'e') edgeSelectedIndex = -1; else cornerSelectedIndex = -1;
@@ -524,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     // No URL params — restore last tab from localStorage (safe here: all consts initialized)
     const savedTab = localStorage.getItem('scr.tab');
-    if (savedTab === 'advanced' || savedTab === 'distribution' || savedTab === 'about') switchTab(savedTab);
+    if (savedTab === 'advanced' || savedTab === 'stat' || savedTab === 'about') switchTab(savedTab);
   }
 
   setTimeout(() => updateProbability(), 100);

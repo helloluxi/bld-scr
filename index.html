@@ -20,7 +20,7 @@
         <button class="tab" id="tab-help">About</button>
         <button class="tab active" id="tab-mini">Basic</button>
         <button class="tab" id="tab-pro">Advanced</button>
-        <button class="tab" id="tab-dist">Distribution</button>
+        <button class="tab" id="tab-dist">Stat</button>
 
       </div>
 
@@ -64,8 +64,8 @@
           </div>
         </div>
 
+        <div class="setting-line"><span>Edge</span></div>
         <div class="setting-group">
-          <h3>Edge</h3>
           <div class="setting-line">
             <span>Flips</span>
             <div class="range-wrapper">
@@ -112,8 +112,8 @@
           </div>
         </div>
 
+        <div class="setting-line"><span>Corner</span></div>
         <div class="setting-group">
-          <h3>Corner</h3>
           <div class="setting-line">
             <span>Twists</span>
             <div class="range-wrapper">
@@ -176,7 +176,6 @@
             <li><strong>float2 … float5</strong> — clean k-cycles (correct orientation) that appear as secondary cycles.</li>
             <li><strong>bad2 … bad5</strong> — k-cycles with at least one misoriented piece.</li>
           </ul>
-          <p>The <strong>Same as above</strong> checkbox mirrors the edge expression to corners, useful when you want identical structure constraints.</p>
           <p>Your last 5 expressions are saved per-field. Use ↑↓ in the input to navigate history. Hitting Enter generates scrambles. The URL updates so you can bookmark or share a filter.</p>
         <h2>Examples</h2>
 
@@ -206,7 +205,7 @@ Corner: breaks&gt;=2</div>
         <div class="input-group">
           <label for="edge-input">Edge</label>
           <div class="input-wrapper">
-            <input type="text" id="edge-input" placeholder="Custom JS Boolean expression here..." autocomplete="off" autocorrect="off" spellcheck="false">
+            <input type="text" id="edge-input" placeholder="Custom JS Boolean expression..." autocomplete="off" autocorrect="off" spellcheck="false">
             <div class="history-dropdown" id="edge-history"></div>
           </div>
         </div>
@@ -214,23 +213,18 @@ Corner: breaks&gt;=2</div>
         <div class="input-group">
           <label for="corner-input">Corner</label>
           <div class="input-wrapper">
-            <input type="text" id="corner-input" placeholder="Variables: parity, breaks, algs, float1, bad1, ..., float5, bad5" autocomplete="off" autocorrect="off" spellcheck="false">
+            <input type="text" id="corner-input" placeholder="Custom JS Boolean expression..." autocomplete="off" autocorrect="off" spellcheck="false">
             <div class="history-dropdown" id="corner-history"></div>
           </div>
         </div>
 
-        <div class="checkbox-group">
-          <input type="checkbox" id="same-checkbox">
-          <label for="same-checkbox">Same as above</label>
-        </div>
       </div>
 
-      <!-- Distribution Panel -->
+      <!-- Stat Panel -->
       <div id="panel-dist" style="display:none;">
         <details>
           <summary>Help</summary>
-          <p>Enter a JavaScript expression using the same variables as Advanced mode. The tab shows a bar chart of how that expression is distributed across all possible scrambles — independently for edges and corners.</p>
-          <p>Leave the field empty (or enter <code>algs</code>) to see the alg-count distribution. The chart title shows mean and standard deviation. Hitting Enter updates the chart.</p>
+          <p>Enter a JavaScript numeric expression — the chart shows its distribution across all scrambles, independently for edges and corners. Available variables: <code>parity</code> (0 = even, 1 = odd), <code>breaks</code> (cycle break count), <code>algs</code> (estimated alg count), <code>float1</code> / <code>bad1</code> (in-place pieces, clean / misoriented), and <code>float2</code>–<code>float5</code> / <code>bad2</code>–<code>bad5</code> (k-cycles, clean / with misorientation). Leave empty or enter <code>algs</code> for the default alg-count chart. The chart title shows mean and standard deviation. Hitting Enter updates the chart.</p>
           <h3>Examples</h3>
           <h3>Cycle Breaks</h3>
           <div class="example">breaks</div>
@@ -238,7 +232,7 @@ Corner: breaks&gt;=2</div>
           <div class="example">bad1</div>
           <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">▲ Collapse</a>
         </details>
-        <input type="text" class="dist-input" id="dist-input" placeholder="Custom JS expression (default: algs)" autocomplete="off" autocorrect="off" spellcheck="false">
+        <input type="text" class="dist-input" id="dist-input" placeholder="Custom JS numeric expression..." autocomplete="off" autocorrect="off" spellcheck="false">
         <div id="dist-error" style="display:none; color:red; text-align:center; margin-bottom:1rem;"></div>
         <div class="chart-wrapper">
           <div class="y-axis-label">Prob.</div>
