@@ -31,42 +31,271 @@
       <p><strong>Corners:</strong></p>
       $$\underbrace{(\mathrm{UFR},\,\mathrm{LDF},\,\mathrm{LUB},\,\mathrm{BDR},\,\mathrm{DBL},\,\mathrm{RUB},\,\mathrm{RDF})}_{o=2,\;\text{buffer}}\;\underbrace{(\mathrm{UFL})}_{o=1}$$
 
-      <p>Here $o$ is the <em>net orientation</em> of a cycle: $o = \bigl(\sum_{\text{cycle}} \mathrm{ori}(i)\bigr) \bmod m$, where $m=2$ for edges and $m=3$ for corners. Orientation values: $0$ = correct, $1$ = flipped (edges) or CW-twisted (corners), $2$ = CCW-twisted (corners). A cycle with $o=0$ is orientation-clean and can be solved by a single commutator; $o > 0$ requires a parity- or twist-correction alg. The global constraint $\sum_{\text{all}} \mathrm{ori}(i) \equiv 0\pmod{m}$ always holds, so the buffer cycle's $o$ is determined by the rest.</p>
+      <p>Here $o$ is the <em>net orientation</em> of a cycle: $o = \bigl(\sum_{\text{cycle}} \mathrm{ori}(i)\bigr) \bmod m$, where $m=2$ for edges and $m=3$ for corners. Orientation values: $0$ = correct, $1$ = flipped (edges) or CW-twisted (corners), $2$ = CCW-twisted (corners). A 3-cycle with $o=0$ is orientation-clean and can be solved by a single 3-style alg. The global constraint $\sum_{\text{all}} \mathrm{ori}(i) \equiv 0\pmod{m}$ always holds.</p>
 
       <h2>Cycle Configuration</h2>
       <p>A <em>cycle configuration</em> is described by the buffer cycle $(p_0, o_0)$ and a list of secondary cycle types $(p_j, o_j, r_j)$, where $p_j$ is the cycle length, $o_j$ the net orientation, and $r_j$ the number of cycles of that type. For this scramble:</p>
 
       <table>
-        <thead><tr><th>Piece type</th><th>Buffer $(p_0,o_0)$</th><th>Secondary types $(p_j,o_j,r_j)$</th><th>$C$</th></tr></thead>
+        <thead><tr><th>Piece type</th><th>Buffer $(p_0,o_0)$</th><th>Secondary types $(p_j,o_j,r_j)$</th></tr></thead>
         <tbody>
-          <tr><td>Edges</td><td>$(4,0)$</td><td>$(2,0,2),\;(2,1,1),\;(1,1,1),\;(1,0,1)$</td><td>$6$</td></tr>
-          <tr><td>Corners</td><td>$(7,2)$</td><td>$(1,1,1)$</td><td>$2$</td></tr>
+          <tr><td>Edges</td><td>$(4,0)$</td><td>$(2,0,2),\;(2,1,1),\;(1,1,1),\;(1,0,1)$</td></tr>
+          <tr><td>Corners</td><td>$(7,2)$</td><td>$(1,1,1)$</td></tr>
         </tbody>
       </table>
 
-      <p>$C = 1 + \sum_j r_j$ is the total number of disjoint cycles.</p>
-
       <h2>Counting Scrambles per Configuration</h2>
-      $$\operatorname{count} = \frac{(P-1)!\cdot O^{P-C}}{\displaystyle\prod_j p_j^{r_j} \cdot r_j!}$$
+      $$\operatorname{count} = \frac{(P-1)!\cdot O^{P-1-\sum_j r_j}}{\displaystyle\prod_j p_j^{r_j} \cdot r_j!}$$
 
       <p>For this scramble ($P=12,\,O=2$ for edges; $P=8,\,O=3$ for corners):</p>
 
-      $$\operatorname{count}_{\mathrm{edges}} = \frac{11!\cdot 2^{12-6}}{2^2\cdot2!\;\cdot\;2^1\cdot1!\;\cdot\;1^1\cdot1!\;\cdot\;1^1\cdot1!} = \frac{39{,}916{,}800\cdot 64}{16} = 159{,}667{,}200$$
+      $$\operatorname{count}_{\mathrm{edges}} = \frac{11!\cdot 2^{12-1-5}}{2^2\cdot2!\;\cdot\;2^1\cdot1!\;\cdot\;1^1\cdot1!\;\cdot\;1^1\cdot1!} = \frac{39{,}916{,}800\cdot 64}{16} = 159{,}667{,}200$$
 
-      $$\operatorname{count}_{\mathrm{corners}} = \frac{7!\cdot 3^{8-2}}{1^1\cdot1!} = 5040\cdot 729 = 3{,}674{,}160$$
-
-      <h2>Parity</h2>
-      $$\text{parity} = (P - C)\bmod 2 = \left(p_0 - 1 + \sum_j r_j(p_j-1)\right)\bmod 2$$
-
-      <p>Any valid 3×3 scramble has equal edge and corner permutation parity, so filtering one automatically filters both.</p>
+      $$\operatorname{count}_{\mathrm{corners}} = \frac{7!\cdot 3^{8-1-1}}{1^1\cdot1!} = 5040\cdot 729 = 3{,}674{,}160$$
 
       <h2>Alg Count Estimation</h2>
-      $$\ell = (p_0 - 1) + \sum_j r_j \cdot p_j, \qquad \text{base algs} = \ell/2$$
+      $$\text{algs} = \text{algs}_{\text{base}} + \text{algs}_{\text{flip/twist}} - \text{algs}_{\text{float3}}$$
 
-      <p>Adjustments: each secondary cycle with $o_j=0$ and $p_j=3$ saves 1 alg (single commutator); parity adds $0.5$ to both totals; orientation-only algs (flips/twists) are counted separately.</p>
+      <ul>
+        <li><strong>$\text{algs}_{\text{base}}$</strong> $= \frac{1}{2}\left[ (p_0 - 1) + \sum_{\substack{j \\ p_j > 1}} r_j(p_j + 1) \right]$: Each secondary cycle with $p_j > 1$ contributes $p_j + 1$ letters — $p_j$ for its pieces plus $1$ for the cycle-break letter.</li>
+        <li><strong>$\text{algs}_{\text{flip/twist}}$</strong>: additional algs for misoriented in-place pieces ($p_j=1,\,o_j > 0$). Edges: $\lceil\mathrm{flips}/4\rceil$. Corners with $k_1$ CW-twisted and $k_2$ CCW-twisted: $\lfloor k_1/3\rfloor+\lfloor k_2/3\rfloor+\lceil((k_1\bmod 3)+(k_2\bmod 3))/3\rceil$.</li>
+        <li><strong>$\text{algs}_{\text{float3}}$</strong>: number of orientation-clean secondary 3-cycles ($p_j=3,\,o_j=0$), each solvable by a single commutator — saves 1 alg each.</li>
+      </ul>
+
+      <h2>Parity</h2>
+      $$\text{parity} = (2 \cdot \text{algs}_{\text{base}}) \bmod 2$$
+
+      <p>Any valid 3BLD scramble has equal edge and corner permutation parity, so filtering one automatically filters both.</p>
 
       <h2>Sampling</h2>
       <p>Each valid cycle configuration receives a weight equal to its scramble count. Two CDFs are built — even-parity pool and odd-parity pool — weighted by count. To generate a scramble: pick parity in proportion to pool totals; sample a configuration from the CDF; instantiate a random permutation and orientation assignment matching that configuration; solve with <a href="https://github.com/cs0x7f/min2phase" target="_blank">min2phase</a>.</p>
+    </div>
+
+    <div class="card">
+      <h2>3BLD Statistics</h2>
+      <p>Exact scramble counts for 3BLD with buffers UF (edges, $P=12$, $O=2$) and UFR (corners, $P=8$, $O=3$), over all $980{,}995{,}276{,}800$ edge states and $88{,}179{,}840$ corner states.</p>
+
+      <details>
+        <summary>Edge Algs</summary>
+        <table>
+          <tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <tr><td>0</td><td>1</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>0.5</td><td>22</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>1</td><td>2321</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>1.5</td><td>37730</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>2</td><td>1050819</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>2.5</td><td>11965734</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>3</td><td>131609523</td><td>0.0001</td><td>0.0001</td></tr>
+          <tr><td>3.5</td><td>1013463814</td><td>0.0010</td><td>0.0012</td></tr>
+          <tr><td>4</td><td>6314166936</td><td>0.0064</td><td>0.0076</td></tr>
+          <tr><td>4.5</td><td>30778686620</td><td>0.0314</td><td>0.0390</td></tr>
+          <tr><td>5</td><td>109207894752</td><td>0.1113</td><td>0.1503</td></tr>
+          <tr><td>5.5</td><td>251746135872</td><td>0.2566</td><td>0.4069</td></tr>
+          <tr><td>6</td><td>311060601344</td><td>0.3171</td><td>0.7240</td></tr>
+          <tr><td>6.5</td><td>197394716288</td><td>0.2012</td><td>0.9252</td></tr>
+          <tr><td>7</td><td>63193318144</td><td>0.0644</td><td>0.9896</td></tr>
+          <tr><td>7.5</td><td>9541987840</td><td>0.0097</td><td>0.9994</td></tr>
+          <tr><td>8</td><td>588994560</td><td>0.0006</td><td>0.9999</td></tr>
+          <tr><td>8.5</td><td>10644480</td><td>0.0000</td><td>1.0000</td></tr>
+        </table>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Mean: 5.88</p>
+      </details>
+
+      <details>
+        <summary>Corner Algs</summary>
+        <table>
+          <tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <tr><td>0</td><td>1</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>0.5</td><td>21</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>1</td><td>1386</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>1.5</td><td>18291</td><td>0.0002</td><td>0.0002</td></tr>
+          <tr><td>2</td><td>253995</td><td>0.0029</td><td>0.0031</td></tr>
+          <tr><td>2.5</td><td>1783236</td><td>0.0202</td><td>0.0233</td></tr>
+          <tr><td>3</td><td>8593391</td><td>0.0975</td><td>0.1208</td></tr>
+          <tr><td>3.5</td><td>25096365</td><td>0.2846</td><td>0.4054</td></tr>
+          <tr><td>4</td><td>31870332</td><td>0.3614</td><td>0.7668</td></tr>
+          <tr><td>4.5</td><td>17038917</td><td>0.1932</td><td>0.9601</td></tr>
+          <tr><td>5</td><td>3370815</td><td>0.0382</td><td>0.9983</td></tr>
+          <tr><td>5.5</td><td>153090</td><td>0.0017</td><td>1.0000</td></tr>
+        </table>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Mean: 3.86</p>
+      </details>
+
+      <details>
+        <summary>Edge Cycle Breaks</summary>
+        <table>
+          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
+          <tr><td>0</td><td>222218469376</td><td>0.2265</td></tr>
+          <tr><td>1</td><td>427559518208</td><td>0.4358</td></tr>
+          <tr><td>2</td><td>262862831616</td><td>0.2680</td></tr>
+          <tr><td>3</td><td>62822481920</td><td>0.0640</td></tr>
+          <tr><td>4</td><td>5418434560</td><td>0.0055</td></tr>
+          <tr><td>5</td><td>113541120</td><td>0.0001</td></tr>
+        </table>
+      </details>
+
+      <details>
+        <summary>Corner Cycle Breaks</summary>
+        <table>
+          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
+          <tr><td>0</td><td>29961900</td><td>0.3398</td></tr>
+          <tr><td>1</td><td>43031412</td><td>0.4880</td></tr>
+          <tr><td>2</td><td>14267988</td><td>0.1618</td></tr>
+          <tr><td>3</td><td>918540</td><td>0.0104</td></tr>
+        </table>
+      </details>
+
+      <details>
+        <summary>Flipped Edges (buffer excluded)</summary>
+        <table>
+          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><td>0</td><td>619795533763</td><td>0.6318</td></tr>
+          <tr><td>1</td><td>285105945531</td><td>0.2906</td></tr>
+          <tr><td>2</td><td>65078531045</td><td>0.0663</td></tr>
+          <tr><td>3</td><td>9813429285</td><td>0.0100</td></tr>
+          <tr><td>4</td><td>1097554590</td><td>0.0011</td></tr>
+          <tr><td>5</td><td>96843054</td><td>0.0001</td></tr>
+          <tr><td>6</td><td>6994218</td><td>0.0000</td></tr>
+          <tr><td>7</td><td>422730</td><td>0.0000</td></tr>
+          <tr><td>8</td><td>21615</td><td>0.0000</td></tr>
+          <tr><td>9</td><td>935</td><td>0.0000</td></tr>
+          <tr><td>10</td><td>33</td><td>0.0000</td></tr>
+          <tr><td>11</td><td>1</td><td>0.0000</td></tr>
+        </table>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Solved-in-place edges (buffer excluded) follow the same distribution by orientation symmetry.</p>
+      </details>
+
+      <details>
+        <summary>Twisted Corners (buffer excluded)</summary>
+        <table>
+          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><td>0</td><td>49045792</td><td>0.5562</td></tr>
+          <tr><td>1</td><td>28924448</td><td>0.3280</td></tr>
+          <tr><td>2</td><td>8383872</td><td>0.0951</td></tr>
+          <tr><td>3</td><td>1583680</td><td>0.0180</td></tr>
+          <tr><td>4</td><td>217280</td><td>0.0025</td></tr>
+          <tr><td>5</td><td>22848</td><td>0.0003</td></tr>
+          <tr><td>6</td><td>1792</td><td>0.0000</td></tr>
+          <tr><td>7</td><td>128</td><td>0.0000</td></tr>
+        </table>
+      </details>
+
+      <details>
+        <summary>Float 3-Cycles in Edges (buffer excluded)</summary>
+        <table>
+          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><td>0</td><td>864994099200</td><td>0.8818</td></tr>
+          <tr><td>1</td><td>109567180800</td><td>0.1117</td></tr>
+          <tr><td>2</td><td>6244761600</td><td>0.0064</td></tr>
+          <tr><td>3</td><td>189235200</td><td>0.0002</td></tr>
+        </table>
+      </details>
+
+      <details>
+        <summary>Float 3-Cycles in Corners (buffer excluded)</summary>
+        <table>
+          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><td>0</td><td>82192320</td><td>0.9321</td></tr>
+          <tr><td>1</td><td>5851440</td><td>0.0664</td></tr>
+          <tr><td>2</td><td>136080</td><td>0.0015</td></tr>
+        </table>
+      </details>
+
+      <details>
+        <summary>Solved Corners (buffer excluded)</summary>
+        <table>
+          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><td>0</td><td>65816267</td><td>0.7464</td></tr>
+          <tr><td>1</td><td>19306105</td><td>0.2189</td></tr>
+          <tr><td>2</td><td>2778909</td><td>0.0315</td></tr>
+          <tr><td>3</td><td>260015</td><td>0.0029</td></tr>
+          <tr><td>4</td><td>17605</td><td>0.0002</td></tr>
+          <tr><td>5</td><td>903</td><td>0.0000</td></tr>
+          <tr><td>6</td><td>35</td><td>0.0000</td></tr>
+          <tr><td>7</td><td>1</td><td>0.0000</td></tr>
+        </table>
+      </details>
+
+      <details>
+        <summary>Order of 3x3x3 Group Elements</summary>
+        <p style="margin-top:0.75rem; font-size:0.9rem;">Every move sequence eventually returns the cube to its start state. The <em>order</em> is the number of repetitions required. The table shows how many distinct cube states (scrambles) have each order.</p>
+        <table>
+          <tr><th>Order</th><th>Count</th></tr>
+          <tr><td>1</td><td>1</td></tr>
+          <tr><td>2</td><td>170911549183</td></tr>
+          <tr><td>3</td><td>33894540622394</td></tr>
+          <tr><td>4</td><td>4346957030144256</td></tr>
+          <tr><td>5</td><td>133528172514624</td></tr>
+          <tr><td>6</td><td>140621059298755526</td></tr>
+          <tr><td>7</td><td>153245517148800</td></tr>
+          <tr><td>8</td><td>294998638981939200</td></tr>
+          <tr><td>9</td><td>55333752398428896</td></tr>
+          <tr><td>10</td><td>34178553690432192</td></tr>
+          <tr><td>11</td><td>44590694400</td></tr>
+          <tr><td>12</td><td>2330232827455554048</td></tr>
+          <tr><td>14</td><td>23298374383021440</td></tr>
+          <tr><td>15</td><td>14385471333209856</td></tr>
+          <tr><td>16</td><td>150731886270873600</td></tr>
+          <tr><td>18</td><td>1371824848124089632</td></tr>
+          <tr><td>20</td><td>151839445189791744</td></tr>
+          <tr><td>21</td><td>39337151559333120</td></tr>
+          <tr><td>22</td><td>927085127270400</td></tr>
+          <tr><td>24</td><td>3293932519796244480</td></tr>
+          <tr><td>28</td><td>97419760907673600</td></tr>
+          <tr><td>30</td><td>1373347158867028224</td></tr>
+          <tr><td>33</td><td>15874019662233600</td></tr>
+          <tr><td>35</td><td>65526218912563200</td></tr>
+          <tr><td>36</td><td>3768152294808760320</td></tr>
+          <tr><td>40</td><td>835897246403788800</td></tr>
+          <tr><td>42</td><td>737199776831097600</td></tr>
+          <tr><td>44</td><td>100120377950208000</td></tr>
+          <tr><td>45</td><td>197329441659727104</td></tr>
+          <tr><td>48</td><td>911497647410380800</td></tr>
+          <tr><td>55</td><td>4854321355161600</td></tr>
+          <tr><td>56</td><td>671205306846412800</td></tr>
+          <tr><td>60</td><td>4199961633799421952</td></tr>
+          <tr><td>63</td><td>264371433705308160</td></tr>
+          <tr><td>66</td><td>404051175250329600</td></tr>
+          <tr><td>70</td><td>210461722916290560</td></tr>
+          <tr><td>72</td><td>1981453794190295040</td></tr>
+          <tr><td>77</td><td>187238109413376000</td></tr>
+          <tr><td>80</td><td>13349383726694400</td></tr>
+          <tr><td>84</td><td>1697725818678067200</td></tr>
+          <tr><td>90</td><td>1764876446897050368</td></tr>
+          <tr><td>99</td><td>104367909135974400</td></tr>
+          <tr><td>105</td><td>232824419423354880</td></tr>
+          <tr><td>110</td><td>4854321355161600</td></tr>
+          <tr><td>112</td><td>128726200221696000</td></tr>
+          <tr><td>120</td><td>1947044011463147520</td></tr>
+          <tr><td>126</td><td>854783686296207360</td></tr>
+          <tr><td>132</td><td>637129677864960000</td></tr>
+          <tr><td>140</td><td>223125413717606400</td></tr>
+          <tr><td>144</td><td>714192029378150400</td></tr>
+          <tr><td>154</td><td>187238109413376000</td></tr>
+          <tr><td>165</td><td>213590139627110400</td></tr>
+          <tr><td>168</td><td>1050269239266508800</td></tr>
+          <tr><td>180</td><td>2320395168471367680</td></tr>
+          <tr><td>198</td><td>759701292082790400</td></tr>
+          <tr><td>210</td><td>1053174509332070400</td></tr>
+          <tr><td>231</td><td>374476218826752000</td></tr>
+          <tr><td>240</td><td>407156203664179200</td></tr>
+          <tr><td>252</td><td>689877080447385600</td></tr>
+          <tr><td>280</td><td>68653973451571200</td></tr>
+          <tr><td>315</td><td>99309879652515840</td></tr>
+          <tr><td>330</td><td>213590139627110400</td></tr>
+          <tr><td>336</td><td>257452400443392000</td></tr>
+          <tr><td>360</td><td>571019888909352960</td></tr>
+          <tr><td>420</td><td>961155628321996800</td></tr>
+          <tr><td>462</td><td>374476218826752000</td></tr>
+          <tr><td>495</td><td>174755568785817600</td></tr>
+          <tr><td>504</td><td>238381852262400000</td></tr>
+          <tr><td>630</td><td>395380140162416640</td></tr>
+          <tr><td>720</td><td>120144453540249600</td></tr>
+          <tr><td>840</td><td>240288907080499200</td></tr>
+          <tr><td>990</td><td>174755568785817600</td></tr>
+          <tr><td>1260</td><td>51490480088678400</td></tr>
+        </table>
+      </details>
     </div>
 
     <div class="card">
@@ -268,87 +497,6 @@
           <tr><td>#10</td><td>5650322210</td><td>0.0115</td><td>0.8955</td></tr>
           <tr><td>#11</td><td>5158302131</td><td>0.0105</td><td>0.9060</td></tr>
           <tr><td>—</td><td>46091489411</td><td>0.0940</td><td>1.0000</td></tr>
-        </table>
-      </details>
-
-      <details>
-        <summary>Order of 3x3x3 Group Elements</summary>
-        <p style="margin-top:0.75rem; font-size:0.9rem;">Every move sequence eventually returns the cube to its start state. The <em>order</em> is the number of repetitions required. The table shows how many distinct cube states (scrambles) have each order.</p>
-        <table>
-          <tr><th>Order</th><th>Count</th></tr>
-          <tr><td>1</td><td>1</td></tr>
-          <tr><td>2</td><td>170911549183</td></tr>
-          <tr><td>3</td><td>33894540622394</td></tr>
-          <tr><td>4</td><td>4346957030144256</td></tr>
-          <tr><td>5</td><td>133528172514624</td></tr>
-          <tr><td>6</td><td>140621059298755526</td></tr>
-          <tr><td>7</td><td>153245517148800</td></tr>
-          <tr><td>8</td><td>294998638981939200</td></tr>
-          <tr><td>9</td><td>55333752398428896</td></tr>
-          <tr><td>10</td><td>34178553690432192</td></tr>
-          <tr><td>11</td><td>44590694400</td></tr>
-          <tr><td>12</td><td>2330232827455554048</td></tr>
-          <tr><td>14</td><td>23298374383021440</td></tr>
-          <tr><td>15</td><td>14385471333209856</td></tr>
-          <tr><td>16</td><td>150731886270873600</td></tr>
-          <tr><td>18</td><td>1371824848124089632</td></tr>
-          <tr><td>20</td><td>151839445189791744</td></tr>
-          <tr><td>21</td><td>39337151559333120</td></tr>
-          <tr><td>22</td><td>927085127270400</td></tr>
-          <tr><td>24</td><td>3293932519796244480</td></tr>
-          <tr><td>28</td><td>97419760907673600</td></tr>
-          <tr><td>30</td><td>1373347158867028224</td></tr>
-          <tr><td>33</td><td>15874019662233600</td></tr>
-          <tr><td>35</td><td>65526218912563200</td></tr>
-          <tr><td>36</td><td>3768152294808760320</td></tr>
-          <tr><td>40</td><td>835897246403788800</td></tr>
-          <tr><td>42</td><td>737199776831097600</td></tr>
-          <tr><td>44</td><td>100120377950208000</td></tr>
-          <tr><td>45</td><td>197329441659727104</td></tr>
-          <tr><td>48</td><td>911497647410380800</td></tr>
-          <tr><td>55</td><td>4854321355161600</td></tr>
-          <tr><td>56</td><td>671205306846412800</td></tr>
-          <tr><td>60</td><td>4199961633799421952</td></tr>
-          <tr><td>63</td><td>264371433705308160</td></tr>
-          <tr><td>66</td><td>404051175250329600</td></tr>
-          <tr><td>70</td><td>210461722916290560</td></tr>
-          <tr><td>72</td><td>1981453794190295040</td></tr>
-          <tr><td>77</td><td>187238109413376000</td></tr>
-          <tr><td>80</td><td>13349383726694400</td></tr>
-          <tr><td>84</td><td>1697725818678067200</td></tr>
-          <tr><td>90</td><td>1764876446897050368</td></tr>
-          <tr><td>99</td><td>104367909135974400</td></tr>
-          <tr><td>105</td><td>232824419423354880</td></tr>
-          <tr><td>110</td><td>4854321355161600</td></tr>
-          <tr><td>112</td><td>128726200221696000</td></tr>
-          <tr><td>120</td><td>1947044011463147520</td></tr>
-          <tr><td>126</td><td>854783686296207360</td></tr>
-          <tr><td>132</td><td>637129677864960000</td></tr>
-          <tr><td>140</td><td>223125413717606400</td></tr>
-          <tr><td>144</td><td>714192029378150400</td></tr>
-          <tr><td>154</td><td>187238109413376000</td></tr>
-          <tr><td>165</td><td>213590139627110400</td></tr>
-          <tr><td>168</td><td>1050269239266508800</td></tr>
-          <tr><td>180</td><td>2320395168471367680</td></tr>
-          <tr><td>198</td><td>759701292082790400</td></tr>
-          <tr><td>210</td><td>1053174509332070400</td></tr>
-          <tr><td>231</td><td>374476218826752000</td></tr>
-          <tr><td>240</td><td>407156203664179200</td></tr>
-          <tr><td>252</td><td>689877080447385600</td></tr>
-          <tr><td>280</td><td>68653973451571200</td></tr>
-          <tr><td>315</td><td>99309879652515840</td></tr>
-          <tr><td>330</td><td>213590139627110400</td></tr>
-          <tr><td>336</td><td>257452400443392000</td></tr>
-          <tr><td>360</td><td>571019888909352960</td></tr>
-          <tr><td>420</td><td>961155628321996800</td></tr>
-          <tr><td>462</td><td>374476218826752000</td></tr>
-          <tr><td>495</td><td>174755568785817600</td></tr>
-          <tr><td>504</td><td>238381852262400000</td></tr>
-          <tr><td>630</td><td>395380140162416640</td></tr>
-          <tr><td>720</td><td>120144453540249600</td></tr>
-          <tr><td>840</td><td>240288907080499200</td></tr>
-          <tr><td>990</td><td>174755568785817600</td></tr>
-          <tr><td>1260</td><td>51490480088678400</td></tr>
         </table>
       </details>
     </div>

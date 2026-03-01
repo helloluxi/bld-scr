@@ -28,19 +28,18 @@
       <div id="panel-help" style="display:none;">
 
         <h2>What is this?</h2>
-        <p>3BLD Scrambler generates 3x3 scrambles filtered by the <em>structure</em> of their BLD solution — letting you drill specific cases instead of solving whatever comes up randomly. You pick exactly what kind of memo you want to practice, and the tool generates scrambles that guarantee it.</p>
-        <p>Buffers are <strong>UF</strong> (edges) and <strong>UFR</strong> (corners). Scramble in your own orientation.</p>
+        <p>3BLD Scrambler generates 3x3 scrambles filtered by the <em>cycle structure</em> of their BLD solution. Buffers are <strong>UF</strong> (edges) and <strong>UFR</strong> (corners). Scramble in your own orientation.</p>
         <p>This project is actually a vibe-coded remastering of another tool when I just started learning programming and wanted to make something fun. It just works. While I can't think of practical use case of this project, I would self-promote another tool of mine — <a href="https://helloluxi.github.io/ufufr" target="_blank" underline>LuTimer</a> for more serious training.</p>
 
         <h2>Concepts</h2>
         <ul>
-          <li><strong>Parity — even / odd:</strong> whether the scramble has BLD parity. Unticking both gives zero results.</li>
-          <li><strong>Flips / Twists:</strong> number of in-place misoriented pieces (flipped edges or twisted corners).</li>
+          <li><strong>Parity:</strong> even / odd, whether the scramble has BLD parity.</li>
+          <li><strong>Flips / Twists:</strong> number of flipped edges or twisted corners, buffer excluded.</li>
           <li><strong>Cycle Breaks:</strong> how many times the memo must jump to a new starting piece.</li>
-          <li><strong>Float 3-style:</strong> number of floating 3-cycles (orientation-clean secondary 3-cycles).</li>
+          <li><strong>Float 3-style:</strong> number of floating 3-cycles (orientation-clean 3-cycles, buffer excluded).</li>
           <li><strong>Algs:</strong> estimated algorithm count (each 3-style pair = 1 alg; a float-3 / 3-twist / 4-flip saves 1; parity adds 0.5).</li>
         </ul>
-        <p>The <em>Probability</em> line shows what fraction of all scrambles match your current filter — useful to gauge how rare your target case is. Hitting Scramble! updates the URL so you can bookmark or share your current setup.</p>
+        <p>The <em>Probability</em> line shows what fraction of all scrambles match your current filter — useful to gauge how rare your target case is. Hitting <em>Scramble!</em> updates the URL so you can bookmark or share your current setup.</p>
 
         <h2>How does it work?</h2>
         <p>For the full mathematical background — cycle structure counting, scramble weights, and sampling — see the <a href="help.html" target="_blank">How It Works</a> page.</p>

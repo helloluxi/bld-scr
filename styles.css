@@ -365,6 +365,15 @@ p {
   line-height: 1.6;
 }
 
+strong {
+  color: var(--primary);
+}
+
+em {
+  color: var(--h3-color);
+  font-style: italic;
+}
+
 ul {
   margin-bottom: 1rem;
 }
