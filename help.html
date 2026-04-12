@@ -62,13 +62,12 @@
         <li><strong>$\text{algs}_{\text{float3}}$</strong>: number of orientation-clean secondary 3-cycles ($p_j=3,\,o_j=0$), each solvable by a single commutator — saves 1 alg each.</li>
       </ul>
 
-      <h2>Parity</h2>
+      <h2>Parity & Sampling</h2>
       $$\text{parity} = (2 \cdot \text{algs}_{\text{base}}) \bmod 2$$
 
-      <p>Any valid 3BLD scramble has equal edge and corner permutation parity, so filtering one automatically filters both.</p>
+      <p>Any valid 3BLD scramble has equal edge and corner permutation parity, so filtering one automatically filters both. Because parity is a top-level filter, configurations are split by parity into <strong>two separate weighted pools</strong> — an even-parity pool and an odd-parity pool — each with its own CDF weighted by scramble count. Toggling even or odd off simply drops the corresponding pool from the draw, with no need to re-normalise the other one.</p>
 
-      <h2>Sampling</h2>
-      <p>Each valid cycle configuration receives a weight equal to its scramble count. Two CDFs are built — even-parity pool and odd-parity pool — weighted by count. To generate a scramble: pick parity in proportion to pool totals; sample a configuration from the CDF; instantiate a random permutation and orientation assignment matching that configuration; solve with <a href="https://github.com/cs0x7f/min2phase" target="_blank">min2phase</a>.</p>
+      <p>To generate a scramble: if both parities are enabled, pick a pool in proportion to its total weight (so the joint distribution still matches the unfiltered scramble distribution); sample a configuration from that pool's CDF; instantiate a random permutation and orientation assignment matching the configuration; solve the resulting cube state with <a href="https://github.com/cs0x7f/min2phase.js" target="_blank">min2phase.js</a>.</p>
     </div>
 
     <div class="card">
@@ -300,7 +299,7 @@
 
     <div class="card">
       <h2>Bonus: Big BLD Statistics</h2>
-      <p>Exact scramble counts for 5BLD wings and x/t-centers. Will explain methodology upon request.</p>
+      <p>Exact scramble counts for 5BLD wings and x/t-centers. Methodology available on request.</p>
 
       <details>
         <summary>Wing Algs</summary>
