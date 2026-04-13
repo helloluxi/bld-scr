@@ -298,8 +298,170 @@
     </div>
 
     <div class="card">
+      <h2>Fixed Break-In Swap (固定借位法)</h2>
+
+      <p>When a 3BLD scramble has <strong>odd parity</strong>, the solver must incorporate a 2-swap (parity algorithm) into their execution. The <em>fixed break-in swap</em> technique resolves parity by designating a fixed preference order among the 11 non-buffer edge positions (e.g., UR first, then UB, UL, …). During memo, the solver checks each preferred position in order until one is <strong>applicable</strong> — meaning it can serve as the parity-swap target with the buffer.</p>
+
+      <p>For buffer UF, a position X is applicable as a swap target if any of these hold:</p>
+      <ul>
+        <li>The UF piece is sitting at X — skip the letter and leave it for the parity swap at the end.</li>
+        <li>X is not in the buffer cycle — start a new cycle ending at X, leaving the swap at the end.</li>
+        <li>The X piece is flipped in place — solve it as two letters (e.g., RU then UR), executing RU in cycle and leaving UR at the end.</li>
+      </ul>
+
+      <p>Conversely, X is <strong>not applicable</strong> if:</p>
+      <ul>
+        <li>X is already correctly solved — there is no need to swap it.</li>
+        <li>X is in the middle of the buffer cycle — it cannot be extracted without disrupting tracing.</li>
+        <li>The UF piece is sitting at $\overline{\mathrm{X}}$ (the flipped sticker of X) — this forces a letter into the buffer cycle that cannot be deferred.</li>
+      </ul>
+
+      <p>These two sets are in bijection: swapping the physical UF and X pieces maps each applicable case to the corresponding not-applicable case and vice versa. This gives a clean 50% probability that the first preferred position (index #1) is applicable, regardless of parity. The remaining position at the end of the buffer cycle ($p_0 > 1$) can have either orientation with equal probability, so it contributes half to each side.</p>
+
+      <p>Formally, for a cycle configuration with buffer cycle length $p_0$ and $f$ solved-in-place edges among secondary cycles:</p>
+      <ul>
+        <li>$a = 11 - h - n$: fully applicable positions (not in buffer cycle, not solved)</li>
+        <li>$h = \mathbf{1}_{p_0 > 1}$: the last position in the buffer cycle — applicable iff its orientation is correct (probability $\frac{1}{2}$)</li>
+        <li>$n = \max(0,\, p_0 - 2) + f$: never-applicable positions (mid-buffer-cycle + solved)</li>
+      </ul>
+      <p>After the coin flip on $h$, we have $a'$ applicable and $n' = 11 - a'$ not-applicable positions uniformly distributed among the 11 preference slots. The probability that the first applicable slot is at index $k$ is:</p>
+      $$P(k \mid a', n') \;=\; \frac{a' \cdot n'^{\underline{k-1}}}{11^{\underline{k}}}$$
+      <p>where $x^{\underline{m}} = x(x-1)\cdots(x-m+1)$ is the falling factorial. The — row collects configurations where $a' = 0$ (no applicable target exists).</p>
+
+      <details>
+        <summary>Edge Buffer Index — Fixed Break-In Swap, No Parity Constraint</summary>
+        <table>
+          <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <tr><td>#1</td><td>490497638400</td><td>0.5000</td><td>0.5000</td></tr>
+          <tr><td>#2</td><td>165357158400</td><td>0.1686</td><td>0.6686</td></tr>
+          <tr><td>#3</td><td>82864373760</td><td>0.0845</td><td>0.7530</td></tr>
+          <tr><td>#4</td><td>50180014080</td><td>0.0512</td><td>0.8042</td></tr>
+          <tr><td>#5</td><td>33901056000</td><td>0.0346</td><td>0.8387</td></tr>
+          <tr><td>#6</td><td>24637063680</td><td>0.0251</td><td>0.8639</td></tr>
+          <tr><td>#7</td><td>18881856000</td><td>0.0192</td><td>0.8831</td></tr>
+          <tr><td>#8</td><td>15078452544</td><td>0.0154</td><td>0.8985</td></tr>
+          <tr><td>#9</td><td>12448644384</td><td>0.0127</td><td>0.9112</td></tr>
+          <tr><td>#10</td><td>10568158788</td><td>0.0108</td><td>0.9219</td></tr>
+          <tr><td>#11</td><td>9189703292</td><td>0.0094</td><td>0.9313</td></tr>
+          <tr><td>—</td><td>67391157472</td><td>0.0687</td><td>1.0000</td></tr>
+        </table>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes no valid swap target exists ($a' = 0$).</p>
+      </details>
+
+      <details>
+        <summary>Edge Buffer Index — Fixed Break-In Swap, Odd Parity Only</summary>
+        <table>
+          <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <tr><td>#1</td><td>241532928000</td><td>0.4924</td><td>0.4924</td></tr>
+          <tr><td>#2</td><td>79705866240</td><td>0.1625</td><td>0.6549</td></tr>
+          <tr><td>#3</td><td>39109754880</td><td>0.0797</td><td>0.7347</td></tr>
+          <tr><td>#4</td><td>23335280640</td><td>0.0476</td><td>0.7822</td></tr>
+          <tr><td>#5</td><td>15690101760</td><td>0.0320</td><td>0.8142</td></tr>
+          <tr><td>#6</td><td>11487156480</td><td>0.0234</td><td>0.8376</td></tr>
+          <tr><td>#7</td><td>8980616064</td><td>0.0183</td><td>0.8559</td></tr>
+          <tr><td>#8</td><td>7398461472</td><td>0.0151</td><td>0.8710</td></tr>
+          <tr><td>#9</td><td>6357359112</td><td>0.0130</td><td>0.8840</td></tr>
+          <tr><td>#10</td><td>5650322210</td><td>0.0115</td><td>0.8955</td></tr>
+          <tr><td>#11</td><td>5158302131</td><td>0.0105</td><td>0.9060</td></tr>
+          <tr><td>—</td><td>46091489411</td><td>0.0940</td><td>1.0000</td></tr>
+        </table>
+      </details>
+
+    </div>
+
+    <div class="card">
+      <h2>Reproduction Code</h2>
+      <details>
+        <summary>Paste in browser console on the main page</summary>
+        <div style="position:relative;">
+          <button class="copy-button" onclick="const c=this.nextElementSibling.querySelector('code');navigator.clipboard.writeText(c.innerText);this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),1500)"></button>
+          <pre><code><span class="cm">// ── 3BLD Statistics ──</span>
+
+<span class="kw">const</span> allE <span class="op">=</span> <span class="op">[...</span>cycler<span class="op">.</span>evenEdges<span class="op">, ...</span>cycler<span class="op">.</span>oddEdges<span class="op">]</span>;
+<span class="kw">const</span> allC <span class="op">=</span> <span class="op">[...</span>cycler<span class="op">.</span>evenCorners<span class="op">, ...</span>cycler<span class="op">.</span>oddCorners<span class="op">]</span>;
+<span class="kw">const</span> eT <span class="op">=</span> <span class="num">980995276800</span>, cT <span class="op">=</span> <span class="num">88179840</span>;
+
+<span class="kw">function</span> <span class="fn">tally</span>(configs, keyFn) <span class="op">{</span>
+    <span class="kw">const</span> t <span class="op">=</span> <span class="kw">new</span> <span class="fn">Map</span>();
+    <span class="kw">for</span> (<span class="kw">const</span> cc <span class="kw">of</span> configs)
+        t.<span class="fn">set</span>(<span class="fn">keyFn</span>(cc), (t.<span class="fn">get</span>(<span class="fn">keyFn</span>(cc)) <span class="op">||</span> <span class="num">0</span>) <span class="op">+</span> cc.count);
+    <span class="kw">return</span> <span class="op">[...</span>t<span class="op">].</span><span class="fn">sort</span>((a, b) <span class="op">=&gt;</span> a[<span class="num">0</span>] <span class="op">-</span> b[<span class="num">0</span>]);
+<span class="op">}</span>
+
+<span class="kw">function</span> <span class="fn">show</span>(name, rows, total) <span class="op">{</span>
+    console.<span class="fn">log</span>(<span class="str">`\n=== ${name} ===`</span>);
+    <span class="kw">let</span> cum <span class="op">=</span> <span class="num">0</span>;
+    <span class="kw">for</span> (<span class="kw">const</span> [k, v] <span class="kw">of</span> rows) <span class="op">{</span>
+        cum <span class="op">+=</span> v;
+        console.<span class="fn">log</span>(<span class="str">`${k}\t${Math.round(v)}\t${(v/total).toFixed(4)}\t${(cum/total).toFixed(4)}`</span>);
+    <span class="op">}</span>
+<span class="op">}</span>
+
+<span class="fn">show</span>(<span class="str">"Edge Algs"</span>,           <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.algs),   eT);
+<span class="fn">show</span>(<span class="str">"Corner Algs"</span>,         <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.algs),  cT);
+<span class="fn">show</span>(<span class="str">"Edge Cycle Breaks"</span>,   <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.breaks), eT);
+<span class="fn">show</span>(<span class="str">"Corner Cycle Breaks"</span>, <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.breaks), cT);
+<span class="fn">show</span>(<span class="str">"Flipped Edges"</span>,       <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.bad1),   eT);
+<span class="fn">show</span>(<span class="str">"Twisted Corners"</span>,     <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.bad1),  cT);
+<span class="fn">show</span>(<span class="str">"Float3 Edges"</span>,        <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.float3), eT);
+<span class="fn">show</span>(<span class="str">"Float3 Corners"</span>,      <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.float3), cT);
+<span class="fn">show</span>(<span class="str">"Solved Corners"</span>,      <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.float1), cT);
+
+<span class="cm">// ── Fixed Break-In Swap ──</span>
+
+<span class="kw">function</span> <span class="fn">falling</span>(x, k) <span class="op">{</span>
+    <span class="kw">let</span> r <span class="op">=</span> <span class="num">1</span>;
+    <span class="kw">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="num">0</span>; i <span class="op">&lt;</span> k; i<span class="op">++</span>) r <span class="op">*=</span> (x <span class="op">-</span> i);
+    <span class="kw">return</span> r;
+<span class="op">}</span>
+
+<span class="kw">const</span> res <span class="op">=</span> <span class="kw">new</span> <span class="fn">Array</span>(<span class="num">12</span>).<span class="fn">fill</span>(<span class="num">0</span>), resOdd <span class="op">=</span> <span class="kw">new</span> <span class="fn">Array</span>(<span class="num">12</span>).<span class="fn">fill</span>(<span class="num">0</span>);
+
+<span class="kw">function</span> <span class="fn">process</span>(cc, isOdd) <span class="op">{</span>
+    <span class="kw">const</span> p0 <span class="op">=</span> cc.cycles[<span class="num">0</span>].perm, f1 <span class="op">=</span> cc.float1;
+    <span class="kw">const</span> h <span class="op">=</span> (p0 <span class="op">&gt;</span> <span class="num">1</span>) <span class="op">?</span> <span class="num">1</span> <span class="op">:</span> <span class="num">0</span>;
+    <span class="kw">const</span> n0 <span class="op">=</span> Math.<span class="fn">max</span>(<span class="num">0</span>, p0 <span class="op">-</span> <span class="num">2</span>) <span class="op">+</span> f1, a0 <span class="op">=</span> <span class="num">11</span> <span class="op">-</span> h <span class="op">-</span> n0;
+    <span class="kw">const</span> vcs <span class="op">=</span> h <span class="op">===</span> <span class="num">0</span>
+        <span class="op">?</span> [[cc.count, a0, <span class="num">11</span> <span class="op">-</span> a0]]
+        <span class="op">:</span> [[cc.count <span class="op">/</span> <span class="num">2</span>, a0 <span class="op">+</span> <span class="num">1</span>, <span class="num">11</span> <span class="op">-</span> a0 <span class="op">-</span> <span class="num">1</span>],
+           [cc.count <span class="op">/</span> <span class="num">2</span>, a0, <span class="num">11</span> <span class="op">-</span> a0]];
+    <span class="kw">for</span> (<span class="kw">const</span> [w, a, n] <span class="kw">of</span> vcs) <span class="op">{</span>
+        <span class="kw">if</span> (a <span class="op">===</span> <span class="num">0</span>) <span class="op">{</span> res[<span class="num">0</span>] <span class="op">+=</span> w; <span class="kw">if</span> (isOdd) resOdd[<span class="num">0</span>] <span class="op">+=</span> w; <span class="kw">continue</span>; <span class="op">}</span>
+        <span class="kw">for</span> (<span class="kw">let</span> k <span class="op">=</span> <span class="num">1</span>; k <span class="op">&lt;=</span> <span class="num">11</span>; k<span class="op">++</span>) <span class="op">{</span>
+            <span class="kw">if</span> (k <span class="op">-</span> <span class="num">1</span> <span class="op">&gt;</span> n) <span class="kw">break</span>;
+            <span class="kw">const</span> c <span class="op">=</span> w <span class="op">*</span> a <span class="op">*</span> <span class="fn">falling</span>(n, k <span class="op">-</span> <span class="num">1</span>) <span class="op">/</span> <span class="fn">falling</span>(<span class="num">11</span>, k);
+            res[k] <span class="op">+=</span> c; <span class="kw">if</span> (isOdd) resOdd[k] <span class="op">+=</span> c;
+        <span class="op">}</span>
+    <span class="op">}</span>
+<span class="op">}</span>
+
+cycler.evenEdges.<span class="fn">forEach</span>(cc <span class="op">=&gt;</span> <span class="fn">process</span>(cc, <span class="kw">false</span>));
+cycler.oddEdges.<span class="fn">forEach</span>(cc <span class="op">=&gt;</span> <span class="fn">process</span>(cc, <span class="kw">true</span>));
+<span class="kw">const</span> tot <span class="op">=</span> res.<span class="fn">reduce</span>((s, v) <span class="op">=&gt;</span> s <span class="op">+</span> v, <span class="num">0</span>);
+<span class="kw">const</span> totO <span class="op">=</span> resOdd.<span class="fn">reduce</span>((s, v) <span class="op">=&gt;</span> s <span class="op">+</span> v, <span class="num">0</span>);
+
+console.<span class="fn">log</span>(<span class="str">"\n=== Fixed Break-In Swap — No Parity Constraint ==="</span>);
+<span class="kw">let</span> cum <span class="op">=</span> <span class="num">0</span>;
+<span class="kw">for</span> (<span class="kw">let</span> k <span class="op">=</span> <span class="num">1</span>; k <span class="op">&lt;=</span> <span class="num">11</span>; k<span class="op">++</span>) <span class="op">{</span>
+    cum <span class="op">+=</span> res[k];
+    console.<span class="fn">log</span>(<span class="str">`#${k}\t${Math.round(res[k])}\t${(res[k]/tot).toFixed(4)}\t${(cum/tot).toFixed(4)}`</span>);
+<span class="op">}</span>
+console.<span class="fn">log</span>(<span class="str">`—\t${Math.round(res[0])}\t${(res[0]/tot).toFixed(4)}\t1.0000`</span>);
+
+console.<span class="fn">log</span>(<span class="str">"\n=== Fixed Break-In Swap — Odd Parity Only ==="</span>);
+cum <span class="op">=</span> <span class="num">0</span>;
+<span class="kw">for</span> (<span class="kw">let</span> k <span class="op">=</span> <span class="num">1</span>; k <span class="op">&lt;=</span> <span class="num">11</span>; k<span class="op">++</span>) <span class="op">{</span>
+    cum <span class="op">+=</span> resOdd[k];
+    console.<span class="fn">log</span>(<span class="str">`#${k}\t${Math.round(resOdd[k])}\t${(resOdd[k]/totO).toFixed(4)}\t${(cum/totO).toFixed(4)}`</span>);
+<span class="op">}</span>
+console.<span class="fn">log</span>(<span class="str">`—\t${Math.round(resOdd[0])}\t${(resOdd[0]/totO).toFixed(4)}\t1.0000`</span>);</code></pre>
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
       <h2>Bonus: Big BLD Statistics</h2>
-      <p>Exact scramble counts for 5BLD wings and x/t-centers. Methodology available on request.</p>
+      <p>Exact scramble counts for 5BLD wings and x/t-centers.</p>
 
       <details>
         <summary>Wing Algs</summary>
@@ -458,45 +620,6 @@
           <tr><td>24</td><td>45131501617225</td><td>0.0139</td></tr>
         </table>
         <p style="font-size:0.85rem; color:var(--text-secondary);">Mean: 20</p>
-      </details>
-
-      <details>
-        <summary>Edge Buffer Index — Weak Swap, No Parity Constraint</summary>
-        <table>
-          <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
-          <tr><td>#1</td><td>490497638400</td><td>0.5000</td><td>0.5000</td></tr>
-          <tr><td>#2</td><td>165357158400</td><td>0.1686</td><td>0.6686</td></tr>
-          <tr><td>#3</td><td>82864373760</td><td>0.0845</td><td>0.7530</td></tr>
-          <tr><td>#4</td><td>50180014080</td><td>0.0512</td><td>0.8042</td></tr>
-          <tr><td>#5</td><td>33901056000</td><td>0.0346</td><td>0.8387</td></tr>
-          <tr><td>#6</td><td>24637063680</td><td>0.0251</td><td>0.8639</td></tr>
-          <tr><td>#7</td><td>18881856000</td><td>0.0192</td><td>0.8831</td></tr>
-          <tr><td>#8</td><td>15078452544</td><td>0.0154</td><td>0.8985</td></tr>
-          <tr><td>#9</td><td>12448644384</td><td>0.0127</td><td>0.9112</td></tr>
-          <tr><td>#10</td><td>10568158788</td><td>0.0108</td><td>0.9219</td></tr>
-          <tr><td>#11</td><td>9189703292</td><td>0.0094</td><td>0.9313</td></tr>
-          <tr><td>—</td><td>67391157472</td><td>0.0687</td><td>1.0000</td></tr>
-        </table>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes the whole cycle configuration is a single cycle ending at an edge in the wrong orientation (no valid weak-swap target).</p>
-      </details>
-
-      <details>
-        <summary>Edge Buffer Index — Weak Swap, Odd Parity Only</summary>
-        <table>
-          <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
-          <tr><td>#1</td><td>241532928000</td><td>0.4924</td><td>0.4924</td></tr>
-          <tr><td>#2</td><td>79705866240</td><td>0.1625</td><td>0.6549</td></tr>
-          <tr><td>#3</td><td>39109754880</td><td>0.0797</td><td>0.7347</td></tr>
-          <tr><td>#4</td><td>23335280640</td><td>0.0476</td><td>0.7822</td></tr>
-          <tr><td>#5</td><td>15690101760</td><td>0.0320</td><td>0.8142</td></tr>
-          <tr><td>#6</td><td>11487156480</td><td>0.0234</td><td>0.8376</td></tr>
-          <tr><td>#7</td><td>8980616064</td><td>0.0183</td><td>0.8559</td></tr>
-          <tr><td>#8</td><td>7398461472</td><td>0.0151</td><td>0.8710</td></tr>
-          <tr><td>#9</td><td>6357359112</td><td>0.0130</td><td>0.8840</td></tr>
-          <tr><td>#10</td><td>5650322210</td><td>0.0115</td><td>0.8955</td></tr>
-          <tr><td>#11</td><td>5158302131</td><td>0.0105</td><td>0.9060</td></tr>
-          <tr><td>—</td><td>46091489411</td><td>0.0940</td><td>1.0000</td></tr>
-        </table>
       </details>
     </div>
 
