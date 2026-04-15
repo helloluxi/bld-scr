@@ -10,7 +10,7 @@ Buffers are fixed at **UF** (edges) and **UFR** (corners). Scramble in your own 
 
 - **Basic** — slider-based filters for parity, flips/twists, cycle breaks, float 3-style, and alg count.
 - **Advanced** — write a JavaScript boolean expression over the cycle structure for arbitrary filters. Per-field history, shareable URLs.
-- **Stat** — plot the distribution of any numeric expression (e.g. `breaks`, `bad1`, `algs`) across all scrambles, separately for edges and corners.
+- **Stat** — plot the distribution of any numeric expression (e.g. `breaks`, `open1`, `algs`) across all scrambles, separately for edges and corners.
 - **About** — in-app explanation of concepts and variables.
 
 Hitting *Scramble!* updates the URL so you can bookmark or share your current setup.

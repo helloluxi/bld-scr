@@ -66,12 +66,12 @@
       $$\operatorname{count}_{\mathrm{corners}} = \frac{7!\cdot 3^{8-1-1}}{1^1\cdot1!} = 5040\cdot 729 = 3{,}674{,}160$$
 
       <h2>Alg Count Estimation</h2>
-      $$\text{algs} = \text{algs}_{\text{base}} + \text{algs}_{\text{flip/twist}} - \text{algs}_{\text{float3}}$$
+      $$\text{algs} = \text{algs}_{\text{base}} + \text{algs}_{\text{flip/twist}} - \text{algs}_{\text{closed3}}$$
 
       <ul>
         <li><strong>$\text{algs}_{\text{base}}$</strong> $= \frac{1}{2}\left[ (p_0 - 1) + \sum_{\substack{j \\ p_j > 1}} r_j(p_j + 1) \right]$: Each secondary cycle with $p_j > 1$ contributes $p_j + 1$ letters — $p_j$ for its pieces plus $1$ for the cycle-break letter.</li>
         <li><strong>$\text{algs}_{\text{flip/twist}}$</strong>: additional algs for misoriented in-place pieces ($p_j=1,\,o_j > 0$). Edges: $\lceil\mathrm{flips}/4\rceil$. Corners with $k_1$ CW-twisted and $k_2$ CCW-twisted: $\lfloor k_1/3\rfloor+\lfloor k_2/3\rfloor+\lceil((k_1\bmod 3)+(k_2\bmod 3))/3\rceil$.</li>
-        <li><strong>$\text{algs}_{\text{float3}}$</strong>: number of orientation-clean secondary 3-cycles ($p_j=3,\,o_j=0$), each solvable by a single commutator — saves 1 alg each.</li>
+        <li><strong>$\text{algs}_{\text{closed3}}$</strong>: number of orientation-clean secondary Float 3-cycles ($p_j=3,\,o_j=0$), each solvable by a single commutator — saves 1 alg each.</li>
       </ul>
 
       <h2>Parity & Sampling</h2>
@@ -207,8 +207,8 @@
 
 <span class="fn">show</span>(<span class="str">"Edge Algs (Float 3-Cycles Reduced Out)"</span>, <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.algs), eT);
 <span class="fn">show</span>(<span class="str">"Corner Algs (Float 3-Cycles Reduced Out)"</span>, <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.algs), cT);
-<span class="fn">show</span>(<span class="str">"Edge Algs (Float 3-Cycles Counted)"</span>, <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.algs <span class="op">+</span> c.float3), eT);
-<span class="fn">show</span>(<span class="str">"Corner Algs (Float 3-Cycles Counted)"</span>, <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.algs <span class="op">+</span> c.float3), cT);</code></pre>
+<span class="fn">show</span>(<span class="str">"Edge Algs (Float 3-Cycles Counted)"</span>, <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.algs <span class="op">+</span> c.closed3), eT);
+<span class="fn">show</span>(<span class="str">"Corner Algs (Float 3-Cycles Counted)"</span>, <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.algs <span class="op">+</span> c.closed3), cT);</code></pre>
         </div>
       </details>
     </div>
@@ -324,8 +324,8 @@
   <span class="kw">for</span> (<span class="kw">const</span> [k, v] <span class="kw">of</span> rows) console.<span class="fn">log</span>(<span class="str">`${k}\t${Math.round(v)}\t${(v / total).toFixed(4)}`</span>);
 <span class="op">}</span>
 
-<span class="fn">show</span>(<span class="str">"Flipped Edges"</span>, <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.bad1), eT);
-<span class="fn">show</span>(<span class="str">"Twisted Corners"</span>, <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.bad1), cT);</code></pre>
+<span class="fn">show</span>(<span class="str">"Flipped Edges"</span>, <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.open1), eT);
+<span class="fn">show</span>(<span class="str">"Twisted Corners"</span>, <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.open1), cT);</code></pre>
         </div>
       </details>
     </div>
@@ -358,7 +358,7 @@
       <details>
         <summary>Reproduction code (paste in browser console of main page)</summary>
         <div style="position:relative;">
-          <button class="copy-button" onclick="const codeBlockFloat3=this.nextElementSibling.querySelector('code');navigator.clipboard.writeText(codeBlockFloat3.innerText);this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),1500)"></button>
+          <button class="copy-button" onclick="const codeBlockClosed3=this.nextElementSibling.querySelector('code');navigator.clipboard.writeText(codeBlockClosed3.innerText);this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),1500)"></button>
           <pre><code><span class="kw">const</span> allE <span class="op">=</span> <span class="op">[...</span>cycler<span class="op">.</span>evenEdges<span class="op">, ...</span>cycler<span class="op">.</span>oddEdges<span class="op">]</span>;
 <span class="kw">const</span> allC <span class="op">=</span> <span class="op">[...</span>cycler<span class="op">.</span>evenCorners<span class="op">, ...</span>cycler<span class="op">.</span>oddCorners<span class="op">]</span>;
 <span class="kw">const</span> eT <span class="op">=</span> <span class="num">980995276800</span>, cT <span class="op">=</span> <span class="num">88179840</span>;
@@ -374,8 +374,8 @@
   <span class="kw">for</span> (<span class="kw">const</span> [k, v] <span class="kw">of</span> rows) console.<span class="fn">log</span>(<span class="str">`${k}\t${Math.round(v)}\t${(v / total).toFixed(4)}`</span>);
 <span class="op">}</span>
 
-<span class="fn">show</span>(<span class="str">"Float3 Edges"</span>, <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.float3), eT);
-<span class="fn">show</span>(<span class="str">"Float3 Corners"</span>, <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.float3), cT);</code></pre>
+<span class="fn">show</span>(<span class="str">"Float 3-Cycle Edges"</span>, <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.closed3), eT);
+<span class="fn">show</span>(<span class="str">"Float 3-Cycle Corners"</span>, <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.closed3), cT);</code></pre>
         </div>
       </details>
     </div>
@@ -463,9 +463,9 @@
 
       <details>
         <summary>Results</summary>
-        <p><strong>LTCT</strong> (Last Target Corner Twist) combines solving the final corner target with twisting two misoriented corners into a single algorithm, saving one twist alg. It requires odd parity and at least one twisted non-buffer corner (<code>bad1&gt;=1</code>).</p>
+        <p><strong>LTCT</strong> (Last Target Corner Twist) combines solving the final corner target with twisting two misoriented corners into a single algorithm, saving one twist alg. It requires odd parity and at least one twisted non-buffer corner (<code>open1&gt;=1</code>).</p>
 
-        <p><strong>T2C</strong> (Twisted 2 Corners) solves the final corner target when the buffer corner is twisted and two remaining corners are swapped, combining the swap and buffer untwist into one algorithm. It requires odd parity and at least one misoriented secondary 2-cycle (<code>bad2&gt;=1</code>).</p>
+        <p><strong>T2C</strong> (Twisted 2 Corners) solves the final corner target when the buffer corner is twisted and two remaining corners are swapped, combining the swap and buffer untwist into one algorithm. It requires odd parity and at least one misoriented secondary 2-cycle (<code>open2&gt;=1</code>).</p>
 
         <p><strong>Note</strong>: In practice, most BLDers specialize in LTCT or T2C algorithms for a fixed edge pair (e.g., UF–UR), so the actual applicable cases are even fewer—roughly half of those shown above when using fixed break-in swap.</p>
         
@@ -484,7 +484,7 @@
 <span class="kw">const</span> oddC <span class="op">=</span> cycler<span class="op">.</span>oddCorners;
 <span class="kw">const</span> cT <span class="op">=</span> <span class="num">88179840</span>, oddT <span class="op">=</span> <span class="num">44089920</span>;
 
-<span class="kw">for</span> (<span class="kw">const</span> [name, key] <span class="kw">of</span> [[<span class="str">"LTCT"</span>, <span class="str">"bad1"</span>], [<span class="str">"T2C"</span>, <span class="str">"bad2"</span>]]) <span class="op">{</span>
+<span class="kw">for</span> (<span class="kw">const</span> [name, key] <span class="kw">of</span> [[<span class="str">"LTCT"</span>, <span class="str">"open1"</span>], [<span class="str">"T2C"</span>, <span class="str">"open2"</span>]]) <span class="op">{</span>
     <span class="kw">let</span> all <span class="op">=</span> <span class="num">0</span>, odd <span class="op">=</span> <span class="num">0</span>;
     <span class="kw">for</span> (<span class="kw">const</span> cc <span class="kw">of</span> allC) <span class="kw">if</span> (cc[key] <span class="op">&gt;=</span> <span class="num">1</span>) all <span class="op">+=</span> cc.count;
     <span class="kw">for</span> (<span class="kw">const</span> cc <span class="kw">of</span> oddC) <span class="kw">if</span> (cc[key] <span class="op">&gt;=</span> <span class="num">1</span>) odd <span class="op">+=</span> cc.count;

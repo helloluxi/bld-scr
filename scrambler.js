@@ -40,7 +40,7 @@ const scrambler = (() => {
 
     function parseCond(text) {
         try {
-            const regex = /\b(parity|breaks|algs|(float|bad)[1-5])\b/g;
+            const regex = /\b(parity|breaks|algs|(closed|open)[1-5])\b/g;
             const replacedInput = text.replace(regex, 'x.$1');
             const parsedFunc = new Function('x', `return ${replacedInput};`);
             if (typeof parsedFunc(cycler.evenEdges[0]) === 'boolean') {

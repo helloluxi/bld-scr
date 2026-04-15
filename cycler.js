@@ -63,7 +63,16 @@ const cycler = (() => {
                 caseCount /= factorials[count];
             });
 
-            let float3 = otherCycles.filter(cycle => cycle.perm == 3 && cycle.ori == 0).length;
+            let closed1 = otherCycles.filter(cycle => cycle.perm == 1 && cycle.ori == 0).length;
+            let open1 = otherCycles.filter(cycle => cycle.perm == 1 && cycle.ori != 0).length;
+            let closed2 = otherCycles.filter(cycle => cycle.perm == 2 && cycle.ori == 0).length;
+            let open2 = otherCycles.filter(cycle => cycle.perm == 2 && cycle.ori != 0).length;
+            let closed3 = otherCycles.filter(cycle => cycle.perm == 3 && cycle.ori == 0).length;
+            let open3 = otherCycles.filter(cycle => cycle.perm == 3 && cycle.ori != 0).length;
+            let closed4 = otherCycles.filter(cycle => cycle.perm == 4 && cycle.ori == 0).length;
+            let open4 = otherCycles.filter(cycle => cycle.perm == 4 && cycle.ori != 0).length;
+            let closed5 = otherCycles.filter(cycle => cycle.perm == 5 && cycle.ori == 0).length;
+            let open5 = otherCycles.filter(cycle => cycle.perm == 5 && cycle.ori != 0).length;
             let baseLength = otherCycles.reduce((sum, cycle) => sum + (cycle.perm > 1 ? cycle.perm + 1 : 0), 0) + cycles[0].perm - 1;
             let flipTwistAlgs = 0;
             let twist1Count = otherCycles.filter(cycle => cycle.perm == 1 && cycle.ori == 1).length;
@@ -80,17 +89,17 @@ const cycler = (() => {
             this.cycles = cycles;
             this.parity = baseLength & 1;
             this.breaks = otherCycles.filter(cycle => cycle.perm > 1).length;
-            this.float1 = otherCycles.filter(cycle => cycle.perm == 1 && cycle.ori == 0).length;
-            this.bad1 = otherCycles.filter(cycle => cycle.perm == 1 && cycle.ori != 0).length;
-            this.float2 = otherCycles.filter(cycle => cycle.perm == 2 && cycle.ori == 0).length;
-            this.bad2 = otherCycles.filter(cycle => cycle.perm == 2 && cycle.ori != 0).length;
-            this.float3 = float3;
-            this.bad3 = otherCycles.filter(cycle => cycle.perm == 3 && cycle.ori != 0).length;
-            this.float4 = otherCycles.filter(cycle => cycle.perm == 4 && cycle.ori == 0).length;
-            this.bad4 = otherCycles.filter(cycle => cycle.perm == 4 && cycle.ori != 0).length;
-            this.float5 = otherCycles.filter(cycle => cycle.perm == 5 && cycle.ori == 0).length;
-            this.bad5 = otherCycles.filter(cycle => cycle.perm == 5 && cycle.ori != 0).length;
-            this.algs = flipTwistAlgs - float3 + baseLength * 0.5;
+            this.closed1 = closed1;
+            this.open1 = open1;
+            this.closed2 = closed2;
+            this.open2 = open2;
+            this.closed3 = closed3;
+            this.open3 = open3;
+            this.closed4 = closed4;
+            this.open4 = open4;
+            this.closed5 = closed5;
+            this.open5 = open5;
+            this.algs = flipTwistAlgs - closed3 + baseLength * 0.5;
             this.count = caseCount;
         }
     }

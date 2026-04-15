@@ -57,13 +57,12 @@ function updateProbability() {
 function updateMiniProbability() {
   const allowParityEven = document.getElementById('parity-even').checked;
   const allowParityOdd  = document.getElementById('parity-odd').checked;
-
   const edgeFlipsMin  = Number(document.getElementById('edge-flips-min').value);
   const edgeFlipsMax  = Number(document.getElementById('edge-flips-max').value);
   const edgeBreaksMin = Number(document.getElementById('edge-breaks-min').value);
   const edgeBreaksMax = Number(document.getElementById('edge-breaks-max').value);
-  const edgeFloat3Min = Number(document.getElementById('edge-float3-min').value);
-  const edgeFloat3Max = Number(document.getElementById('edge-float3-max').value);
+  const edgeClosed3Min = Number(document.getElementById('edge-closed3-min').value);
+  const edgeClosed3Max = Number(document.getElementById('edge-closed3-max').value);
   const edgeAlgsMin   = Number(document.getElementById('edge-algs-min').value);
   const edgeAlgsMax   = Number(document.getElementById('edge-algs-max').value);
 
@@ -71,22 +70,22 @@ function updateMiniProbability() {
   const cornFlipsMax  = Number(document.getElementById('corner-flips-max').value);
   const cornBreaksMin = Number(document.getElementById('corner-breaks-min').value);
   const cornBreaksMax = Number(document.getElementById('corner-breaks-max').value);
-  const cornFloat3Min = Number(document.getElementById('corner-float3-min').value);
-  const cornFloat3Max = Number(document.getElementById('corner-float3-max').value);
+  const cornClosed3Min = Number(document.getElementById('corner-closed3-min').value);
+  const cornClosed3Max = Number(document.getElementById('corner-closed3-max').value);
   const cornerAlgsMin = Number(document.getElementById('corner-algs-min').value);
   const cornerAlgsMax = Number(document.getElementById('corner-algs-max').value);
 
   const edgeCond = x =>
-    x.bad1   >= edgeFlipsMin  && x.bad1   <= edgeFlipsMax  &&
+    x.open1  >= edgeFlipsMin  && x.open1  <= edgeFlipsMax  &&
     x.breaks >= edgeBreaksMin && x.breaks <= edgeBreaksMax &&
-    x.float3 >= edgeFloat3Min && x.float3 <= edgeFloat3Max &&
+    x.closed3 >= edgeClosed3Min && x.closed3 <= edgeClosed3Max &&
     x.algs   >= edgeAlgsMin - 0.01 && x.algs <= edgeAlgsMax + 0.01 &&
     (x.parity === 0 ? allowParityEven : allowParityOdd);
 
   const cornerCond = x =>
-    x.bad1   >= cornFlipsMin  && x.bad1   <= cornFlipsMax  &&
+    x.open1  >= cornFlipsMin  && x.open1  <= cornFlipsMax  &&
     x.breaks >= cornBreaksMin && x.breaks <= cornBreaksMax &&
-    x.float3 >= cornFloat3Min && x.float3 <= cornFloat3Max &&
+    x.closed3 >= cornClosed3Min && x.closed3 <= cornClosed3Max &&
     x.algs   >= cornerAlgsMin - 0.01 && x.algs <= cornerAlgsMax + 0.01 &&
     (x.parity === 0 ? allowParityEven : allowParityOdd);
 
@@ -135,7 +134,7 @@ function initRangeThumbs(container) {
 
 document.querySelectorAll('#panel-mini .range-container').forEach(initRangeThumbs);
 
-const miniSliderIds = ['edge-flips', 'edge-breaks', 'edge-float3', 'edge-algs', 'corner-flips', 'corner-breaks', 'corner-float3', 'corner-algs'];
+const miniSliderIds = ['edge-flips', 'edge-breaks', 'edge-closed3', 'edge-algs', 'corner-flips', 'corner-breaks', 'corner-closed3', 'corner-algs'];
 miniSliderIds.forEach(baseId => {
   const minEl = document.getElementById(baseId + '-min');
   const maxEl = document.getElementById(baseId + '-max');
@@ -180,11 +179,11 @@ updateAmountSlider();
 const miniSliderDefaults = {
   'edge-flips-min':'0','edge-flips-max':'11',
   'edge-breaks-min':'0','edge-breaks-max':'5',
-  'edge-float3-min':'0','edge-float3-max':'3',
+  'edge-closed3-min':'0','edge-closed3-max':'3',
   'edge-algs-min':'0','edge-algs-max':'8.5',
   'corner-flips-min':'0','corner-flips-max':'7',
   'corner-breaks-min':'0','corner-breaks-max':'3',
-  'corner-float3-min':'0','corner-float3-max':'2',
+  'corner-closed3-min':'0','corner-closed3-max':'2',
   'corner-algs-min':'0','corner-algs-max':'5.5'
 };
 
@@ -346,11 +345,11 @@ function generateScramble() {
       const urlSliderKeys = {
         'ef-mn':'edge-flips-min','ef-mx':'edge-flips-max',
         'eb-mn':'edge-breaks-min','eb-mx':'edge-breaks-max',
-        'e3-mn':'edge-float3-min','e3-mx':'edge-float3-max',
+        'e3-mn':'edge-closed3-min','e3-mx':'edge-closed3-max',
         'ea-mn':'edge-algs-min','ea-mx':'edge-algs-max',
         'cf-mn':'corner-flips-min','cf-mx':'corner-flips-max',
         'cb-mn':'corner-breaks-min','cb-mx':'corner-breaks-max',
-        'c3-mn':'corner-float3-min','c3-mx':'corner-float3-max',
+        'c3-mn':'corner-closed3-min','c3-mx':'corner-closed3-max',
         'ca-mn':'corner-algs-min','ca-mx':'corner-algs-max'
       };
       Object.entries(urlSliderKeys).forEach(([k, id]) => {
@@ -395,11 +394,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlSliderKeys = {
       'ef-mn':'edge-flips-min','ef-mx':'edge-flips-max',
       'eb-mn':'edge-breaks-min','eb-mx':'edge-breaks-max',
-      'e3-mn':'edge-float3-min','e3-mx':'edge-float3-max',
+      'e3-mn':'edge-closed3-min','e3-mx':'edge-closed3-max',
       'ea-mn':'edge-algs-min','ea-mx':'edge-algs-max',
       'cf-mn':'corner-flips-min','cf-mx':'corner-flips-max',
       'cb-mn':'corner-breaks-min','cb-mx':'corner-breaks-max',
-      'c3-mn':'corner-float3-min','c3-mx':'corner-float3-max',
+      'c3-mn':'corner-closed3-min','c3-mx':'corner-closed3-max',
       'ca-mn':'corner-algs-min','ca-mx':'corner-algs-max'
     };
     Object.entries(urlSliderKeys).forEach(([k, id]) => {

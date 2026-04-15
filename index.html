@@ -89,12 +89,12 @@
           <div class="setting-line">
             <span>Float 3-style</span>
             <div class="range-wrapper">
-              <div class="range-container" id="edge-float3-container">
+              <div class="range-container" id="edge-closed3-container">
                 <div class="range-selected"></div>
-                <input type="range" min="0" max="3" value="0" step="1" class="range-slider" id="edge-float3-min">
-                <input type="range" min="0" max="3" value="3" step="1" class="range-slider" id="edge-float3-max">
+                <input type="range" min="0" max="3" value="0" step="1" class="range-slider" id="edge-closed3-min">
+                <input type="range" min="0" max="3" value="3" step="1" class="range-slider" id="edge-closed3-max">
               </div>
-              <span class="setting-value" id="edge-float3-value">0-3</span>
+              <span class="setting-value" id="edge-closed3-value">0-3</span>
             </div>
           </div>
           <div class="setting-line">
@@ -137,12 +137,12 @@
           <div class="setting-line">
             <span>Float 3-style</span>
             <div class="range-wrapper">
-              <div class="range-container" id="corner-float3-container">
+              <div class="range-container" id="corner-closed3-container">
                 <div class="range-selected"></div>
-                <input type="range" min="0" max="2" value="0" step="1" class="range-slider" id="corner-float3-min">
-                <input type="range" min="0" max="2" value="2" step="1" class="range-slider" id="corner-float3-max">
+                <input type="range" min="0" max="2" value="0" step="1" class="range-slider" id="corner-closed3-min">
+                <input type="range" min="0" max="2" value="2" step="1" class="range-slider" id="corner-closed3-max">
               </div>
-              <span class="setting-value" id="corner-float3-value">0-2</span>
+              <span class="setting-value" id="corner-closed3-value">0-2</span>
             </div>
           </div>
           <div class="setting-line">
@@ -169,28 +169,28 @@
             <li><strong>parity</strong> — 0 (even) or 1 (odd).</li>
             <li><strong>breaks</strong> — number of cycle breaks, i.e. how many times the memo had to jump to a new starting piece.</li>
             <li><strong>algs</strong> — estimated algorithm count: each 3-style pair costs 1 alg (so each piece costs 0.5); a floating 3-cycle / 3-twist group / 4-flip saves 1 alg; parity adds 0.5.</li>
-            <li><strong>float1</strong> — solved pieces in-place with correct orientation (free, no alg needed).</li>
-            <li><strong>bad1</strong> — pieces in-place but misoriented: flipped edges or twisted corners.</li>
-            <li><strong>float2 … float5</strong> — clean k-cycles (correct orientation) that appear as secondary cycles.</li>
-            <li><strong>bad2 … bad5</strong> — k-cycles with at least one misoriented piece.</li>
+            <li><strong>closed1</strong> — solved pieces in-place with correct orientation (free, no alg needed).</li>
+            <li><strong>open1</strong> — pieces in-place but misoriented: flipped edges or twisted corners.</li>
+            <li><strong>closed2 … closed5</strong> — clean k-cycles (correct orientation) that appear as secondary cycles.</li>
+            <li><strong>open2 … open5</strong> — k-cycles with at least one misoriented piece.</li>
           </ul>
           <p>Your last 5 expressions are saved per-field. Use ↑↓ in the input to navigate history. Hitting Enter generates scrambles. The URL updates so you can bookmark or share a filter.</p>
         <h2>Examples</h2>
 
         <h3>Beginner — clean single cycle, no twists, even parity</h3>
-        <div class="example">Edge:   breaks==0 &amp;&amp; bad1==0 &amp;&amp; parity==0
-Corner: breaks==0 &amp;&amp; bad1==0</div>
+        <div class="example">Edge:   breaks==0 &amp;&amp; open1==0 &amp;&amp; parity==0
+Corner: breaks==0 &amp;&amp; open1==0</div>
 
         <h3>Parity only</h3>
         <div class="example">Edge:   parity==1
 Corner: parity==1</div>
 
         <h3>Twisted corners (3-twist group)</h3>
-        <div class="example">Corner: bad1==2</div>
+        <div class="example">Corner: open1==2</div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">Two twisted-in-place corners means one clockwise and one counter-clockwise — handled as a single 3-twist alg.</p>
 
         <h3>Floating 3-cycle edges</h3>
-        <div class="example">Edge: float3&gt;0</div>
+        <div class="example">Edge: closed3&gt;0</div>
 
         <h3>Exactly 4 edge algs, no cycle breaks</h3>
         <div class="example">Edge: algs==4 &amp;&amp; breaks==0</div>
