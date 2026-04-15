@@ -1,35 +1,29 @@
 // Tab switching
 const tabMini = document.getElementById('tab-mini');
 const tabPro  = document.getElementById('tab-pro');
-const tabDist = document.getElementById('tab-dist');
 const tabHelp = document.getElementById('tab-help');
 const panelMini = document.getElementById('panel-mini');
 const panelPro  = document.getElementById('panel-pro');
-const panelDist = document.getElementById('panel-dist');
 const panelHelp = document.getElementById('panel-help');
 const scrambleUI = document.getElementById('scramble-ui');
 
 function switchTab(tab) {
   tabMini.classList.toggle('active', tab === 'basic');
   tabPro.classList.toggle('active',  tab === 'advanced');
-  tabDist.classList.toggle('active', tab === 'stat');
   tabHelp.classList.toggle('active', tab === 'about');
   panelMini.style.display = tab === 'basic'        ? '' : 'none';
   panelPro.style.display  = tab === 'advanced'     ? '' : 'none';
-  panelDist.style.display = tab === 'stat' ? '' : 'none';
   panelHelp.style.display = tab === 'about'        ? '' : 'none';
-  scrambleUI.style.display = (tab === 'about' || tab === 'stat') ? 'none' : '';
+  scrambleUI.style.display = tab === 'about' ? 'none' : '';
   localStorage.setItem('scr.tab', tab);
   const params = new URLSearchParams(window.location.search);
   params.set('tab', tab);
   history.replaceState(null, '', '?' + params.toString());
   if (tab === 'basic' || tab === 'advanced') updateProbability();
-  if (tab === 'stat') updateChart(document.getElementById('dist-input').value);
 }
 
 tabMini.addEventListener('click', () => switchTab('basic'));
 tabPro.addEventListener('click',  () => switchTab('advanced'));
-tabDist.addEventListener('click', () => switchTab('stat'));
 tabHelp.addEventListener('click', () => switchTab('about'));
 
 // DOM elements
@@ -329,104 +323,6 @@ cornerInput.addEventListener('keypress', e => {
   if (e.key === 'Enter' && !cornerHistory.classList.contains('show-history')) { e.preventDefault(); generateScramble(); }
 });
 
-// ── Distribution panel logic ──────────────────────────────────────────
-
-function updateChart(input) {
-  const edgeValues = [], cornerValues = [];
-  let numberFunc = x => x.algs;
-  const errorEl = document.getElementById('dist-error');
-  if (input.trim() !== '') {
-    try {
-      const replaced = input.replace(/\b(parity|breaks|algs|(float|bad)[1-5])\b/g, 'x.$1');
-      const parsed = new Function('x', `return ${replaced};`);
-      const res = parsed(cycler.evenEdges[0]);
-      if (typeof res === 'number') {
-        numberFunc = parsed;
-      } else {
-        throw new Error('not a number');
-      }
-    } catch(e) {
-      errorEl.textContent = 'Invalid JavaScript expression.';
-      errorEl.style.display = 'block';
-      return;
-    }
-  }
-  errorEl.style.display = 'none';
-
-  const edgeStat = cycler.evenEdges.concat(cycler.oddEdges).reduce((acc, item) => {
-    const key = numberFunc(item);
-    acc[key] = (acc[key] || 0) + item.count;
-    return acc;
-  }, {});
-  const cornerStat = cycler.evenCorners.concat(cycler.oddCorners).reduce((acc, item) => {
-    const key = numberFunc(item);
-    acc[key] = (acc[key] || 0) + item.count;
-    return acc;
-  }, {});
-
-  const edgeKeys   = Object.keys(edgeStat).map(Number).sort((a,b) => a-b);
-  const cornerKeys = Object.keys(cornerStat).map(Number).sort((a,b) => a-b);
-
-  if (edgeKeys.length > 20 || cornerKeys.length > 20) {
-    errorEl.textContent = 'Too many distinct values (> 20) to display.';
-    errorEl.style.display = 'block';
-    return;
-  }
-
-  edgeKeys.forEach(k => edgeValues.push(edgeStat[k] / 980995276800));
-  cornerKeys.forEach(k => cornerValues.push(cornerStat[k] / 88179840));
-
-  // Stats
-  let eSumXP = 0, eSumX2P = 0;
-  edgeValues.forEach((v,i) => { eSumXP += v * edgeKeys[i]; eSumX2P += v * edgeKeys[i] * edgeKeys[i]; });
-  const eExp = eSumXP, eStd = Math.sqrt(Math.max(0, eSumX2P - eExp * eExp));
-  document.getElementById('edge-x-axis-label').textContent = `Edge (Mean=${eExp.toFixed(3)}, Std=${eStd.toFixed(3)})`;
-
-  let cSumXP = 0, cSumX2P = 0;
-  cornerValues.forEach((v,i) => { cSumXP += v * cornerKeys[i]; cSumX2P += v * cornerKeys[i] * cornerKeys[i]; });
-  const cExp = cSumXP, cStd = Math.sqrt(Math.max(0, cSumX2P - cExp * cExp));
-  document.getElementById('corner-x-axis-label').textContent = `Corner (Mean=${cExp.toFixed(3)}, Std=${cStd.toFixed(3)})`;
-
-  renderChart('edge',   edgeValues,   edgeKeys);
-  renderChart('corner', cornerValues, cornerKeys);
-}
-
-function renderChart(prefix, values, keys) {
-  const chart     = document.getElementById(prefix + '-chart');
-  const gridLines = document.getElementById(prefix + '-grid-lines');
-  const xAxis     = document.getElementById(prefix + '-x-axis');
-  chart.innerHTML = ''; gridLines.innerHTML = ''; xAxis.innerHTML = '';
-
-  const maxVal = Math.ceil(Math.max(...values) * 10) / 10 || 0.1;
-  const gridCount = 5;
-  for (let i = 0; i <= gridCount; i++) {
-    const line = document.createElement('div');
-    line.className = 'chart-grid-line';
-    line.style.bottom = (i / gridCount * 100) + '%';
-    const lbl = document.createElement('div');
-    lbl.className = 'chart-grid-label';
-    lbl.textContent = (maxVal * i / gridCount).toFixed(2);
-    line.appendChild(lbl);
-    gridLines.appendChild(line);
-  }
-  values.forEach((v, i) => {
-    const bar = document.createElement('div');
-    bar.className = 'chart-bar' + (values.length <= 5 ? ' spaced' : '');
-    bar.style.height = `${(v / maxVal) * 100}%`;
-    bar.setAttribute('data-value', (v * 100).toFixed(2));
-    chart.appendChild(bar);
-  });
-  keys.forEach(k => {
-    const lbl = document.createElement('div');
-    lbl.textContent = k;
-    xAxis.appendChild(lbl);
-  });
-}
-
-document.getElementById('dist-input').addEventListener('change', function() {
-  updateChart(this.value);
-});
-
 // ── Shared logic ──────────────────────────────────────────────────────
 
 function generateScramble() {
@@ -516,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     // No URL params — restore last tab from localStorage (safe here: all consts initialized)
     const savedTab = localStorage.getItem('scr.tab');
-    if (savedTab === 'advanced' || savedTab === 'stat' || savedTab === 'about') switchTab(savedTab);
+    if (savedTab === 'advanced' || savedTab === 'about') switchTab(savedTab);
   }
 
   setTimeout(() => updateProbability(), 100);

@@ -23,6 +23,8 @@
     }
     table td:nth-child(2) { color: var(--primary); }
     table td:nth-child(3) { color: var(--h3-color); }
+    .help-chart .chart-wrapper { height: 220px; margin-top: 0.5rem; margin-bottom: 1rem; }
+    .help-chart.dense .x-axis { font-size: 0.68rem; }
   </style>
 </head>
 <body>
@@ -85,8 +87,7 @@
       <p>Exact scramble counts for 3BLD with buffers UF (edges, $P=12$, $O=2$) and UFR (corners, $P=8$, $O=3$), over all $980{,}995{,}276{,}800$ edge states and $88{,}179{,}840$ corner states.</p>
 
       <details>
-        <summary>Results</summary>
-        <p><strong>Edge Algs</strong></p>
+        <summary>Edge Algs (Float 3-Cycles Reduced Out)</summary>
         <table>
           <tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tr><td>0</td><td>1</td><td>0.0000</td><td>0.0000</td></tr>
@@ -108,9 +109,12 @@
           <tr><td>8</td><td>588994560</td><td>0.0006</td><td>0.9999</td></tr>
           <tr><td>8.5</td><td>10644480</td><td>0.0000</td><td>1.0000</td></tr>
         </table>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">Edge mean: 5.88</p>
+        <div class="help-chart" data-chart-title="Edge Algs (Float 3-Cycles Reduced Out)"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Edge mean (float 3-cycles reduced out): 5.88</p>
+      </details>
 
-        <p><strong>Corner Algs</strong></p>
+      <details>
+        <summary>Corner Algs (Float 3-Cycles Reduced Out)</summary>
         <table>
           <tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tr><td>0</td><td>1</td><td>0.0000</td><td>0.0000</td></tr>
@@ -126,7 +130,56 @@
           <tr><td>5</td><td>3370815</td><td>0.0382</td><td>0.9983</td></tr>
           <tr><td>5.5</td><td>153090</td><td>0.0017</td><td>1.0000</td></tr>
         </table>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">Corner mean: 3.86</p>
+        <div class="help-chart" data-chart-title="Corner Algs (Float 3-Cycles Reduced Out)"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Corner mean (float 3-cycles reduced out): 3.86</p>
+      </details>
+
+      <details>
+        <summary>Edge Algs (Float 3-Cycles Counted)</summary>
+        <table>
+          <tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <tr><td>0</td><td>1</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>0.5</td><td>22</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>1</td><td>1001</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>1.5</td><td>16610</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>2</td><td>246939</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>2.5</td><td>3264294</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>3</td><td>37181563</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>3.5</td><td>357870854</td><td>0.0004</td><td>0.0004</td></tr>
+          <tr><td>4</td><td>2824280096</td><td>0.0029</td><td>0.0033</td></tr>
+          <tr><td>4.5</td><td>17449206940</td><td>0.0178</td><td>0.0211</td></tr>
+          <tr><td>5</td><td>78350603232</td><td>0.0799</td><td>0.1009</td></tr>
+          <tr><td>5.5</td><td>224439686592</td><td>0.2288</td><td>0.3297</td></tr>
+          <tr><td>6</td><td>322704676864</td><td>0.3290</td><td>0.6587</td></tr>
+          <tr><td>6.5</td><td>233349854848</td><td>0.2379</td><td>0.8966</td></tr>
+          <tr><td>7</td><td>85601356544</td><td>0.0873</td><td>0.9838</td></tr>
+          <tr><td>7.5</td><td>14887093760</td><td>0.0152</td><td>0.9990</td></tr>
+          <tr><td>8</td><td>979292160</td><td>0.0010</td><td>1.0000</td></tr>
+          <tr><td>8.5</td><td>10644480</td><td>0.0000</td><td>1.0000</td></tr>
+        </table>
+        <div class="help-chart" data-chart-title="Edge Algs (Float 3-Cycles Counted)"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Edge mean (float 3-cycles counted): 6.00</p>
+      </details>
+
+      <details>
+        <summary>Corner Algs (Float 3-Cycles Counted)</summary>
+        <table>
+          <tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <tr><td>0</td><td>1</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>0.5</td><td>21</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>1</td><td>756</td><td>0.0000</td><td>0.0000</td></tr>
+          <tr><td>1.5</td><td>10731</td><td>0.0001</td><td>0.0001</td></tr>
+          <tr><td>2</td><td>123585</td><td>0.0014</td><td>0.0015</td></tr>
+          <tr><td>2.5</td><td>1083936</td><td>0.0123</td><td>0.0138</td></tr>
+          <tr><td>3</td><td>6582431</td><td>0.0746</td><td>0.0885</td></tr>
+          <tr><td>3.5</td><td>23455845</td><td>0.2660</td><td>0.3545</td></tr>
+          <tr><td>4</td><td>33224202</td><td>0.3768</td><td>0.7312</td></tr>
+          <tr><td>4.5</td><td>19386297</td><td>0.2198</td><td>0.9511</td></tr>
+          <tr><td>5</td><td>4158945</td><td>0.0472</td><td>0.9983</td></tr>
+          <tr><td>5.5</td><td>153090</td><td>0.0017</td><td>1.0000</td></tr>
+        </table>
+        <div class="help-chart" data-chart-title="Corner Algs (Float 3-Cycles Counted)"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Corner mean (float 3-cycles counted): 3.93</p>
       </details>
 
       <details>
@@ -152,8 +205,10 @@
   <span class="op">}</span>
 <span class="op">}</span>
 
-<span class="fn">show</span>(<span class="str">"Edge Algs"</span>, <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.algs), eT);
-<span class="fn">show</span>(<span class="str">"Corner Algs"</span>, <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.algs), cT);</code></pre>
+<span class="fn">show</span>(<span class="str">"Edge Algs (Float 3-Cycles Reduced Out)"</span>, <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.algs), eT);
+<span class="fn">show</span>(<span class="str">"Corner Algs (Float 3-Cycles Reduced Out)"</span>, <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.algs), cT);
+<span class="fn">show</span>(<span class="str">"Edge Algs (Float 3-Cycles Counted)"</span>, <span class="fn">tally</span>(allE, c <span class="op">=&gt;</span> c.algs <span class="op">+</span> c.float3), eT);
+<span class="fn">show</span>(<span class="str">"Corner Algs (Float 3-Cycles Counted)"</span>, <span class="fn">tally</span>(allC, c <span class="op">=&gt;</span> c.algs <span class="op">+</span> c.float3), cT);</code></pre>
         </div>
       </details>
     </div>
@@ -161,8 +216,7 @@
     <div class="card">
       <h2>3BLD Cycle Breaks</h2>
       <details>
-        <summary>Results</summary>
-        <p><strong>Edge Cycle Breaks</strong></p>
+        <summary>Edge Cycle Breaks</summary>
         <table>
           <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
           <tr><td>0</td><td>222218469376</td><td>0.2265</td></tr>
@@ -172,8 +226,11 @@
           <tr><td>4</td><td>5418434560</td><td>0.0055</td></tr>
           <tr><td>5</td><td>113541120</td><td>0.0001</td></tr>
         </table>
+        <div class="help-chart" data-chart-title="Edge Cycle Breaks"></div>
+      </details>
 
-        <p><strong>Corner Cycle Breaks</strong></p>
+      <details>
+        <summary>Corner Cycle Breaks</summary>
         <table>
           <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
           <tr><td>0</td><td>29961900</td><td>0.3398</td></tr>
@@ -181,6 +238,7 @@
           <tr><td>2</td><td>14267988</td><td>0.1618</td></tr>
           <tr><td>3</td><td>918540</td><td>0.0104</td></tr>
         </table>
+        <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
       </details>
 
       <details>
@@ -211,8 +269,7 @@
     <div class="card">
       <h2>3BLD Flip / Twist</h2>
       <details>
-        <summary>Results</summary>
-        <p><strong>Flipped Edges (buffer excluded)</strong></p>
+        <summary>Flipped Edges (buffer excluded)</summary>
         <table>
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
           <tr><td>0</td><td>619795533763</td><td>0.6318</td></tr>
@@ -228,9 +285,12 @@
           <tr><td>10</td><td>33</td><td>0.0000</td></tr>
           <tr><td>11</td><td>1</td><td>0.0000</td></tr>
         </table>
+        <div class="help-chart" data-chart-title="Flipped Edges"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">Solved-in-place edges (buffer excluded) follow the same distribution by orientation symmetry.</p>
+      </details>
 
-        <p><strong>Twisted Corners (buffer excluded)</strong></p>
+      <details>
+        <summary>Twisted Corners (buffer excluded)</summary>
         <table>
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
           <tr><td>0</td><td>49045792</td><td>0.5562</td></tr>
@@ -242,6 +302,7 @@
           <tr><td>6</td><td>1792</td><td>0.0000</td></tr>
           <tr><td>7</td><td>128</td><td>0.0000</td></tr>
         </table>
+        <div class="help-chart" data-chart-title="Twisted Corners"></div>
       </details>
 
       <details>
@@ -272,8 +333,7 @@
     <div class="card">
       <h2>3BLD Float 3-Cycles</h2>
       <details>
-        <summary>Results</summary>
-        <p><strong>Float 3-Cycles in Edges (buffer excluded)</strong></p>
+        <summary>Float 3-Cycles in Edges (buffer excluded)</summary>
         <table>
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
           <tr><td>0</td><td>864994099200</td><td>0.8818</td></tr>
@@ -281,14 +341,18 @@
           <tr><td>2</td><td>6244761600</td><td>0.0064</td></tr>
           <tr><td>3</td><td>189235200</td><td>0.0002</td></tr>
         </table>
+        <div class="help-chart" data-chart-title="Float 3-Cycles in Edges"></div>
+      </details>
 
-        <p><strong>Float 3-Cycles in Corners (buffer excluded)</strong></p>
+      <details>
+        <summary>Float 3-Cycles in Corners (buffer excluded)</summary>
         <table>
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
           <tr><td>0</td><td>82192320</td><td>0.9321</td></tr>
           <tr><td>1</td><td>5851440</td><td>0.0664</td></tr>
           <tr><td>2</td><td>136080</td><td>0.0015</td></tr>
         </table>
+        <div class="help-chart" data-chart-title="Float 3-Cycles in Corners"></div>
       </details>
 
       <details>
@@ -351,7 +415,7 @@
       </details>
 
       <details>
-        <summary>Edge Buffer Index — Fixed Break-In Swap, No Parity Constraint</summary>
+        <summary>Edge Buffer Index (No Parity Constraint)</summary>
         <table>
           <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tr><td>#1</td><td>490497638400</td><td>0.5000</td><td>0.5000</td></tr>
@@ -367,11 +431,12 @@
           <tr><td>#11</td><td>9189703292</td><td>0.0094</td><td>0.9313</td></tr>
           <tr><td>—</td><td>67391157472</td><td>0.0687</td><td>1.0000</td></tr>
         </table>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes no valid swap target exists ($a' = 0$).</p>
+        <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — No Parity Constraint" data-chart-spaced="false"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes cases which contains no edge cycle breaks and ends on an edge with wrong orientation, so there's no space of maneuver.</p>
       </details>
 
       <details>
-        <summary>Edge Buffer Index — Fixed Break-In Swap, Odd Parity Only</summary>
+        <summary>Edge Buffer Index (Odd Parity Constraint)</summary>
         <table>
           <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tr><td>#1</td><td>241532928000</td><td>0.4924</td><td>0.4924</td></tr>
@@ -387,6 +452,8 @@
           <tr><td>#11</td><td>5158302131</td><td>0.0105</td><td>0.9060</td></tr>
           <tr><td>—</td><td>46091489411</td><td>0.0940</td><td>1.0000</td></tr>
         </table>
+        <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — Odd Parity Only" data-chart-spaced="false"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes cases which contains no edge cycle breaks and ends on an edge with wrong orientation, so there's no space of maneuver.</p>
       </details>
 
     </div>
@@ -399,6 +466,8 @@
         <p><strong>LTCT</strong> (Last Target Corner Twist) combines solving the final corner target with twisting two misoriented corners into a single algorithm, saving one twist alg. It requires odd parity and at least one twisted non-buffer corner (<code>bad1&gt;=1</code>).</p>
 
         <p><strong>T2C</strong> (Twisted 2 Corners) solves the final corner target when the buffer corner is twisted and two remaining corners are swapped, combining the swap and buffer untwist into one algorithm. It requires odd parity and at least one misoriented secondary 2-cycle (<code>bad2&gt;=1</code>).</p>
+
+        <p><strong>Note</strong>: In practice, most BLDers specialize in LTCT or T2C algorithms for a fixed edge pair (e.g., UF–UR), so the actual applicable cases are even fewer—roughly half of those shown above when using fixed break-in swap.</p>
         
         <table>
           <tr><th>Technique</th><th>Count</th><th>Probability</th></tr>
@@ -728,5 +797,22 @@ console.<span class="fn">log</span>(<span class="str">`Total states: ${total}`</
       &copy; 2025-<span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" target="_blank" underline>GitHub</a> | <a href="#" id="theme-toggle" underline>Dark Theme</a>
     </footer>
   </div>
+  <script src="./chart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.help-chart').forEach(mount => {
+        const table = mount.previousElementSibling;
+        if (!table || table.tagName !== 'TABLE') return;
+        const rows = chartUtils.parseProbabilityTable(table);
+        chartUtils.renderChartInMount(
+          mount,
+          rows.map(row => row.label),
+          rows.map(row => row.value),
+          mount.dataset.chartTitle || '',
+          { spaced: mount.dataset.chartSpaced !== 'false' && rows.length <= 5 }
+        );
+      });
+    });
+  </script>
 </body>
 </html>

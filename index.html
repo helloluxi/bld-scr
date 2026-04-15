@@ -20,7 +20,6 @@
         <button class="tab" id="tab-help">About</button>
         <button class="tab active" id="tab-mini">Basic</button>
         <button class="tab" id="tab-pro">Advanced</button>
-        <button class="tab" id="tab-dist">Stat</button>
 
       </div>
 
@@ -220,34 +219,7 @@ Corner: breaks&gt;=2</div>
       </div>
 
       <!-- Stat Panel -->
-      <div id="panel-dist" style="display:none;">
-        <details>
-          <summary>Help</summary>
-          <p>Enter a JavaScript numeric expression — the chart shows its distribution across all scrambles, independently for edges and corners. Available variables: <code>parity</code> (0 = even, 1 = odd), <code>breaks</code> (cycle break count), <code>algs</code> (estimated alg count), <code>float1</code> / <code>bad1</code> (in-place pieces, clean / misoriented), and <code>float2</code>–<code>float5</code> / <code>bad2</code>–<code>bad5</code> (k-cycles, clean / with misorientation). Leave empty or enter <code>algs</code> for the default alg-count chart. The chart title shows mean and standard deviation. Hitting Enter updates the chart.</p>
-          <h3>Examples</h3>
-          <h3>Cycle Breaks</h3>
-          <div class="example">breaks</div>
-          <h3>Edge Flips / Corner Twists</h3>
-          <div class="example">bad1</div>
-          <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">▲ Collapse</a>
-        </details>
-        <input type="text" class="dist-input" id="dist-input" placeholder="Custom JS numeric expression..." autocomplete="off" autocorrect="off" spellcheck="false">
-        <div id="dist-error" style="display:none; color:red; text-align:center; margin-bottom:1rem;"></div>
-        <div class="chart-wrapper">
-          <div class="y-axis-label">Prob.</div>
-          <div class="grid-lines" id="edge-grid-lines"></div>
-          <div class="chart-container" id="edge-chart"></div>
-          <div class="x-axis" id="edge-x-axis"></div>
-          <div class="x-axis-label" id="edge-x-axis-label">Edge Algs</div>
-        </div>
-        <div class="chart-wrapper">
-          <div class="y-axis-label">Prob.</div>
-          <div class="grid-lines" id="corner-grid-lines"></div>
-          <div class="chart-container" id="corner-chart"></div>
-          <div class="x-axis" id="corner-x-axis"></div>
-          <div class="x-axis-label" id="corner-x-axis-label">Corner Algs</div>
-        </div>
-      </div>
+      <div id="panel-dist" style="display:none;"></div>
       <!-- Shared (hidden when Help tab active) -->
       <div id="scramble-ui">
       <div class="slider-group">
@@ -277,7 +249,6 @@ Corner: breaks&gt;=2</div>
       &copy; 2025-<span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" target="_blank" underline>GitHub</a> | <a href="#" id="theme-toggle" underline>Dark Theme</a>
     </footer>
   </div>
-
   <script src="./index.js"></script>
 </body>
 </html>
