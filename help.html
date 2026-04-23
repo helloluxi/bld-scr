@@ -791,6 +791,116 @@ console.<span class="fn">log</span>(<span class="str">`Total states: ${total}`</
         </table>
         <p style="font-size:0.85rem; color:var(--text-secondary);">Mean: 20</p>
       </details>
+
+      <details>
+        <summary>Reproduction code (run with Node.js, or paste in browser console)</summary>
+        <div style="position:relative;">
+          <button class="copy-button" onclick="const codeBlockBigBld=this.nextElementSibling.querySelector('code');navigator.clipboard.writeText(codeBlockBigBld.innerText);this.classList.add('copied');setTimeout(()=>this.classList.remove('copied'),1500)"></button>
+          <pre><code><span class="cm">// Wings have no orientation (O=1), so a configuration is just a partition</span>
+<span class="cm">// of secondary-cycle lengths; the buffer cycle takes the rest.</span>
+<span class="kw">const</span> cycler4 <span class="op">=</span> (() <span class="op">=&gt;</span> <span class="op">{</span>
+  <span class="kw">const</span> fact <span class="op">=</span> [<span class="num">1n</span>];
+  <span class="kw">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="num">1</span>; i <span class="op">&lt;=</span> <span class="num">24</span>; i<span class="op">++</span>) fact.<span class="fn">push</span>(fact[i <span class="op">-</span> <span class="num">1</span>] <span class="op">*</span> <span class="fn">BigInt</span>(i));
+
+  <span class="kw">function</span><span class="op">*</span> <span class="fn">partitions</span>(maxSum) <span class="op">{</span>
+    <span class="kw">function</span><span class="op">*</span> <span class="fn">rec</span>(remain, maxPart, cur) <span class="op">{</span>
+      <span class="kw">yield</span> cur;
+      <span class="kw">for</span> (<span class="kw">let</span> p <span class="op">=</span> Math.<span class="fn">min</span>(remain, maxPart); p <span class="op">&gt;=</span> <span class="num">1</span>; p<span class="op">--</span>) <span class="op">{</span>
+        cur.<span class="fn">push</span>(p); <span class="kw">yield</span><span class="op">*</span> <span class="fn">rec</span>(remain <span class="op">-</span> p, p, cur); cur.<span class="fn">pop</span>();
+      <span class="op">}</span>
+    <span class="op">}</span>
+    <span class="kw">yield</span><span class="op">*</span> <span class="fn">rec</span>(maxSum, maxSum, []);
+  <span class="op">}</span>
+
+  <span class="kw">class</span> WingConfig <span class="op">{</span>
+    <span class="fn">constructor</span>(ps, P) <span class="op">{</span>
+      <span class="kw">const</span> buf <span class="op">=</span> P <span class="op">-</span> ps.<span class="fn">reduce</span>((s, v) <span class="op">=&gt;</span> s <span class="op">+</span> v, <span class="num">0</span>);
+      <span class="kw">let</span> den <span class="op">=</span> <span class="num">1n</span>;
+      <span class="kw">const</span> typeR <span class="op">=</span> <span class="kw">new</span> <span class="fn">Map</span>();
+      <span class="kw">for</span> (<span class="kw">const</span> p <span class="kw">of</span> ps) <span class="op">{</span> den <span class="op">*=</span> <span class="fn">BigInt</span>(p); typeR.<span class="fn">set</span>(p, (typeR.<span class="fn">get</span>(p) <span class="op">||</span> <span class="num">0</span>) <span class="op">+</span> <span class="num">1</span>); <span class="op">}</span>
+      <span class="kw">for</span> (<span class="kw">const</span> r <span class="kw">of</span> typeR.<span class="fn">values</span>()) den <span class="op">*=</span> fact[r];
+      <span class="kw">this</span>.count   <span class="op">=</span> fact[P <span class="op">-</span> <span class="num">1</span>] <span class="op">/</span> den;
+      <span class="kw">this</span>.closed1 <span class="op">=</span> ps.<span class="fn">filter</span>(p <span class="op">=&gt;</span> p <span class="op">===</span> <span class="num">1</span>).length;
+      <span class="kw">this</span>.closed2 <span class="op">=</span> ps.<span class="fn">filter</span>(p <span class="op">=&gt;</span> p <span class="op">===</span> <span class="num">2</span>).length;
+      <span class="kw">this</span>.closed3 <span class="op">=</span> ps.<span class="fn">filter</span>(p <span class="op">=&gt;</span> p <span class="op">===</span> <span class="num">3</span>).length;
+      <span class="kw">this</span>.breaks  <span class="op">=</span> ps.<span class="fn">filter</span>(p <span class="op">=&gt;</span> p <span class="op">&gt;</span> <span class="num">1</span>).length;
+      <span class="kw">const</span> base <span class="op">=</span> ps.<span class="fn">reduce</span>((s, p) <span class="op">=&gt;</span> s <span class="op">+</span> (p <span class="op">&gt;</span> <span class="num">1</span> <span class="op">?</span> p <span class="op">+</span> <span class="num">1</span> <span class="op">:</span> <span class="num">0</span>), <span class="num">0</span>) <span class="op">+</span> buf <span class="op">-</span> <span class="num">1</span>;
+      <span class="kw">this</span>.algs2 <span class="op">=</span> base <span class="op">-</span> <span class="num">2</span> <span class="op">*</span> <span class="kw">this</span>.closed3; <span class="cm">// 2 * algs, integer</span>
+    <span class="op">}</span>
+  <span class="op">}</span>
+
+  <span class="kw">const</span> wings <span class="op">=</span> [];
+  <span class="kw">for</span> (<span class="kw">const</span> ps <span class="kw">of</span> <span class="fn">partitions</span>(<span class="num">23</span>)) wings.<span class="fn">push</span>(<span class="kw">new</span> <span class="fn">WingConfig</span>([...ps], <span class="num">24</span>));
+
+  <span class="cm">// x/t-Centers: 6 colour classes x 4 identical pieces.  Column-by-column DP.</span>
+  <span class="kw">function</span> <span class="fn">centers</span>() <span class="op">{</span>
+    <span class="kw">const</span> f <span class="op">=</span> [<span class="num">1</span>, <span class="num">1</span>, <span class="num">2</span>, <span class="num">6</span>, <span class="num">24</span>];
+    <span class="kw">const</span> cvs <span class="op">=</span> [];
+    (<span class="kw">function</span> <span class="fn">rec</span>(i, rem, cur) <span class="op">{</span>
+      <span class="kw">if</span> (i <span class="op">===</span> <span class="num">6</span>) <span class="op">{</span> <span class="kw">if</span> (rem <span class="op">===</span> <span class="num">0</span>) cvs.<span class="fn">push</span>(cur.<span class="fn">slice</span>()); <span class="kw">return</span>; <span class="op">}</span>
+      <span class="kw">for</span> (<span class="kw">let</span> n <span class="op">=</span> <span class="num">0</span>; n <span class="op">&lt;=</span> Math.<span class="fn">min</span>(<span class="num">4</span>, rem); n<span class="op">++</span>) <span class="op">{</span> cur.<span class="fn">push</span>(n); <span class="fn">rec</span>(i <span class="op">+</span> <span class="num">1</span>, rem <span class="op">-</span> n, cur); cur.<span class="fn">pop</span>(); <span class="op">}</span>
+    <span class="op">}</span>)(<span class="num">0</span>, <span class="num">4</span>, []);
+
+    <span class="kw">let</span> dp <span class="op">=</span> <span class="kw">new</span> <span class="fn">Map</span>([[<span class="str">'4,4,4,4,4,4,0'</span>, <span class="num">1</span>]]);
+    <span class="kw">for</span> (<span class="kw">let</span> j <span class="op">=</span> <span class="num">0</span>; j <span class="op">&lt;</span> <span class="num">6</span>; j<span class="op">++</span>) <span class="op">{</span>
+      <span class="kw">const</span> next <span class="op">=</span> <span class="kw">new</span> <span class="fn">Map</span>();
+      <span class="kw">for</span> (<span class="kw">const</span> [key, w] <span class="kw">of</span> dp) <span class="op">{</span>
+        <span class="kw">const</span> parts <span class="op">=</span> key.<span class="fn">split</span>(<span class="str">','</span>).<span class="fn">map</span>(Number);
+        <span class="kw">const</span> rem <span class="op">=</span> parts.<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">6</span>), diag <span class="op">=</span> parts[<span class="num">6</span>];
+        <span class="kw">for</span> (<span class="kw">const</span> cv <span class="kw">of</span> cvs) <span class="op">{</span>
+          <span class="kw">let</span> ok <span class="op">=</span> <span class="kw">true</span>;
+          <span class="kw">for</span> (<span class="kw">let</span> i <span class="op">=</span> <span class="num">0</span>; i <span class="op">&lt;</span> <span class="num">6</span>; i<span class="op">++</span>) <span class="kw">if</span> (cv[i] <span class="op">&gt;</span> rem[i]) <span class="op">{</span> ok <span class="op">=</span> <span class="kw">false</span>; <span class="kw">break</span>; <span class="op">}</span>
+          <span class="kw">if</span> (<span class="op">!</span>ok) <span class="kw">continue</span>;
+          <span class="kw">const</span> nr <span class="op">=</span> rem.<span class="fn">map</span>((r, i) <span class="op">=&gt;</span> r <span class="op">-</span> cv[i]);
+          <span class="kw">const</span> m  <span class="op">=</span> <span class="num">24</span> <span class="op">/</span> cv.<span class="fn">reduce</span>((p, c) <span class="op">=&gt;</span> p <span class="op">*</span> f[c], <span class="num">1</span>);
+          <span class="kw">const</span> nk <span class="op">=</span> nr.<span class="fn">join</span>(<span class="str">','</span>) <span class="op">+</span> <span class="str">','</span> <span class="op">+</span> (diag <span class="op">+</span> cv[j]);
+          next.<span class="fn">set</span>(nk, (next.<span class="fn">get</span>(nk) <span class="op">||</span> <span class="num">0</span>) <span class="op">+</span> w <span class="op">*</span> m);
+        <span class="op">}</span>
+      <span class="op">}</span>
+      dp <span class="op">=</span> next;
+    <span class="op">}</span>
+    <span class="kw">const</span> out <span class="op">=</span> <span class="kw">new</span> <span class="fn">Map</span>();
+    <span class="kw">for</span> (<span class="kw">const</span> [key, w] <span class="kw">of</span> dp) <span class="op">{</span>
+      <span class="kw">const</span> parts <span class="op">=</span> key.<span class="fn">split</span>(<span class="str">','</span>).<span class="fn">map</span>(Number);
+      <span class="kw">if</span> (parts.<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">6</span>).<span class="fn">every</span>(x <span class="op">=&gt;</span> x <span class="op">===</span> <span class="num">0</span>)) <span class="op">{</span>
+        <span class="kw">const</span> u <span class="op">=</span> <span class="num">24</span> <span class="op">-</span> parts[<span class="num">6</span>];
+        out.<span class="fn">set</span>(u, (out.<span class="fn">get</span>(u) <span class="op">||</span> <span class="num">0</span>) <span class="op">+</span> w);
+      <span class="op">}</span>
+    <span class="op">}</span>
+    <span class="kw">return</span> [...out].<span class="fn">sort</span>((a, b) <span class="op">=&gt;</span> a[<span class="num">0</span>] <span class="op">-</span> b[<span class="num">0</span>]);
+  <span class="op">}</span>
+
+  <span class="kw">return</span> <span class="op">{</span> wings, centers <span class="op">}</span>;
+<span class="op">}</span>)();
+
+<span class="kw">const</span> WT <span class="op">=</span> <span class="num">620448401733239439360000n</span>; <span class="cm">// 24!</span>
+
+<span class="kw">function</span> <span class="fn">tally</span>(keyFn) <span class="op">{</span>
+  <span class="kw">const</span> t <span class="op">=</span> <span class="kw">new</span> <span class="fn">Map</span>();
+  <span class="kw">for</span> (<span class="kw">const</span> cc <span class="kw">of</span> cycler4.wings) t.<span class="fn">set</span>(<span class="fn">keyFn</span>(cc), (t.<span class="fn">get</span>(<span class="fn">keyFn</span>(cc)) <span class="op">||</span> <span class="num">0n</span>) <span class="op">+</span> cc.count);
+  <span class="kw">return</span> [...t].<span class="fn">sort</span>((a, b) <span class="op">=&gt;</span> a[<span class="num">0</span>] <span class="op">-</span> b[<span class="num">0</span>]);
+<span class="op">}</span>
+
+<span class="kw">function</span> <span class="fn">show</span>(name, rows, total, fmt <span class="op">=</span> k <span class="op">=&gt;</span> k) <span class="op">{</span>
+  console.<span class="fn">log</span>(<span class="str">`\n=== ${name} ===`</span>);
+  <span class="kw">for</span> (<span class="kw">const</span> [k, v] <span class="kw">of</span> rows) <span class="op">{</span>
+    <span class="kw">const</span> p <span class="op">=</span> <span class="fn">Number</span>(v <span class="op">*</span> <span class="num">100000n</span> <span class="op">/</span> total) <span class="op">/</span> <span class="num">100000</span>;
+    console.<span class="fn">log</span>(<span class="str">`${fmt(k)}\t${v}\t${p.toFixed(4)}`</span>);
+  <span class="op">}</span>
+<span class="op">}</span>
+
+<span class="fn">show</span>(<span class="str">'Wing Algs'</span>,               <span class="fn">tally</span>(c <span class="op">=&gt;</span> c.algs2),   WT, k <span class="op">=&gt;</span> <span class="str">`${k / 2}`</span>);
+<span class="fn">show</span>(<span class="str">'Wing Cycle Breaks'</span>,       <span class="fn">tally</span>(c <span class="op">=&gt;</span> c.breaks),  WT);
+<span class="fn">show</span>(<span class="str">'Solved Wings'</span>,            <span class="fn">tally</span>(c <span class="op">=&gt;</span> c.closed1), WT);
+<span class="fn">show</span>(<span class="str">'Float 2-Cycles in Wings'</span>, <span class="fn">tally</span>(c <span class="op">=&gt;</span> c.closed2), WT);
+<span class="fn">show</span>(<span class="str">'Float 3-Cycles in Wings'</span>, <span class="fn">tally</span>(c <span class="op">=&gt;</span> c.closed3), WT);
+
+<span class="kw">const</span> cd <span class="op">=</span> cycler4.<span class="fn">centers</span>();
+<span class="kw">const</span> cT <span class="op">=</span> cd.<span class="fn">reduce</span>((s, [, v]) <span class="op">=&gt;</span> s <span class="op">+</span> v, <span class="num">0</span>);
+console.<span class="fn">log</span>(<span class="str">'\n=== Unsolved x/t-Centers ==='</span>);
+<span class="kw">for</span> (<span class="kw">const</span> [k, v] <span class="kw">of</span> cd) console.<span class="fn">log</span>(<span class="str">`${k}\t${v}\t${(v / cT).toFixed(4)}`</span>);</code></pre>
+        </div>
+      </details>
     </div>
 
     <footer>
