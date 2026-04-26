@@ -186,26 +186,18 @@
       <h2>3BLD Cycle Breaks</h2>
       <details>
         <summary>Edge Cycle Breaks</summary>
-        <table>
+        <table data-stat="edge-breaks">
           <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>222218469376</td><td>0.2265</td></tr>
-          <tr><td>1</td><td>427559518208</td><td>0.4358</td></tr>
-          <tr><td>2</td><td>262862831616</td><td>0.2680</td></tr>
-          <tr><td>3</td><td>62822481920</td><td>0.0640</td></tr>
-          <tr><td>4</td><td>5418434560</td><td>0.0055</td></tr>
-          <tr><td>5</td><td>113541120</td><td>0.0001</td></tr>
+          <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Edge Cycle Breaks"></div>
       </details>
 
       <details>
         <summary>Corner Cycle Breaks</summary>
-        <table>
+        <table data-stat="corner-breaks">
           <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>29961900</td><td>0.3398</td></tr>
-          <tr><td>1</td><td>43031412</td><td>0.4880</td></tr>
-          <tr><td>2</td><td>14267988</td><td>0.1618</td></tr>
-          <tr><td>3</td><td>918540</td><td>0.0104</td></tr>
+          <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
       </details>
@@ -215,20 +207,9 @@
       <h2>3BLD Flip / Twist</h2>
       <details>
         <summary>Flipped Edges (buffer excluded)</summary>
-        <table>
+        <table data-stat="edge-flipped">
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>619795533763</td><td>0.6318</td></tr>
-          <tr><td>1</td><td>285105945531</td><td>0.2906</td></tr>
-          <tr><td>2</td><td>65078531045</td><td>0.0663</td></tr>
-          <tr><td>3</td><td>9813429285</td><td>0.0100</td></tr>
-          <tr><td>4</td><td>1097554590</td><td>0.0011</td></tr>
-          <tr><td>5</td><td>96843054</td><td>0.0001</td></tr>
-          <tr><td>6</td><td>6994218</td><td>0.0000</td></tr>
-          <tr><td>7</td><td>422730</td><td>0.0000</td></tr>
-          <tr><td>8</td><td>21615</td><td>0.0000</td></tr>
-          <tr><td>9</td><td>935</td><td>0.0000</td></tr>
-          <tr><td>10</td><td>33</td><td>0.0000</td></tr>
-          <tr><td>11</td><td>1</td><td>0.0000</td></tr>
+          <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Flipped Edges"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">Solved-in-place edges (buffer excluded) follow the same distribution by orientation symmetry.</p>
@@ -236,16 +217,9 @@
 
       <details>
         <summary>Twisted Corners (buffer excluded)</summary>
-        <table>
+        <table data-stat="corner-twisted">
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>49045792</td><td>0.5562</td></tr>
-          <tr><td>1</td><td>28924448</td><td>0.3280</td></tr>
-          <tr><td>2</td><td>8383872</td><td>0.0951</td></tr>
-          <tr><td>3</td><td>1583680</td><td>0.0180</td></tr>
-          <tr><td>4</td><td>217280</td><td>0.0025</td></tr>
-          <tr><td>5</td><td>22848</td><td>0.0003</td></tr>
-          <tr><td>6</td><td>1792</td><td>0.0000</td></tr>
-          <tr><td>7</td><td>128</td><td>0.0000</td></tr>
+          <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Twisted Corners"></div>
       </details>
@@ -255,30 +229,25 @@
       <h2>3BLD Float 3-Cycles</h2>
       <details>
         <summary>Float 3-Cycles in Edges (buffer excluded)</summary>
-        <table>
+        <table data-stat="edge-float3">
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>864994099200</td><td>0.8818</td></tr>
-          <tr><td>1</td><td>109567180800</td><td>0.1117</td></tr>
-          <tr><td>2</td><td>6244761600</td><td>0.0064</td></tr>
-          <tr><td>3</td><td>189235200</td><td>0.0002</td></tr>
+          <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Float 3-Cycles in Edges"></div>
       </details>
 
       <details>
         <summary>Float 3-Cycles in Corners (buffer excluded)</summary>
-        <table>
+        <table data-stat="corner-float3">
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>82192320</td><td>0.9321</td></tr>
-          <tr><td>1</td><td>5851440</td><td>0.0664</td></tr>
-          <tr><td>2</td><td>136080</td><td>0.0015</td></tr>
+          <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Float 3-Cycles in Corners"></div>
       </details>
     </div>
 
     <div class="card">
-      <h2>Fixed Break-In Swap (固定借位法)</h2>
+      <h2>Fixed Break-In Swap</h2>
 
       <details>
         <summary>Intro</summary>
@@ -313,20 +282,9 @@
 
       <details>
         <summary>Edge Buffer Index (No Parity Constraint)</summary>
-        <table>
+        <table data-stat="bis-no-parity">
           <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
-          <tr><td>#1</td><td>490497638400</td><td>0.5000</td><td>0.5000</td></tr>
-          <tr><td>#2</td><td>165357158400</td><td>0.1686</td><td>0.6686</td></tr>
-          <tr><td>#3</td><td>82864373760</td><td>0.0845</td><td>0.7530</td></tr>
-          <tr><td>#4</td><td>50180014080</td><td>0.0512</td><td>0.8042</td></tr>
-          <tr><td>#5</td><td>33901056000</td><td>0.0346</td><td>0.8387</td></tr>
-          <tr><td>#6</td><td>24637063680</td><td>0.0251</td><td>0.8639</td></tr>
-          <tr><td>#7</td><td>18881856000</td><td>0.0192</td><td>0.8831</td></tr>
-          <tr><td>#8</td><td>15078452544</td><td>0.0154</td><td>0.8985</td></tr>
-          <tr><td>#9</td><td>12448644384</td><td>0.0127</td><td>0.9112</td></tr>
-          <tr><td>#10</td><td>10568158788</td><td>0.0108</td><td>0.9219</td></tr>
-          <tr><td>#11</td><td>9189703292</td><td>0.0094</td><td>0.9313</td></tr>
-          <tr><td>—</td><td>67391157472</td><td>0.0687</td><td>1.0000</td></tr>
+          <tbody></tbody>
         </table>
         <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — No Parity Constraint" data-chart-spaced="false"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes cases which contains no edge cycle breaks and ends on an edge with wrong orientation, so there's no space of maneuver.</p>
@@ -334,20 +292,9 @@
 
       <details>
         <summary>Edge Buffer Index (Odd Parity Constraint)</summary>
-        <table>
+        <table data-stat="bis-odd">
           <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
-          <tr><td>#1</td><td>241532928000</td><td>0.4924</td><td>0.4924</td></tr>
-          <tr><td>#2</td><td>79705866240</td><td>0.1625</td><td>0.6549</td></tr>
-          <tr><td>#3</td><td>39109754880</td><td>0.0797</td><td>0.7347</td></tr>
-          <tr><td>#4</td><td>23335280640</td><td>0.0476</td><td>0.7822</td></tr>
-          <tr><td>#5</td><td>15690101760</td><td>0.0320</td><td>0.8142</td></tr>
-          <tr><td>#6</td><td>11487156480</td><td>0.0234</td><td>0.8376</td></tr>
-          <tr><td>#7</td><td>8980616064</td><td>0.0183</td><td>0.8559</td></tr>
-          <tr><td>#8</td><td>7398461472</td><td>0.0151</td><td>0.8710</td></tr>
-          <tr><td>#9</td><td>6357359112</td><td>0.0130</td><td>0.8840</td></tr>
-          <tr><td>#10</td><td>5650322210</td><td>0.0115</td><td>0.8955</td></tr>
-          <tr><td>#11</td><td>5158302131</td><td>0.0105</td><td>0.9060</td></tr>
-          <tr><td>—</td><td>46091489411</td><td>0.0940</td><td>1.0000</td></tr>
+          <tbody></tbody>
         </table>
         <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — Odd Parity Only" data-chart-spaced="false"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes cases which contains no edge cycle breaks and ends on an edge with wrong orientation, so there's no space of maneuver.</p>
@@ -366,94 +313,21 @@
 
         <p><strong>Note</strong>: In practice, most BLDers specialize in LTCT or T2C algorithms for a fixed edge pair (e.g., UF–UR), so the actual applicable cases are even fewer—roughly half of those shown above when using fixed break-in swap.</p>
         
-        <table>
+        <table data-stat="ltct-t2c">
           <tr><th>Technique</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>LTCT</td><td>19,566,960</td><td>0.2219</td></tr>
-          <tr><td>T2C</td><td>9,865,800</td><td>0.1119</td></tr>
+          <tbody></tbody>
         </table>
       </details>
     </div>
 
-    <div class="card" data-stat="order">
+    <div class="card">
       <h2>Order of 3x3x3 Rubik's Cube Group Elements</h2>
       <details>
         <summary>Results</summary>
         <p style="margin-top:0.75rem; font-size:0.9rem;">Every move sequence eventually returns the cube to its start state. The <em>order</em> is the number of repetitions required. The table shows how many distinct cube states (scrambles) have each order.</p>
-        <table>
+        <table data-stat="order">
           <tr><th>Order</th><th>Count</th></tr>
-          <tr><td>1</td><td>1</td></tr>
-          <tr><td>2</td><td>170911549183</td></tr>
-          <tr><td>3</td><td>33894540622394</td></tr>
-          <tr><td>4</td><td>4346957030144256</td></tr>
-          <tr><td>5</td><td>133528172514624</td></tr>
-          <tr><td>6</td><td>140621059298755526</td></tr>
-          <tr><td>7</td><td>153245517148800</td></tr>
-          <tr><td>8</td><td>294998638981939200</td></tr>
-          <tr><td>9</td><td>55333752398428896</td></tr>
-          <tr><td>10</td><td>34178553690432192</td></tr>
-          <tr><td>11</td><td>44590694400</td></tr>
-          <tr><td>12</td><td>2330232827455554048</td></tr>
-          <tr><td>14</td><td>23298374383021440</td></tr>
-          <tr><td>15</td><td>14385471333209856</td></tr>
-          <tr><td>16</td><td>150731886270873600</td></tr>
-          <tr><td>18</td><td>1371824848124089632</td></tr>
-          <tr><td>20</td><td>151839445189791744</td></tr>
-          <tr><td>21</td><td>39337151559333120</td></tr>
-          <tr><td>22</td><td>927085127270400</td></tr>
-          <tr><td>24</td><td>3293932519796244480</td></tr>
-          <tr><td>28</td><td>97419760907673600</td></tr>
-          <tr><td>30</td><td>1373347158867028224</td></tr>
-          <tr><td>33</td><td>15874019662233600</td></tr>
-          <tr><td>35</td><td>65526218912563200</td></tr>
-          <tr><td>36</td><td>3768152294808760320</td></tr>
-          <tr><td>40</td><td>835897246403788800</td></tr>
-          <tr><td>42</td><td>737199776831097600</td></tr>
-          <tr><td>44</td><td>100120377950208000</td></tr>
-          <tr><td>45</td><td>197329441659727104</td></tr>
-          <tr><td>48</td><td>911497647410380800</td></tr>
-          <tr><td>55</td><td>4854321355161600</td></tr>
-          <tr><td>56</td><td>671205306846412800</td></tr>
-          <tr><td>60</td><td>4199961633799421952</td></tr>
-          <tr><td>63</td><td>264371433705308160</td></tr>
-          <tr><td>66</td><td>404051175250329600</td></tr>
-          <tr><td>70</td><td>210461722916290560</td></tr>
-          <tr><td>72</td><td>1981453794190295040</td></tr>
-          <tr><td>77</td><td>187238109413376000</td></tr>
-          <tr><td>80</td><td>13349383726694400</td></tr>
-          <tr><td>84</td><td>1697725818678067200</td></tr>
-          <tr><td>90</td><td>1764876446897050368</td></tr>
-          <tr><td>99</td><td>104367909135974400</td></tr>
-          <tr><td>105</td><td>232824419423354880</td></tr>
-          <tr><td>110</td><td>4854321355161600</td></tr>
-          <tr><td>112</td><td>128726200221696000</td></tr>
-          <tr><td>120</td><td>1947044011463147520</td></tr>
-          <tr><td>126</td><td>854783686296207360</td></tr>
-          <tr><td>132</td><td>637129677864960000</td></tr>
-          <tr><td>140</td><td>223125413717606400</td></tr>
-          <tr><td>144</td><td>714192029378150400</td></tr>
-          <tr><td>154</td><td>187238109413376000</td></tr>
-          <tr><td>165</td><td>213590139627110400</td></tr>
-          <tr><td>168</td><td>1050269239266508800</td></tr>
-          <tr><td>180</td><td>2320395168471367680</td></tr>
-          <tr><td>198</td><td>759701292082790400</td></tr>
-          <tr><td>210</td><td>1053174509332070400</td></tr>
-          <tr><td>231</td><td>374476218826752000</td></tr>
-          <tr><td>240</td><td>407156203664179200</td></tr>
-          <tr><td>252</td><td>689877080447385600</td></tr>
-          <tr><td>280</td><td>68653973451571200</td></tr>
-          <tr><td>315</td><td>99309879652515840</td></tr>
-          <tr><td>330</td><td>213590139627110400</td></tr>
-          <tr><td>336</td><td>257452400443392000</td></tr>
-          <tr><td>360</td><td>571019888909352960</td></tr>
-          <tr><td>420</td><td>961155628321996800</td></tr>
-          <tr><td>462</td><td>374476218826752000</td></tr>
-          <tr><td>495</td><td>174755568785817600</td></tr>
-          <tr><td>504</td><td>238381852262400000</td></tr>
-          <tr><td>630</td><td>395380140162416640</td></tr>
-          <tr><td>720</td><td>120144453540249600</td></tr>
-          <tr><td>840</td><td>240288907080499200</td></tr>
-          <tr><td>990</td><td>174755568785817600</td></tr>
-          <tr><td>1260</td><td>51490480088678400</td></tr>
+          <tbody></tbody>
         </table>
       </details>
     </div>

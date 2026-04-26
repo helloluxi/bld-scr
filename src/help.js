@@ -108,6 +108,133 @@ function renderChart(mount, rows, title) {
   );
 }
 
+function lastTbody(stat) {
+  const t = document.querySelector(`[data-stat="${stat}"]`);
+  if (!t) return null;
+  const tbodies = t.querySelectorAll('tbody');
+  return tbodies[tbodies.length - 1] || null;
+}
+
+function populateStaticTables() {
+  const allE = [...cycler.evenEdges, ...cycler.oddEdges];
+  const allC = [...cycler.evenCorners, ...cycler.oddCorners];
+  const eT = 980995276800, cT = 88179840;
+
+  function tally(configs, keyFn) {
+    const m = new Map();
+    for (const cc of configs) m.set(keyFn(cc), (m.get(keyFn(cc)) || 0) + cc.count);
+    return [...m].sort((a, b) => a[0] - b[0]);
+  }
+
+  function fillTbody(stat, html) {
+    const tbody = lastTbody(stat);
+    if (tbody) tbody.innerHTML = html;
+  }
+
+  function probRows(rows, total) {
+    return rows.map(([k, v]) =>
+      `<tr><td>${k}</td><td>${Math.round(v)}</td><td>${(v / total).toFixed(4)}</td></tr>`
+    ).join('');
+  }
+
+  // Cycle Breaks
+  fillTbody('edge-breaks',   probRows(tally(allE, c => c.breaks), eT));
+  fillTbody('corner-breaks', probRows(tally(allC, c => c.breaks), cT));
+
+  // Flip / Twist
+  fillTbody('edge-flipped',   probRows(tally(allE, c => c.open1), eT));
+  fillTbody('corner-twisted', probRows(tally(allC, c => c.open1), cT));
+
+  // Float 3-Cycles
+  fillTbody('edge-float3',   probRows(tally(allE, c => c.closed3), eT));
+  fillTbody('corner-float3', probRows(tally(allC, c => c.closed3), cT));
+
+  // LTCT / T2C (odd parity, with at least one open1 / open2 secondary cycle)
+  let ltct = 0, t2c = 0;
+  for (const cc of cycler.oddCorners) {
+    if (cc.open1 >= 1) ltct += cc.count;
+    if (cc.open2 >= 1) t2c  += cc.count;
+  }
+  fillTbody('ltct-t2c',
+    `<tr><td>LTCT</td><td>${ltct.toLocaleString()}</td><td>${(ltct / cT).toFixed(4)}</td></tr>` +
+    `<tr><td>T2C</td><td>${t2c.toLocaleString()}</td><td>${(t2c / cT).toFixed(4)}</td></tr>`
+  );
+
+  // Fixed Break-In Swap
+  populateBreakInSwap();
+
+  // Order distribution
+  populateOrderTable();
+}
+
+function populateBreakInSwap() {
+  const noP  = lastTbody('bis-no-parity');
+  const oddP = lastTbody('bis-odd');
+  if (!noP && !oddP) return;
+
+  function falling(x, k) { let r = 1; for (let i = 0; i < k; i++) r *= (x - i); return r; }
+
+  const res = new Array(12).fill(0), resOdd = new Array(12).fill(0);
+  function process(cc, isOdd) {
+    const p0 = cc.cycles[0].perm, f1 = cc.closed1;
+    const h = (p0 > 1) ? 1 : 0;
+    const n0 = Math.max(0, p0 - 2) + f1, a0 = 11 - h - n0;
+    const vcs = h === 0
+      ? [[cc.count, a0, 11 - a0]]
+      : [[cc.count / 2, a0 + 1, 11 - a0 - 1],
+         [cc.count / 2, a0,     11 - a0]];
+    for (const [w, a, n] of vcs) {
+      if (a === 0) { res[0] += w; if (isOdd) resOdd[0] += w; continue; }
+      for (let k = 1; k <= 11; k++) {
+        if (k - 1 > n) break;
+        const c = w * a * falling(n, k - 1) / falling(11, k);
+        res[k] += c;
+        if (isOdd) resOdd[k] += c;
+      }
+    }
+  }
+  cycler.evenEdges.forEach(cc => process(cc, false));
+  cycler.oddEdges .forEach(cc => process(cc, true));
+
+  function render(arr) {
+    const tot = arr.reduce((s, v) => s + v, 0);
+    let html = '', cum = 0;
+    for (let k = 1; k <= 11; k++) {
+      cum += arr[k];
+      html += `<tr><td>#${k}</td><td>${Math.round(arr[k])}</td><td>${(arr[k] / tot).toFixed(4)}</td><td>${(cum / tot).toFixed(4)}</td></tr>`;
+    }
+    html += `<tr><td>—</td><td>${Math.round(arr[0])}</td><td>${(arr[0] / tot).toFixed(4)}</td><td>1.0000</td></tr>`;
+    return html;
+  }
+  if (noP)  noP .innerHTML = render(res);
+  if (oddP) oddP.innerHTML = render(resOdd);
+}
+
+function populateOrderTable() {
+  const el = lastTbody('order');
+  if (!el) return;
+  const gcd = (a, b) => { while (b) [a, b] = [b, a % b]; return a; };
+  const lcm = (a, b) => a / gcd(a, b) * b;
+  const cycleOrder = (c, O) => c.ori === 0 ? c.perm : c.perm * (O / gcd(O, c.ori));
+  const configOrder = (cc, O) => cc.cycles.reduce((acc, c) => lcm(acc, cycleOrder(c, O)), 1);
+  const withOrders = (configs, O) => configs.map(cc => ({ order: configOrder(cc, O), count: BigInt(cc.count) }));
+  function addPairs(dist, edges, corners) {
+    for (const e of edges) for (const c of corners) {
+      const o = lcm(e.order, c.order);
+      dist.set(o, (dist.get(o) || 0n) + e.count * c.count);
+    }
+  }
+  const evenE = withOrders(cycler.evenEdges,   2);
+  const oddE  = withOrders(cycler.oddEdges,    2);
+  const evenC = withOrders(cycler.evenCorners, 3);
+  const oddC  = withOrders(cycler.oddCorners,  3);
+  const dist = new Map();
+  addPairs(dist, evenE, evenC);
+  addPairs(dist, oddE,  oddC);
+  el.innerHTML = [...dist].sort((a, b) => a[0] - b[0])
+    .map(([order, count]) => `<tr><td>${order}</td><td>${count}</td></tr>`).join('');
+}
+
 function updateAlgsSection() {
   const skills = getHelpSkills();
   const eLabel = edgeSkillLabel(skills);
@@ -186,6 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
       updateAlgsSection();
     });
   });
+
+  // Populate static data tables from cycler.js (must run before chart parsing)
+  populateStaticTables();
 
   // Static charts (non-algs)
   document.querySelectorAll('.help-chart').forEach(mount => {

@@ -44,6 +44,51 @@ show("Twisted Corners", tally(allC, c => c.open1), cT);
 show("Float 3-Cycle Edges", tally(allE, c => c.closed3), eT);
 show("Float 3-Cycle Corners", tally(allC, c => c.closed3), cT);
 
+// Fixed Break-In Swap (edge buffer index distribution)
+function falling(x, k) {
+  let r = 1;
+  for (let i = 0; i < k; i++) r *= (x - i);
+  return r;
+}
+
+const bisAll = new Array(12).fill(0), bisOdd = new Array(12).fill(0);
+
+function bisProcess(cc, isOdd) {
+  const p0 = cc.cycles[0].perm, f1 = cc.closed1;
+  const h = (p0 > 1) ? 1 : 0;
+  const n0 = Math.max(0, p0 - 2) + f1, a0 = 11 - h - n0;
+  const vcs = h === 0
+    ? [[cc.count, a0, 11 - a0]]
+    : [[cc.count / 2, a0 + 1, 11 - a0 - 1],
+       [cc.count / 2, a0,     11 - a0]];
+  for (const [w, a, n] of vcs) {
+    if (a === 0) { bisAll[0] += w; if (isOdd) bisOdd[0] += w; continue; }
+    for (let k = 1; k <= 11; k++) {
+      if (k - 1 > n) break;
+      const c = w * a * falling(n, k - 1) / falling(11, k);
+      bisAll[k] += c;
+      if (isOdd) bisOdd[k] += c;
+    }
+  }
+}
+
+cycler.evenEdges.forEach(cc => bisProcess(cc, false));
+cycler.oddEdges .forEach(cc => bisProcess(cc, true));
+
+function showBIS(name, arr) {
+  console.log(`\n=== ${name} ===`);
+  const t = arr.reduce((s, v) => s + v, 0);
+  let cum = 0;
+  for (let k = 1; k <= 11; k++) {
+    cum += arr[k];
+    console.log(`#${k}\t${Math.round(arr[k])}\t${(arr[k] / t).toFixed(4)}\t${(cum / t).toFixed(4)}`);
+  }
+  console.log(`—\t${Math.round(arr[0])}\t${(arr[0] / t).toFixed(4)}\t1.0000`);
+}
+
+showBIS("Fixed Break-In Swap — No Parity Constraint", bisAll);
+showBIS("Fixed Break-In Swap — Odd Parity Only",      bisOdd);
+
 // LTCT & T2C
 const oddC = cycler.oddCorners;
 for (const [name, key] of [["LTCT", "open1"], ["T2C", "open2"]]) {
