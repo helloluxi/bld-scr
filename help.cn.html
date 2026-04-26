@@ -45,7 +45,7 @@
       <p>这里的 $o$ 是该循环的<em>净朝向</em>：$o = \bigl(\sum_{\text{cycle}} o_i\bigr) \bmod m$，其中棱块 $m=2$，角块 $m=3$。朝向取值为：$0$ = 正向，$1$ = 翻棱或顺时针翻角，$2$ = 逆时针翻角。当 三循环 的 $o=0$ 时，朝向正确，可用一个三循环公式解决。全局约束 $\sum_{\text{all}} o_i \equiv 0\pmod{m}$ 始终成立。</p>
 
       <h2>循环配置</h2>
-      <p><em>循环配置</em>由缓冲循环 $(p_0, o_0)$ 与一组小循环循环类型 $(p_j, o_j, r_j)$ 描述，其中 $p_j$ 为循环长度，$o_j$ 为净朝向，$r_j$ 为该类型循环个数。对上面的打乱：</p>
+      <p><em>循环配置</em>由缓冲循环 $(p_0, o_0)$ 与一组小循环类型 $(p_j, o_j, r_j)$ 描述，其中 $p_j$ 为循环长度，$o_j$ 为净朝向，$r_j$ 为该类型循环个数。对上面的打乱：</p>
 
       <table>
         <thead><tr><th>类型</th><th>缓冲 $(p_0,o_0)$</th><th>小循环类型 $(p_j,o_j,r_j)$</th></tr></thead>
@@ -123,34 +123,19 @@
         <div class="help-chart" id="total-algs-chart"></div>
         <p id="total-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
       </details>
-    </div>
-
-    <div class="card" id="reduction-card">
-      <h2>按技巧等级估算公式数</h2>
-      <p>估算的算法数取决于复原者可执行的技巧。每一级都严格包含前一级能力。</p>
-
-      <table class="prose">
-        <thead><tr><th>等级</th><th>技巧</th><th>公式数</th></tr></thead>
-        <tbody>
-            <tr><td>Basic</td>
-              <td>标准三循环成对执行</td>
-              <td>总字母数的一半，再加上原地错朝向块的额外公式。</td></tr>
-            <tr><td>只浮动三循环</td>
-              <td>每个朝向正确的三循环用一个换位公式解决</td>
-              <td>在 Basic 基础上减去朝向正确的三循环数量。</td></tr>
-            <tr><td>全浮动</td>
-              <td>用任意浮动 三循环 归约 2-cycle 与翻角</td>
-              <td>按下方归约算法计算。</td></tr>
-            <tr><td>全浮动 + 奇偶</td>
-              <td>将一个残余 2-cycle 吸收入奇偶交换</td>
-              <td>当奇偶为奇且存在残余 2-cycle 时，比全浮动再省 1 个公式。</td></tr>
-        </tbody>
-      </table>
-
-      <p><em>字母数</em>即编码长度。每个长度大于 1 的非缓冲循环按每块 1 字母计，并额外加 1 个小循环字母；缓冲循环按每块 1 字母但减 1。每两字母对应 1 个 三循环 公式。原地错朝向块会带来小的固定成本：大约每 4 个翻棱或每 3 个翻角多 1 个公式。</p>
 
       <details>
-        <summary>全浮动归约逻辑</summary>
+        <summary>节省公式统计</summary>
+        <p>按技巧等级统计的平均公式数（在所有有效打乱状态上计算）：</p>
+        <table id="saved-algs-table">
+          <thead><tr><th>技巧等级</th><th>棱块均值</th><th>节省</th><th>角块均值</th><th>节省</th><th>总均值</th><th>节省</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p id="saved-algs-quip" style="margin-top:1rem;font-style:italic;color:gray;"></p>
+      </details>
+
+      <details>
+        <summary>全浮动归约逻辑（又臭又长警告）</summary>
 
         <p>在可使用任意浮动 三循环 的前提下，任何非缓冲循环都可按三阶段系统归约：</p>
 
@@ -194,23 +179,14 @@
         <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; 收起</a>
       </details>
 
-      <details>
-        <summary>节省公式统计</summary>
-        <p>按技巧等级统计的平均公式数（在所有有效打乱状态上计算）：</p>
-        <table id="saved-algs-table">
-          <thead><tr><th>技巧等级</th><th>棱块均值</th><th>节省</th><th>角块均值</th><th>节省</th><th>总均值</th><th>节省</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <p id="saved-algs-quip" style="margin-top:1rem;font-style:italic;color:gray;"></p>
-      </details>
     </div>
 
     <div class="card">
-      <h2>三盲小循环统计</h2>
+      <h2>三盲断环统计</h2>
       <details>
-        <summary>棱块小循环</summary>
+        <summary>棱块断环</summary>
         <table>
-          <tr><th>小循环数</th><th>数量</th><th>概率</th></tr>
+          <tr><th>断环数</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>222218469376</td><td>0.2265</td></tr>
           <tr><td>1</td><td>427559518208</td><td>0.4358</td></tr>
           <tr><td>2</td><td>262862831616</td><td>0.2680</td></tr>
@@ -222,9 +198,9 @@
       </details>
 
       <details>
-        <summary>角块小循环</summary>
+        <summary>角块断环</summary>
         <table>
-          <tr><th>小循环数</th><th>数量</th><th>概率</th></tr>
+          <tr><th>断环数</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>29961900</td><td>0.3398</td></tr>
           <tr><td>1</td><td>43031412</td><td>0.4880</td></tr>
           <tr><td>2</td><td>14267988</td><td>0.1618</td></tr>
@@ -323,11 +299,11 @@
 
         <p>这两类情况之间是一一对应：交换 UF 与 X 的实体块后，每个可用案例都对应一个不可用案例，反之亦然。因此无论奇偶如何，首选位置（索引 #1）可用概率都恰为 50%。当缓冲循环末位存在（$p_0 > 1$）时，其朝向两种可能等概率，对两侧各贡献一半。</p>
 
-        <p>形式化地，若某循环配置的缓冲循环长度为 $p_0$，小循环循环中原地还原棱块数为 $f$：</p>
+        <p>形式化地，若某循环配置的缓冲循环长度为 $p_0$，小循环中原地还原棱块数为 $f$：</p>
         <ul>
           <li>$a = 11 - h - n$：完全可用位置数（不在缓冲循环且未还原）</li>
           <li>$h = \mathbf{1}_{p_0 > 1}$：缓冲循环末位；仅当朝向正确时可用（概率 $\frac{1}{2}$）</li>
-          <li>$n = \max(0,\, p_0 - 2) + f$：永不可用位置数（缓冲中段 + 已还原）</li>
+          <li>$n = \max(0,\, p_0 - 2) + f$：永不可用位置数（缓冲循环中段 + 已还原）</li>
         </ul>
         <p>对 $h$ 做一次二项分支后，得到 $a'$ 个可用位与 $n' = 11 - a'$ 个不可用位，并在 11 个优先槽中均匀分布。首个可用槽位出现在索引 $k$ 的概率为：</p>
         $$P(k \mid a', n') \;=\; \frac{a' \cdot n'^{\underline{k-1}}}{11^{\underline{k}}}$$
@@ -352,11 +328,11 @@
           <tr><td>—</td><td>67391157472</td><td>0.0687</td><td>1.0000</td></tr>
         </table>
         <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — No Parity Constraint" data-chart-spaced="false"></div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">“—” 表示没有棱小循环且最终停在错朝向棱块上的情况，因此没有借位空间。</p>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">“—” 表示没有棱断环且最终停在错朝向棱块上的情况，因此没有借位空间。</p>
       </details>
 
       <details>
-        <summary>棱缓冲索引（仅奇）</summary>
+        <summary>棱缓冲索引（仅奇偶为奇）</summary>
         <table>
           <tr><th>索引</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tr><td>#1</td><td>241532928000</td><td>0.4924</td><td>0.4924</td></tr>
@@ -373,7 +349,7 @@
           <tr><td>—</td><td>46091489411</td><td>0.0940</td><td>1.0000</td></tr>
         </table>
         <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — Odd Parity Only" data-chart-spaced="false"></div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">“—” 表示没有棱小循环且最终停在错朝向棱块上的情况，因此没有借位空间。</p>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">“—” 表示没有棱断环且最终停在错朝向棱块上的情况，因此没有借位空间。</p>
       </details>
 
     </div>
@@ -383,9 +359,9 @@
 
       <details>
         <summary>结果</summary>
-        <p><strong>LTCT</strong>（Last Target Corner Twist）将最后一个角目标的处理与两角翻转合并为一个算法，可节省 1 个 twist 公式。要求奇偶为奇，且至少有一个非缓冲翻角（<code>open1&gt;=1</code>）。</p>
+        <p><strong>LTCT</strong>（Last Target Corner Twist）将最后一个角目标的处理与两角翻转合并为一个公式，可节省 1 个翻角公式。要求奇偶为奇，且至少有一个非缓冲翻角（<code>open1&gt;=1</code>）。</p>
 
-        <p><strong>T2C</strong>（Twisted 2 Corners）用于缓冲角已翻且另外两角互换时，把交换与缓冲解翻合并为一个算法来处理最后角目标。要求奇偶为奇，且至少存在一个错朝向小循环 2-cycle（<code>open2&gt;=1</code>）。</p>
+        <p><strong>T2C</strong>（Twisted 2 Corners）用于缓冲角已翻且另外两角互换时，把交换与缓冲解翻合并为一个公式来处理最后角目标。要求奇偶为奇，且至少存在一个错朝向小循环 2-cycle（<code>open2&gt;=1</code>）。</p>
 
         <p><strong>注</strong>：实际中多数 BLD 选手只专精固定棱对（如 UF-UR）下的 LTCT 或 T2C，因此真正可用的情况会更少；在固定借位法下，通常约为上表的一半。</p>
         
@@ -527,9 +503,9 @@
       </details>
 
       <details>
-        <summary>翼棱小循环</summary>
+        <summary>翼棱断环</summary>
         <table>
-          <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
+          <tr><th>断环数</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>70273067330330098091156</td><td>0.1133</td></tr>
           <tr><td>1</td><td>189019970161389580884524</td><td>0.3047</td></tr>
           <tr><td>2</td><td>201253771471008242664284</td><td>0.3244</td></tr>
@@ -546,7 +522,7 @@
       </details>
 
       <details>
-        <summary>已还原 翼棱（不含缓冲）</summary>
+        <summary>已还原翼棱（不含缓冲）</summary>
         <table>
           <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>237760636776394448431551</td><td>0.3832</td></tr>
@@ -611,7 +587,7 @@
       </details>
 
       <details>
-        <summary>未还原棱心/角心(5BLD)</summary>
+        <summary>未还原角心/棱心(5BLD)</summary>
         <table>
           <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>1</td><td>0.0000</td></tr>

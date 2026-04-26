@@ -123,34 +123,20 @@
         <div class="help-chart" id="total-algs-chart"></div>
         <p id="total-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
       </details>
-    </div>
-
-    <div class="card" id="reduction-card">
-      <h2>Alg Counting by Skill Level</h2>
-      <p>The estimated algorithm count depends on which techniques the solver can execute. Each level is a strict superset of the previous.</p>
-
-      <table class="prose">
-        <thead><tr><th>Level</th><th>Technique</th><th>Alg count</th></tr></thead>
-        <tbody>
-          <tr><td>Basic</td>
-              <td>Standard 3-style pair execution</td>
-              <td>Half the total letter count, plus extra algs for misoriented in-place pieces.</td></tr>
-          <tr><td>Naive float 3-cycle</td>
-              <td>Solve each orientation-clean 3-cycle with one commutator</td>
-              <td>Basic count, minus the number of orientation-clean 3-cycles.</td></tr>
-          <tr><td>Full floating</td>
-              <td>Reduce 2-cycles and twists using arbitrary floating 3-cycles</td>
-              <td>Computed by the reduction algorithm below.</td></tr>
-          <tr><td>Full floating + parity</td>
-              <td>Absorb a residual 2-cycle into the parity swap</td>
-              <td>One alg cheaper than Full floating when parity is odd and a residual 2-cycle is available.</td></tr>
-        </tbody>
-      </table>
-
-      <p>The <em>letter count</em> is the length of the BLD memo. Each non-buffer cycle longer than 1 contributes one letter per piece plus a cycle-break letter; the buffer cycle contributes one letter per piece minus one. Each pair of letters becomes one 3-style alg. Misoriented in-place pieces add a small fixed cost: roughly one alg for every four flipped edges, or every three twisted corners.</p>
 
       <details>
-        <summary>Full Floating Reduction Logic</summary>
+        <summary>Saved-alg Statistics</summary>
+        <p>Mean alg counts by skill level, computed over all valid scramble states:</p>
+        <table id="saved-algs-table">
+          <thead><tr><th>Skill Level</th><th>Edge mean</th><th>Saved</th><th>Corner mean</th><th>Saved</th><th>Total mean</th><th>Saved</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p id="saved-algs-quip" style="margin-top:1rem;font-style:italic;color:gray;"></p>
+      </details>
+      
+      
+      <details>
+        <summary>Full Floating Reduction Logic (Long Boring Text Alert)</summary>
 
         <p>With arbitrary floating 3-cycles, any non-buffer cycle can be reduced systematically in three phases:</p>
 
@@ -194,15 +180,6 @@
         <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
       </details>
 
-      <details>
-        <summary>Saved-alg Statistics</summary>
-        <p>Mean alg counts by skill level, computed over all valid scramble states:</p>
-        <table id="saved-algs-table">
-          <thead><tr><th>Skill Level</th><th>Edge mean</th><th>Saved</th><th>Corner mean</th><th>Saved</th><th>Total mean</th><th>Saved</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <p id="saved-algs-quip" style="margin-top:1rem;font-style:italic;color:gray;"></p>
-      </details>
     </div>
 
     <div class="card">
