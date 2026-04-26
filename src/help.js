@@ -25,7 +25,7 @@ const t = {
   basic: isZh ? '基础' : 'Basic',
   naiveFloat3: isZh ? '只浮动三循环' : 'Naive Float 3-Cycle',
   fullFloat: isZh ? '全浮动' : 'Full Floating',
-  fullFloatParity: isZh ? '全浮动 + 奇偶' : 'Full Floating Parity',
+  fullFloatParity: isZh ? '全浮动奇偶' : 'Full Floating Parity',
   parityEven: isZh ? '偶' : 'even',
   parityOdd: isZh ? '奇' : 'odd',
   parity: isZh ? '奇偶' : 'Parity',
@@ -469,8 +469,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedFull = totalsByName[isZh ? '只浮动三循环' : 'Naive float 3-style'] - totalsByName[t.fullFloat];
     const savedParity = totalsByName[t.fullFloat] - totalsByName[t.fullFloatParity];
     document.getElementById('saved-algs-quip').textContent = isZh
-      ? `要背 ${fmtNum(floatAlgs)} 个全浮动 3-style 公式，平均每把只省 ${savedFull.toFixed(2)} 个公式；再多背 ${fmtNum(parityAlgs)} 个全浮动奇偶公式，也只再省 ${savedParity.toFixed(2)} 个公式。`
-      : `Bruh, would you really like to learn ${fmtNum(floatAlgs)} algs of full floating 3-style just to save ${savedFull.toFixed(2)} algs per scramble on average, and additional ${fmtNum(parityAlgs)} algs of full floating parity just to save ${savedParity.toFixed(2)} algs per scramble? Life is short, be happy :)`;
+      ? `你真的会想背 ${fmtNum(floatAlgs)} 个全浮动 3-style 公式，只为了平均每把少背 ${savedFull.toFixed(2)} 个公式；再多背 ${fmtNum(parityAlgs)} 个全浮动奇偶公式，也只再少背 ${savedParity.toFixed(2)} 个公式吗？这些都只是理论上界，还没考虑人类实际能力。人生苦短，别背了～`
+      : `Bruh, would you really want to learn ${fmtNum(floatAlgs)} full-floating 3-style algs just to save ${savedFull.toFixed(2)} algs per scramble on average, and another ${fmtNum(parityAlgs)} full-floating parity algs just to save ${savedParity.toFixed(2)} algs per scramble? These are only theoretical upper bounds, without accounting for human-level practicality. Life is short, be happy :)`;
 
     // Saved-alg distribution per skill level (vs Basic)
     const distLevels = [
