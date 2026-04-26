@@ -23,12 +23,15 @@ Every cycle configuration of 12 edges and 8 corners is enumerated up front, with
 
 | File | Purpose |
 | --- | --- |
-| `index.html` / `index.js` | Main UI and filter logic |
+| `index.html` / `src/index.js` | Main UI and filter logic |
 | `help.html` | Math write-up and big-BLD statistics |
-| `cycler.js` | Enumerates cycle configurations and computes scramble counts |
-| `scrambler.js` | Samples a configuration and instantiates a random scramble |
-| `min2phase.js` | Solver used to turn a cube state into a move sequence |
-| `theme.js` | Dark/light theme toggle |
+| `src/cycler.js` | Enumerates 3BLD cycle configurations and computes scramble counts |
+| `src/cycler4.js` | Enumerates 4BLD wing/center configurations |
+| `src/scrambler.js` | Samples a configuration and instantiates a random scramble |
+| `src/chart.js` | Bar-chart rendering helpers |
+| `src/min2phase.js` | Solver used to turn a cube state into a move sequence |
+| `src/theme.js` | Dark/light theme toggle |
+| `src/reproduction.js` | Node script that prints all reproduced statistics |
 | `styles.css` | Shared styles |
 
 ## Related

@@ -775,6 +775,13 @@ tbody tr:hover td {
   transition: background-color 0.15s ease;
 }
 
+/* Worked example tables on help pages */
+.worked-example-table td:nth-child(2) {
+  color: var(--primary);
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
 /* Stats tables (inside details): column-specific styling */
 details table td:nth-child(2),
 details table th:nth-child(2),

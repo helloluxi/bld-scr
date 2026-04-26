@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="./favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
-  <title>3BLD Scrambler — How It Works</title>
+  <title>原理说明</title>
   <script src="./src/theme.js"></script>
   <script src="./src/cycler.js"></script>
   <script src="./src/min2phase.js"></script>
@@ -28,177 +28,177 @@
 </head>
 <body>
   <div class="container wide">
-    <h1>How It Works</h1>
-
+    <h1>原理说明</h1>
     <div class="card">
-      <p>A 3BLD solution decomposes the 12 edges and 8 corners into independent permutation–orientation structures. This tool exhaustively enumerates every <em>cycle configuration</em> and precomputes how many distinct scrambles realise it, giving exact probabilities for any filter.</p>
+      <p>如果有能力最好读英文版<a href="help.html" target="_blank">How It Works</a>，因为中文版是AI翻译的，以后慢慢修...</p>
+      <p>一个三盲状态可分解为 12 条棱块与 8 个角块的独立「置换-朝向」结构。本工具会穷举所有<em>循环配置</em>，并预计算每种配置可对应的不同打乱数量，从而给出任意筛选条件下的精确概率。</p>
 
-      <h2>Example</h2>
-      <p>Consider the scramble <code>U2 L2 U' R D2 F' L D B' D R2 F2 L2 F2 U' R2 U B2 U2 B2 U</code>. With buffer UF (edges) and UFR (corners), the cycle decomposition is:</p>
+      <h2>示例</h2>
+      <p>考虑打乱 <code>U2 L2 U' R D2 F' L D B' D R2 F2 L2 F2 U' R2 U B2 U2 B2 U</code>。在缓冲位 UF（棱）与 UFR（角）下，其循环分解为：</p>
 
-      <p><strong>Edges:</strong></p>
+      <p><strong>棱:</strong></p>
       $$\underbrace{(\mathrm{UF},\,\mathrm{BU},\,\mathrm{DL},\,\mathrm{FL})}_{o=0,\;\text{buffer}}\;\underbrace{(\mathrm{UR},\,\mathrm{RB})}_{o=0}\;\underbrace{(\mathrm{UL},\,\mathrm{LB})}_{o=0}\;\underbrace{(\mathrm{FR},\,\mathrm{BD})}_{o=1}\;\underbrace{(\mathrm{DR})}_{o=1}\;\underbrace{(\mathrm{DF})}_{o=0,\;\text{solved}}$$
 
-      <p><strong>Corners:</strong></p>
+      <p><strong>角:</strong></p>
       $$\underbrace{(\mathrm{UFR},\,\mathrm{LDF},\,\mathrm{LUB},\,\mathrm{BDR},\,\mathrm{DBL},\,\mathrm{RUB},\,\mathrm{RDF})}_{o=2,\;\text{buffer}}\;\underbrace{(\mathrm{UFL})}_{o=1}$$
 
-      <p>Here $o$ is the <em>net orientation</em> of a cycle: $o = \bigl(\sum_{\text{cycle}} o_i\bigr) \bmod m$, where $m=2$ for edges and $m=3$ for corners. Orientation values: $0$ = correct, $1$ = flipped (edges) or CW-twisted (corners), $2$ = CCW-twisted (corners). A 3-cycle with $o=0$ is orientation-clean and can be solved by a single 3-style alg. The global constraint $\sum_{\text{all}} o_i \equiv 0\pmod{m}$ always holds.</p>
+      <p>这里的 $o$ 是该循环的<em>净朝向</em>：$o = \bigl(\sum_{\text{cycle}} o_i\bigr) \bmod m$，其中棱块 $m=2$，角块 $m=3$。朝向取值为：$0$ = 正向，$1$ = 翻棱或顺时针翻角，$2$ = 逆时针翻角。当 三循环 的 $o=0$ 时，朝向正确，可用一个三循环公式解决。全局约束 $\sum_{\text{all}} o_i \equiv 0\pmod{m}$ 始终成立。</p>
 
-      <h2>Cycle Configuration</h2>
-      <p>A <em>cycle configuration</em> is described by the buffer cycle $(p_0, o_0)$ and a list of secondary cycle types $(p_j, o_j, r_j)$, where $p_j$ is the cycle length, $o_j$ the net orientation, and $r_j$ the number of cycles of that type. For this scramble:</p>
+      <h2>循环配置</h2>
+      <p><em>循环配置</em>由缓冲循环 $(p_0, o_0)$ 与一组小循环循环类型 $(p_j, o_j, r_j)$ 描述，其中 $p_j$ 为循环长度，$o_j$ 为净朝向，$r_j$ 为该类型循环个数。对上面的打乱：</p>
 
       <table>
-        <thead><tr><th>Piece type</th><th>Buffer $(p_0,o_0)$</th><th>Secondary types $(p_j,o_j,r_j)$</th></tr></thead>
+        <thead><tr><th>类型</th><th>缓冲 $(p_0,o_0)$</th><th>小循环类型 $(p_j,o_j,r_j)$</th></tr></thead>
         <tbody>
-          <tr><td>Edges</td><td>$(4,0)$</td><td>$(2,0,2),\;(2,1,1),\;(1,1,1),\;(1,0,1)$</td></tr>
-          <tr><td>Corners</td><td>$(7,2)$</td><td>$(1,1,1)$</td></tr>
+          <tr><td>棱</td><td>$(4,0)$</td><td>$(2,0,2),\;(2,1,1),\;(1,1,1),\;(1,0,1)$</td></tr>
+          <tr><td>角</td><td>$(7,2)$</td><td>$(1,1,1)$</td></tr>
         </tbody>
       </table>
 
-      <h2>Counting Scrambles per Configuration</h2>
+      <h2>每种配置的打乱计数</h2>
       $$\operatorname{count} = \frac{(P-1)!\cdot O^{P-1-\sum_j r_j}}{\displaystyle\prod_j p_j^{r_j} \cdot r_j!}$$
 
-      <p>For this scramble ($P=12,\,O=2$ for edges; $P=8,\,O=3$ for corners):</p>
+      <p>对该打乱（棱块 $P=12,\,O=2$；角块 $P=8,\,O=3$）：</p>
 
       $$\operatorname{count}_{\mathrm{edges}} = \frac{11!\cdot 2^{12-1-5}}{2^2\cdot2!\;\cdot\;2^1\cdot1!\;\cdot\;1^1\cdot1!\;\cdot\;1^1\cdot1!} = \frac{39{,}916{,}800\cdot 64}{16} = 159{,}667{,}200$$
 
       $$\operatorname{count}_{\mathrm{corners}} = \frac{7!\cdot 3^{8-1-1}}{1^1\cdot1!} = 5040\cdot 729 = 3{,}674{,}160$$
 
-      <h2>Parity & Sampling</h2>
+      <h2>奇偶与采样</h2>
       $$\text{parity} = (2 \cdot \text{algs}_{\text{base}}) \bmod 2$$
 
-      <p>Any valid 3BLD scramble has equal edge and corner permutation parity, so filtering one automatically filters both. Because parity is a top-level filter, configurations are split by parity into <strong>two separate weighted pools</strong> — an even-parity pool and an odd-parity pool — each with its own CDF weighted by scramble count. Toggling even or odd off simply drops the corresponding pool from the draw, with no need to re-normalise the other one.</p>
+      <p>任何有效的三盲打乱，其棱与角的置换奇偶必然一致，因此筛一个就等于同时筛两者。由于奇偶是顶层筛选项，配置会按奇偶拆成<strong>两个独立加权池</strong>：偶池与奇池；两者各自维护按打乱计数加权的 CDF。关闭 even 或 odd 时，只需从抽样中移除对应池，无需对另一个池重新归一化。</p>
 
-      <p>To generate a scramble: if both parities are enabled, pick a pool in proportion to its total weight (so the joint distribution still matches the unfiltered scramble distribution); sample a configuration from that pool's CDF; instantiate a random permutation and orientation assignment matching the configuration; solve the resulting cube state with <a href="https://github.com/cs0x7f/min2phase.js" target="_blank">min2phase.js</a>.</p>
+      <p>生成打乱时：若两种奇偶都开启，则按总权重比例先选池（保证联合分布仍与未筛选分布一致）；再从该池的 CDF 中抽取一个配置；随后随机实例化与该配置匹配的置换与朝向赋值；最后用 <a href="https://github.com/cs0x7f/min2phase.js" target="_blank">min2phase.js</a> 还原得到打乱。</p>
 
-      <h2>Random Worked Example (Alg Count Explained Later)</h2>
-      <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">Roll another</button>
+      <h2>随机示例（公式计数下文解释）</h2>
+      <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">再抽一个</button>
       <div id="worked-example-output"></div>
-      <p id="worked-example-bug" style="font-size:0.85rem; color:var(--text-secondary); display:none;">If anything doesn't add up, please report the bug on GitHub.</p>
-      <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
+      <p id="worked-example-bug" style="font-size:0.85rem; color:var(--text-secondary); display:none;">如果有任何地方对不上，请于GitHub反馈 bug。</p>
+      <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; 收起</a>
     </div>
 
     <div class="card" id="algs-card">
-      <h2>3BLD Algs</h2>
+      <h2>三盲公式统计</h2>
       <div id="algs-error" style="display:none;background:var(--error-bg,#fdd);color:var(--error-fg,#900);padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;"></div>
-      <p>Exact scramble counts for 3BLD with buffers UF (edges, $P=12$, $O=2$) and UFR (corners, $P=8$, $O=3$), over all $980{,}995{,}276{,}800$ edge states and $88{,}179{,}840$ corner states. Select a skill set to see the corresponding alg count distribution.</p>
+      <p>在缓冲位 UF（棱，$P=12$, $O=2$）与 UFR（角，$P=8$, $O=3$）下，对全部 $980{,}995{,}276{,}800$ 种棱状态与 $88{,}179{,}840$ 种角状态给出精确打乱计数。选择技巧组合可查看对应的公式计数分布。</p>
 
       <div class="skill-checkboxes" style="margin-bottom:1rem;">
-        <div class="setting-line"><span>Edge</span>
+        <div class="setting-line"><span>棱块</span>
           <div class="parity-checkbox-row">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">Naive float 3-cycle</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-edge"><label for="h-skill-fullfloat-edge">Full floating</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">只浮动三循环</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-edge"><label for="h-skill-fullfloat-edge">全浮动</label></div>
           </div>
         </div>
-        <div class="setting-line"><span>Corner</span>
+        <div class="setting-line"><span>角块</span>
           <div class="parity-checkbox-row">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">Naive float 3-cycle</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-corner"><label for="h-skill-fullfloat-corner">Full floating</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">只浮动三循环</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-corner"><label for="h-skill-fullfloat-corner">全浮动</label></div>
           </div>
         </div>
-        <div class="setting-line"><span>Parity</span>
+        <div class="setting-line"><span>奇偶</span>
           <div class="parity-checkbox-row">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-parity"><label for="h-skill-fullfloat-parity">Full floating parity</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-parity"><label for="h-skill-fullfloat-parity">全浮动奇偶</label></div>
           </div>
         </div>
       </div>
 
       <details id="edge-algs-details">
-        <summary id="edge-algs-summary">Edge Algs</summary>
-        <table id="edge-algs-table"><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></table>
+        <summary id="edge-algs-summary">棱块公式</summary>
+        <table id="edge-algs-table"><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></table>
         <div class="help-chart" id="edge-algs-chart"></div>
         <p id="edge-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
       </details>
 
       <details id="corner-algs-details">
-        <summary id="corner-algs-summary">Corner Algs</summary>
-        <table id="corner-algs-table"><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></table>
+        <summary id="corner-algs-summary">角块公式</summary>
+        <table id="corner-algs-table"><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></table>
         <div class="help-chart" id="corner-algs-chart"></div>
         <p id="corner-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
       </details>
 
       <details id="total-algs-details">
-        <summary id="total-algs-summary">Total Algs</summary>
-        <table id="total-algs-table"><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></table>
+        <summary id="total-algs-summary">总公式</summary>
+        <table id="total-algs-table"><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></table>
         <div class="help-chart" id="total-algs-chart"></div>
         <p id="total-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
       </details>
     </div>
 
     <div class="card" id="reduction-card">
-      <h2>Alg Counting by Skill Level</h2>
-      <p>The estimated algorithm count depends on which techniques the solver can execute. Each level is a strict superset of the previous.</p>
+      <h2>按技巧等级估算公式数</h2>
+      <p>估算的算法数取决于复原者可执行的技巧。每一级都严格包含前一级能力。</p>
 
       <table class="prose">
-        <thead><tr><th>Level</th><th>Technique</th><th>Alg count</th></tr></thead>
+        <thead><tr><th>等级</th><th>技巧</th><th>公式数</th></tr></thead>
         <tbody>
-          <tr><td>Basic</td>
-              <td>Standard 3-style pair execution</td>
-              <td>Half the total letter count, plus extra algs for misoriented in-place pieces.</td></tr>
-          <tr><td>Naive float 3-cycle</td>
-              <td>Solve each orientation-clean 3-cycle with one commutator</td>
-              <td>Basic count, minus the number of orientation-clean 3-cycles.</td></tr>
-          <tr><td>Full floating</td>
-              <td>Reduce 2-cycles and twists using arbitrary floating 3-cycles</td>
-              <td>Computed by the reduction algorithm below.</td></tr>
-          <tr><td>Full floating + parity</td>
-              <td>Absorb a residual 2-cycle into the parity swap</td>
-              <td>One alg cheaper than Full floating when parity is odd and a residual 2-cycle is available.</td></tr>
+            <tr><td>Basic</td>
+              <td>标准三循环成对执行</td>
+              <td>总字母数的一半，再加上原地错朝向块的额外公式。</td></tr>
+            <tr><td>只浮动三循环</td>
+              <td>每个朝向正确的三循环用一个换位公式解决</td>
+              <td>在 Basic 基础上减去朝向正确的三循环数量。</td></tr>
+            <tr><td>全浮动</td>
+              <td>用任意浮动 三循环 归约 2-cycle 与翻角</td>
+              <td>按下方归约算法计算。</td></tr>
+            <tr><td>全浮动 + 奇偶</td>
+              <td>将一个残余 2-cycle 吸收入奇偶交换</td>
+              <td>当奇偶为奇且存在残余 2-cycle 时，比全浮动再省 1 个公式。</td></tr>
         </tbody>
       </table>
 
-      <p>The <em>letter count</em> is the length of the BLD memo. Each non-buffer cycle longer than 1 contributes one letter per piece plus a cycle-break letter; the buffer cycle contributes one letter per piece minus one. Each pair of letters becomes one 3-style alg. Misoriented in-place pieces add a small fixed cost: roughly one alg for every four flipped edges, or every three twisted corners.</p>
+      <p><em>字母数</em>即编码长度。每个长度大于 1 的非缓冲循环按每块 1 字母计，并额外加 1 个小循环字母；缓冲循环按每块 1 字母但减 1。每两字母对应 1 个 三循环 公式。原地错朝向块会带来小的固定成本：大约每 4 个翻棱或每 3 个翻角多 1 个公式。</p>
 
       <details>
-        <summary>Full Floating Reduction Logic</summary>
+        <summary>全浮动归约逻辑</summary>
 
-        <p>With arbitrary floating 3-cycles, any non-buffer cycle can be reduced systematically in three phases:</p>
+        <p>在可使用任意浮动 三循环 的前提下，任何非缓冲循环都可按三阶段系统归约：</p>
 
-        <h3>Phase 1 — Shrink long cycles</h3>
-        <p>For each non-buffer cycle with $p \ge 3$, apply $\lfloor(p-1)/2\rfloor$ floating 3-cycles to shrink it by 2 per step. Orientation $o$ is preserved by a well-chosen cycle. After Phase 1, only $(2,o)$ and $(1,o)$ cycles remain among non-buffer cycles:</p>
+        <h3>阶段 1 - 缩短长循环</h3>
+        <p>对每个满足 $p \ge 3$ 的非缓冲循环，应用 $\lfloor(p-1)/2\rfloor$ 次浮动 3-cycle，每步将长度缩短 2。通过合适选取循环可保持朝向 $o$ 不变。阶段 1 后，非缓冲循环仅剩 $(2,o)$ 与 $(1,o)$：</p>
         <ul>
-          <li>Edges ($O=2$): $(2,0),\;(2,1),\;(1,1)$ — where $(1,0)$ is solved and ignored.</li>
-          <li>Corners ($O=3$): $(2,0),\;(2,1),\;(2,2),\;(1,1),\;(1,2)$.</li>
+          <li>棱块（$O=2$）：$(2,0),\;(2,1),\;(1,1)$，其中 $(1,0)$ 视为已还原并忽略。</li>
+          <li>角块（$O=3$）：$(2,0),\;(2,1),\;(2,2),\;(1,1),\;(1,2)$。</li>
         </ul>
 
-        <h3>Phase 2 — Pair 2-cycles (edges)</h3>
-        <p>Let post-Phase-1 counts be $r_{20}$, $r_{21}$, $r_{11}$:</p>
+        <h3>阶段 2 - 配对 2-cycle（棱块）</h3>
+        <p>记阶段 1 后计数为 $r_{20}$、$r_{21}$、$r_{11}$：</p>
         <ol>
-          <li>Pair $(2,0)+(2,0)$: 2 floating algs, leaving $a = r_{20} \bmod 2$.</li>
-          <li>Pair $(2,1)+(2,1)$: 2 floating algs, leaving $b = r_{21} \bmod 2$.</li>
-          <li>If $a=1,\;b=1,\;r_{11}\ge 1$: 2 floating algs eliminate both, consuming 1 $r_{11}$. If $r_{11}=0$: leave unreduced (net zero saving).</li>
+          <li>配对 $(2,0)+(2,0)$：耗 2 个浮动公式，余量 $a = r_{20} \bmod 2$。</li>
+          <li>配对 $(2,1)+(2,1)$：耗 2 个浮动公式，余量 $b = r_{21} \bmod 2$。</li>
+          <li>若 $a=1,\;b=1,\;r_{11}\ge 1$：再用 2 个浮动公式同时消去两者，并消耗 1 个 $r_{11}$。若 $r_{11}=0$：不做归约（净节省为 0）。</li>
         </ol>
-        <p>At most $R = a + b \in \{0, 1, 2\}$ residual 2-cycles remain. Each contributes $1.5$ algs.</p>
+        <p>最终最多剩余 $R = a + b \in \{0, 1, 2\}$ 个 2-cycle。每个贡献 $1.5$ 个公式。</p>
 
-        <h3>Phase 2 — Pair 2-cycles (corners)</h3>
-        <p>Let post-Phase-1 counts be $r_{20},\,r_{21},\,r_{22},\,r_{11},\,r_{12}$:</p>
+        <h3>阶段 2 - 配对 2-cycle（角块）</h3>
+        <p>记阶段 1 后计数为 $r_{20},\,r_{21},\,r_{22},\,r_{11},\,r_{12}$：</p>
         <ol>
-          <li>Pair $(2,0)+(2,0)$: 2 floating algs, leaving $a = r_{20} \bmod 2$.</li>
-          <li>Pair <strong>mixed</strong> $(2,1)+(2,2)$: 2 floating algs (twists cancel mod 3). Same-type $(2,1)+(2,1)$ or $(2,2)+(2,2)$ pairing is <em>not</em> used. Leaves $b = r_{21} - \min(r_{21},r_{22})$ and $c = r_{22} - \min(r_{21},r_{22})$.</li>
-          <li><strong>Rule 1</strong>: while $b \ge 2$ and $r_{11} \ge 1$ (or $c \ge 2$ and $r_{12} \ge 1$): 3 algs eliminate two $(2,x)$ and one $(1,x)$.</li>
-          <li><strong>Rule 2</strong>: if $a=1,\;b\ge 1,\;r_{12}\ge 1$: 3 algs. Else if $a=1,\;c\ge 1,\;r_{11}\ge 1$: 3 algs.</li>
+          <li>配对 $(2,0)+(2,0)$：耗 2 个浮动公式，余量 $a = r_{20} \bmod 2$。</li>
+          <li><strong>混合</strong>配对 $(2,1)+(2,2)$：耗 2 个浮动公式（mod 3 下翻角相消）。<em>不</em>使用同类配对 $(2,1)+(2,1)$ 或 $(2,2)+(2,2)$。余量为 $b = r_{21} - \min(r_{21},r_{22})$、$c = r_{22} - \min(r_{21},r_{22})$。</li>
+          <li><strong>规则 1</strong>：当 $b \ge 2$ 且 $r_{11} \ge 1$（或 $c \ge 2$ 且 $r_{12} \ge 1$）时，3 个公式可消去两个 $(2,x)$ 与一个 $(1,x)$。</li>
+          <li><strong>规则 2</strong>：若 $a=1,\;b\ge 1,\;r_{12}\ge 1$，用 3 个公式；否则若 $a=1,\;c\ge 1,\;r_{11}\ge 1$，也用 3 个公式。</li>
         </ol>
-        <p>Up to $R = a + b + c \le 3$ residual 2-cycles may remain — e.g. three same-type $(2,1)$ with no $(2,2)$ to pair against.</p>
+        <p>最多会剩余 $R = a + b + c \le 3$ 个 2-cycle，例如只有三个同类 $(2,1)$ 且没有 $(2,2)$ 可配对。</p>
 
-        <h3>Phase 3 — Count remaining algs</h3>
+        <h3>阶段 3 - 统计剩余公式</h3>
         <ul>
-          <li><strong>Twist algs</strong>: edges $\lceil r_{11}/4\rceil$; corners $\lfloor r_{11}/3\rfloor + \lfloor r_{12}/3\rfloor + \lceil(r_{11} \bmod 3 + r_{12} \bmod 3)/3\rceil$.</li>
-          <li><strong>Residual 2-cycles</strong>: $1.5\,R$ algs.</li>
-          <li><strong>Buffer cycle</strong> of length $p_0$: $(p_0-1)/2$ algs.</li>
+          <li><strong>翻角公式</strong>：棱块为 $\lceil r_{11}/4\rceil$；角块为 $\lfloor r_{11}/3\rfloor + \lfloor r_{12}/3\rfloor + \lceil(r_{11} \bmod 3 + r_{12} \bmod 3)/3\rceil$。</li>
+          <li><strong>残余 2-cycle</strong>：共 $1.5\,R$ 个公式。</li>
+          <li><strong>缓冲循环</strong>长度为 $p_0$ 时贡献 $(p_0-1)/2$ 个公式。</li>
         </ul>
-        <p>Total: $\text{twist} + 1.5\,R + (p_0-1)/2$. All arithmetic is done in the $2\times$ form (integers) to avoid float precision issues, then divided by 2.</p>
+        <p>总计：$\text{twist} + 1.5\,R + (p_0-1)/2$。实现时全部以 $2\times$ 整数形式计算，避免浮点精度误差，最后再除以 2。</p>
 
-        <h3>Full Floating Parity</h3>
-        <p>When parity is odd and at least one residual 2-cycle remains, one is absorbed into the parity end-pair of the buffer cycle, reducing its cost from $1.5$ to $0.5$ algs — a saving of 1. Prefer absorbing $(2,0)$, then $(2,1)$ or $(2,2)$.</p>
+        <h3>全浮动奇偶</h3>
+        <p>当奇偶为奇且至少有一个残余 2-cycle 时，可将其中一个吸收到缓冲循环末尾的奇偶对换中，使其成本由 $1.5$ 降到 $0.5$ 个公式，净省 1。优先吸收 $(2,0)$，其次 $(2,1)$ 或 $(2,2)$。</p>
 
-        <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
+        <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; 收起</a>
       </details>
 
       <details>
-        <summary>Saved-alg Statistics</summary>
-        <p>Mean alg counts by skill level, computed over all valid scramble states:</p>
+        <summary>节省公式统计</summary>
+        <p>按技巧等级统计的平均公式数（在所有有效打乱状态上计算）：</p>
         <table id="saved-algs-table">
-          <thead><tr><th>Skill Level</th><th>Edge mean</th><th>Saved</th><th>Corner mean</th><th>Saved</th><th>Total mean</th><th>Saved</th></tr></thead>
+          <thead><tr><th>技巧等级</th><th>棱块均值</th><th>节省</th><th>角块均值</th><th>节省</th><th>总均值</th><th>节省</th></tr></thead>
           <tbody></tbody>
         </table>
         <p id="saved-algs-quip" style="margin-top:1rem;font-style:italic;color:gray;"></p>
@@ -206,11 +206,11 @@
     </div>
 
     <div class="card">
-      <h2>3BLD Cycle Breaks</h2>
+      <h2>三盲小循环统计</h2>
       <details>
-        <summary>Edge Cycle Breaks</summary>
+        <summary>棱块小循环</summary>
         <table>
-          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>小循环数</th><th>数量</th><th>概率</th></tr>
           <tr><td>0</td><td>222218469376</td><td>0.2265</td></tr>
           <tr><td>1</td><td>427559518208</td><td>0.4358</td></tr>
           <tr><td>2</td><td>262862831616</td><td>0.2680</td></tr>
@@ -222,9 +222,9 @@
       </details>
 
       <details>
-        <summary>Corner Cycle Breaks</summary>
+        <summary>角块小循环</summary>
         <table>
-          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>小循环数</th><th>数量</th><th>概率</th></tr>
           <tr><td>0</td><td>29961900</td><td>0.3398</td></tr>
           <tr><td>1</td><td>43031412</td><td>0.4880</td></tr>
           <tr><td>2</td><td>14267988</td><td>0.1618</td></tr>
@@ -235,11 +235,11 @@
     </div>
 
     <div class="card">
-      <h2>3BLD Flip / Twist</h2>
+      <h2>三盲翻棱 / 翻角</h2>
       <details>
-        <summary>Flipped Edges (buffer excluded)</summary>
+        <summary>翻棱数（不含缓冲）</summary>
         <table>
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>619795533763</td><td>0.6318</td></tr>
           <tr><td>1</td><td>285105945531</td><td>0.2906</td></tr>
           <tr><td>2</td><td>65078531045</td><td>0.0663</td></tr>
@@ -254,13 +254,13 @@
           <tr><td>11</td><td>1</td><td>0.0000</td></tr>
         </table>
         <div class="help-chart" data-chart-title="Flipped Edges"></div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">Solved-in-place edges (buffer excluded) follow the same distribution by orientation symmetry.</p>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">由朝向对称性可知，原地还原棱块数（不含缓冲）服从同一分布。</p>
       </details>
 
       <details>
-        <summary>Twisted Corners (buffer excluded)</summary>
+        <summary>翻角数（不含缓冲）</summary>
         <table>
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>49045792</td><td>0.5562</td></tr>
           <tr><td>1</td><td>28924448</td><td>0.3280</td></tr>
           <tr><td>2</td><td>8383872</td><td>0.0951</td></tr>
@@ -275,11 +275,11 @@
     </div>
 
     <div class="card">
-      <h2>3BLD Float 3-Cycles</h2>
+      <h2>三盲浮动 3-Cycle</h2>
       <details>
-        <summary>Float 3-Cycles in Edges (buffer excluded)</summary>
+        <summary>棱块中的浮动 3-Cycle（不含缓冲）</summary>
         <table>
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>864994099200</td><td>0.8818</td></tr>
           <tr><td>1</td><td>109567180800</td><td>0.1117</td></tr>
           <tr><td>2</td><td>6244761600</td><td>0.0064</td></tr>
@@ -289,9 +289,9 @@
       </details>
 
       <details>
-        <summary>Float 3-Cycles in Corners (buffer excluded)</summary>
+        <summary>角块中的浮动 3-Cycle（不含缓冲）</summary>
         <table>
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>82192320</td><td>0.9321</td></tr>
           <tr><td>1</td><td>5851440</td><td>0.0664</td></tr>
           <tr><td>2</td><td>136080</td><td>0.0015</td></tr>
@@ -301,43 +301,43 @@
     </div>
 
     <div class="card">
-      <h2>Fixed Break-In Swap (固定借位法)</h2>
+      <h2>固定借位法</h2>
 
       <details>
-        <summary>Intro</summary>
-        <p>When a 3BLD scramble has <strong>odd parity</strong>, the solver must incorporate a 2-swap (parity algorithm) into their execution. The <em>fixed break-in swap</em> technique resolves parity by designating a fixed preference order among the 11 non-buffer edge positions (e.g., UR first, then UB, UL, …). During memo, the solver checks each preferred position in order until one is <strong>applicable</strong> — meaning it can serve as the parity-swap target with the buffer.</p>
+        <summary>简介</summary>
+        <p>当三盲打乱为<strong>奇偶为奇</strong>时，执行中必须并入一个 2-swap（奇偶算法）。<em>固定借位法</em>通过预先设定 11 个非缓冲棱位的固定优先顺序（例如先 UR，再 UB、UL……）来处理奇偶。记忆时按顺序检查这些位置，直到找到一个<strong>可用</strong>位置作为与缓冲交换的目标。</p>
 
-        <p>For buffer UF, a position X is applicable as a swap target if any of these hold:</p>
+        <p>对缓冲 UF，位置 X 在满足以下任一条件时可作为交换目标：</p>
         <ul>
-          <li>The UF piece is sitting at X — skip the letter and leave it for the parity swap at the end.</li>
-          <li>X is not in the buffer cycle — start a new cycle ending at X, leaving the swap at the end.</li>
-          <li>The X piece is flipped in place — solve it as two letters (e.g., RU then UR), executing RU in cycle and leaving UR at the end.</li>
+          <li>UF 块在 X 上：跳过该字母，留到末尾奇偶交换处理。</li>
+          <li>X 不在缓冲循环内：新开一个以 X 结束的循环，把交换留到最后。</li>
+          <li>X 对应块原地翻棱：按两个字母处理（如 RU 再 UR），在循环内执行 RU，把 UR 留到末尾。</li>
         </ul>
 
-        <p>Conversely, X is <strong>not applicable</strong> if:</p>
+        <p>反之，X 在以下情况<strong>不可用</strong>：</p>
         <ul>
-          <li>X is already correctly solved — there is no need to swap it.</li>
-          <li>X is in the middle of the buffer cycle — it cannot be extracted without disrupting tracing.</li>
-          <li>The UF piece is sitting at $\overline{\mathrm{X}}$ (the flipped sticker of X) — this forces a letter into the buffer cycle that cannot be deferred.</li>
+          <li>X 已正确还原：没有交换必要。</li>
+          <li>X 位于缓冲循环中段：无法在不破坏追踪的情况下抽出。</li>
+          <li>UF 块在 $\overline{\mathrm{X}}$（X 的反向贴纸）上：这会强制一个字母进入缓冲循环，无法后置。</li>
         </ul>
 
-        <p>These two sets are in bijection: swapping the physical UF and X pieces maps each applicable case to the corresponding not-applicable case and vice versa. This gives a clean 50% probability that the first preferred position (index #1) is applicable, regardless of parity. The remaining position at the end of the buffer cycle ($p_0 > 1$) can have either orientation with equal probability, so it contributes half to each side.</p>
+        <p>这两类情况之间是一一对应：交换 UF 与 X 的实体块后，每个可用案例都对应一个不可用案例，反之亦然。因此无论奇偶如何，首选位置（索引 #1）可用概率都恰为 50%。当缓冲循环末位存在（$p_0 > 1$）时，其朝向两种可能等概率，对两侧各贡献一半。</p>
 
-        <p>Formally, for a cycle configuration with buffer cycle length $p_0$ and $f$ solved-in-place edges among secondary cycles:</p>
+        <p>形式化地，若某循环配置的缓冲循环长度为 $p_0$，小循环循环中原地还原棱块数为 $f$：</p>
         <ul>
-          <li>$a = 11 - h - n$: fully applicable positions (not in buffer cycle, not solved)</li>
-          <li>$h = \mathbf{1}_{p_0 > 1}$: the last position in the buffer cycle — applicable iff its orientation is correct (probability $\frac{1}{2}$)</li>
-          <li>$n = \max(0,\, p_0 - 2) + f$: never-applicable positions (mid-buffer-cycle + solved)</li>
+          <li>$a = 11 - h - n$：完全可用位置数（不在缓冲循环且未还原）</li>
+          <li>$h = \mathbf{1}_{p_0 > 1}$：缓冲循环末位；仅当朝向正确时可用（概率 $\frac{1}{2}$）</li>
+          <li>$n = \max(0,\, p_0 - 2) + f$：永不可用位置数（缓冲中段 + 已还原）</li>
         </ul>
-        <p>After the coin flip on $h$, we have $a'$ applicable and $n' = 11 - a'$ not-applicable positions uniformly distributed among the 11 preference slots. The probability that the first applicable slot is at index $k$ is:</p>
+        <p>对 $h$ 做一次二项分支后，得到 $a'$ 个可用位与 $n' = 11 - a'$ 个不可用位，并在 11 个优先槽中均匀分布。首个可用槽位出现在索引 $k$ 的概率为：</p>
         $$P(k \mid a', n') \;=\; \frac{a' \cdot n'^{\underline{k-1}}}{11^{\underline{k}}}$$
-        <p>where $x^{\underline{m}} = x(x-1)\cdots(x-m+1)$ is the falling factorial. The — row collects configurations where $a' = 0$ (no applicable target exists).</p>
+        <p>其中 $x^{\underline{m}} = x(x-1)\cdots(x-m+1)$ 为下降阶乘。表中 “—” 行汇总了 $a' = 0$（不存在可用目标）的配置。</p>
       </details>
 
       <details>
-        <summary>Edge Buffer Index (No Parity Constraint)</summary>
+        <summary>棱缓冲索引（不限制奇偶）</summary>
         <table>
-          <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <tr><th>索引</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tr><td>#1</td><td>490497638400</td><td>0.5000</td><td>0.5000</td></tr>
           <tr><td>#2</td><td>165357158400</td><td>0.1686</td><td>0.6686</td></tr>
           <tr><td>#3</td><td>82864373760</td><td>0.0845</td><td>0.7530</td></tr>
@@ -352,13 +352,13 @@
           <tr><td>—</td><td>67391157472</td><td>0.0687</td><td>1.0000</td></tr>
         </table>
         <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — No Parity Constraint" data-chart-spaced="false"></div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes cases which contains no edge cycle breaks and ends on an edge with wrong orientation, so there's no space of maneuver.</p>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">“—” 表示没有棱小循环且最终停在错朝向棱块上的情况，因此没有借位空间。</p>
       </details>
 
       <details>
-        <summary>Edge Buffer Index (Odd Parity Constraint)</summary>
+        <summary>棱缓冲索引（仅奇）</summary>
         <table>
-          <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <tr><th>索引</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tr><td>#1</td><td>241532928000</td><td>0.4924</td><td>0.4924</td></tr>
           <tr><td>#2</td><td>79705866240</td><td>0.1625</td><td>0.6549</td></tr>
           <tr><td>#3</td><td>39109754880</td><td>0.0797</td><td>0.7347</td></tr>
@@ -373,7 +373,7 @@
           <tr><td>—</td><td>46091489411</td><td>0.0940</td><td>1.0000</td></tr>
         </table>
         <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — Odd Parity Only" data-chart-spaced="false"></div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes cases which contains no edge cycle breaks and ends on an edge with wrong orientation, so there's no space of maneuver.</p>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">“—” 表示没有棱小循环且最终停在错朝向棱块上的情况，因此没有借位空间。</p>
       </details>
 
     </div>
@@ -382,15 +382,15 @@
       <h2>LTCT &amp; T2C</h2>
 
       <details>
-        <summary>Results</summary>
-        <p><strong>LTCT</strong> (Last Target Corner Twist) combines solving the final corner target with twisting two misoriented corners into a single algorithm, saving one twist alg. It requires odd parity and at least one twisted non-buffer corner (<code>open1&gt;=1</code>).</p>
+        <summary>结果</summary>
+        <p><strong>LTCT</strong>（Last Target Corner Twist）将最后一个角目标的处理与两角翻转合并为一个算法，可节省 1 个 twist 公式。要求奇偶为奇，且至少有一个非缓冲翻角（<code>open1&gt;=1</code>）。</p>
 
-        <p><strong>T2C</strong> (Twisted 2 Corners) solves the final corner target when the buffer corner is twisted and two remaining corners are swapped, combining the swap and buffer untwist into one algorithm. It requires odd parity and at least one misoriented secondary 2-cycle (<code>open2&gt;=1</code>).</p>
+        <p><strong>T2C</strong>（Twisted 2 Corners）用于缓冲角已翻且另外两角互换时，把交换与缓冲解翻合并为一个算法来处理最后角目标。要求奇偶为奇，且至少存在一个错朝向小循环 2-cycle（<code>open2&gt;=1</code>）。</p>
 
-        <p><strong>Note</strong>: In practice, most BLDers specialize in LTCT or T2C algorithms for a fixed edge pair (e.g., UF–UR), so the actual applicable cases are even fewer—roughly half of those shown above when using fixed break-in swap.</p>
+        <p><strong>注</strong>：实际中多数 BLD 选手只专精固定棱对（如 UF-UR）下的 LTCT 或 T2C，因此真正可用的情况会更少；在固定借位法下，通常约为上表的一半。</p>
         
         <table>
-          <tr><th>Technique</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>技巧</th><th>计数</th><th>概率</th></tr>
           <tr><td>LTCT</td><td>19,566,960</td><td>0.2219</td></tr>
           <tr><td>T2C</td><td>9,865,800</td><td>0.1119</td></tr>
         </table>
@@ -398,12 +398,12 @@
     </div>
 
     <div class="card" data-stat="order">
-      <h2>Order of 3x3x3 Rubik's Cube Group Elements</h2>
+      <h2>3x3x3 群元素的阶</h2>
       <details>
-        <summary>Results</summary>
-        <p style="margin-top:0.75rem; font-size:0.9rem;">Every move sequence eventually returns the cube to its start state. The <em>order</em> is the number of repetitions required. The table shows how many distinct cube states (scrambles) have each order.</p>
+        <summary>结果</summary>
+        <p style="margin-top:0.75rem; font-size:0.9rem;">任意操作序列重复足够多次后都将回到初始状态。其<em>阶</em>即所需重复次数。下表给出每个阶对应的不同魔方状态（打乱）数量。</p>
         <table>
-          <tr><th>Order</th><th>Count</th></tr>
+          <tr><th>阶</th><th>计数</th></tr>
           <tr><td>1</td><td>1</td></tr>
           <tr><td>2</td><td>170911549183</td></tr>
           <tr><td>3</td><td>33894540622394</td></tr>
@@ -482,12 +482,12 @@
     </div>
 
     <div class="card">
-      <h2>Bonus: Big BLD Statistics</h2>
+      <h2>附：Big BLD 统计</h2>
 
       <details>
-        <summary>Wing Algs</summary>
+        <summary>翼棱公式分布</summary>
         <table>
-          <tr><th>Algs</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>公式</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>1</td><td>0.0000</td></tr>
           <tr><td>0.5</td><td>23</td><td>0.0000</td></tr>
           <tr><td>1</td><td>4048</td><td>0.0000</td></tr>
@@ -527,9 +527,9 @@
       </details>
 
       <details>
-        <summary>Wing Cycle Breaks</summary>
+        <summary>翼棱小循环</summary>
         <table>
-          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>70273067330330098091156</td><td>0.1133</td></tr>
           <tr><td>1</td><td>189019970161389580884524</td><td>0.3047</td></tr>
           <tr><td>2</td><td>201253771471008242664284</td><td>0.3244</td></tr>
@@ -546,9 +546,9 @@
       </details>
 
       <details>
-        <summary>Solved Wings (buffer excluded)</summary>
+        <summary>已还原 翼棱（不含缓冲）</summary>
         <table>
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>237760636776394448431551</td><td>0.3832</td></tr>
           <tr><td>1</td><td>228250211305338670494289</td><td>0.3679</td></tr>
           <tr><td>2</td><td>109369892917141446278513</td><td>0.1763</td></tr>
@@ -577,9 +577,9 @@
       </details>
 
       <details>
-        <summary>Float 2-Cycles in Wings (buffer excluded)</summary>
+        <summary>翼棱中的浮动二循环（不含缓冲）</summary>
         <table>
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>392001019188447730411350</td><td>0.6318</td></tr>
           <tr><td>1</td><td>180320468826698605354950</td><td>0.2906</td></tr>
           <tr><td>2</td><td>41160107014714277840250</td><td>0.0663</td></tr>
@@ -596,9 +596,9 @@
       </details>
 
       <details>
-        <summary>Float 3-Cycles in Wings (buffer excluded)</summary>
+        <summary>翼棱中的浮动三循环（不含缓冲）</summary>
         <table>
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>463094485862053613568000</td><td>0.7464</td></tr>
           <tr><td>1</td><td>135841049280018001920000</td><td>0.2189</td></tr>
           <tr><td>2</td><td>19552877932326875136000</td><td>0.0315</td></tr>
@@ -611,9 +611,9 @@
       </details>
 
       <details>
-        <summary>Unsolved x/t-Centers</summary>
+        <summary>未还原棱心/角心(5BLD)</summary>
         <table>
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tr><td>0</td><td>1</td><td>0.0000</td></tr>
           <tr><td>1</td><td>0</td><td>0.0000</td></tr>
           <tr><td>2</td><td>240</td><td>0.0000</td></tr>
@@ -640,21 +640,21 @@
           <tr><td>23</td><td>206032439164800</td><td>0.0635</td></tr>
           <tr><td>24</td><td>45131501617225</td><td>0.0139</td></tr>
         </table>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">Mean: 20</p>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">均值：20</p>
       </details>
     </div>
 
     <div class="card">
-      <h2>Reproduction</h2>
-      <p>All statistics on this page can be independently verified. Clone the repo and run with Node.js:</p>
+      <h2>复现</h2>
+      <p>本页所有统计都可独立验证。克隆仓库后用 Node.js 运行：</p>
       <pre><code>git clone https://github.com/helloluxi/bld-scr.git
 cd bld-scr
 node src/reproduction.js</code></pre>
-      <p style="font-size:0.85rem; color:var(--text-secondary);">Requires Node.js &ge; 14 (for BigInt support).</p>
+      <p style="font-size:0.85rem; color:var(--text-secondary);">需要 Node.js &ge; 14（支持 BigInt）。</p>
     </div>
 
     <footer>
-      &copy; 2025-<span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" target="_blank" underline>GitHub</a> | <a href="#" id="theme-toggle" underline>Dark Theme</a>
+      &copy; 2025-<span id="year"></span> Xi Lu | GPL-3.0 许可证 | 查看 <a href="https://github.com/helloluxi/bld-scr" target="_blank" underline>GitHub</a> | <a href="#" id="theme-toggle" underline>深色主题</a>
     </footer>
   </div>
   <script src="./src/chart.js"></script>

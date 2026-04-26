@@ -99,8 +99,75 @@ const cycler = (() => {
             this.open4 = open4;
             this.closed5 = closed5;
             this.open5 = open5;
+            this.alg = flipTwistAlgs + baseLength * 0.5;
             this.algs = flipTwistAlgs - closed3 + baseLength * 0.5;
             this.count = caseCount;
+
+            // Full floating reduction
+            const p0 = cycles[0].perm;
+            let phase1Algs = 0, r20 = 0, r21 = 0, r22 = 0, r11f = 0, r12f = 0;
+            for (const cycle of otherCycles) {
+                let p = cycle.perm;
+                const o = cycle.ori;
+                if (p >= 3) {
+                    phase1Algs += Math.floor((p - 1) / 2);
+                    p = p % 2 === 0 ? 2 : 1;
+                }
+                if (p === 2) {
+                    if (o === 0) r20++;
+                    else if (o === 1) r21++;
+                    else r22++;
+                } else if (p === 1 && o !== 0) {
+                    if (o === 1) r11f++;
+                    else r12f++;
+                }
+            }
+
+            let phase2Algs = 0;
+            if (O === 2) {
+                phase2Algs += Math.floor(r20 / 2) * 2;
+                let a = r20 % 2;
+                phase2Algs += Math.floor(r21 / 2) * 2;
+                let b = r21 % 2;
+                if (a === 1 && b === 1 && r11f >= 1) {
+                    phase2Algs += 2;
+                    a = 0; b = 0; r11f--;
+                }
+                const R = a + b;
+                const tw = Math.ceil(r11f / 4);
+                this.algFullFloat = (2 * (phase1Algs + phase2Algs + tw) + 3 * R + (p0 - 1)) / 2;
+                if (this.parity === 1 && R >= 1) {
+                    let nr11 = r11f;
+                    if (a >= 1) { /* absorb (2,0)→(1,0)=solved */ }
+                    else { nr11++; /* absorb (2,1)→(1,1) */ }
+                    this.algFullParity = (2 * (phase1Algs + phase2Algs + Math.ceil(nr11 / 4)) + 3 * (R - 1) + 1 + (p0 - 1)) / 2;
+                } else {
+                    this.algFullParity = this.algFullFloat;
+                }
+            } else {
+                phase2Algs += Math.floor(r20 / 2) * 2;
+                let a = r20 % 2;
+                const mp = Math.min(r21, r22);
+                phase2Algs += mp * 2;
+                let b = r21 - mp, c = r22 - mp;
+                while (b >= 2 && r11f >= 1) { phase2Algs += 3; b -= 2; r11f--; }
+                while (c >= 2 && r12f >= 1) { phase2Algs += 3; c -= 2; r12f--; }
+                if (a >= 1 && b >= 1 && r12f >= 1) { phase2Algs += 3; a = 0; b--; r12f--; }
+                else if (a >= 1 && c >= 1 && r11f >= 1) { phase2Algs += 3; a = 0; c--; r11f--; }
+                const R = a + b + c;
+                const tw = Math.floor(r11f / 3) + Math.floor(r12f / 3) + Math.ceil(((r11f % 3) + (r12f % 3)) / 3);
+                this.algFullFloat = (2 * (phase1Algs + phase2Algs + tw) + 3 * R + (p0 - 1)) / 2;
+                if (this.parity === 1 && R >= 1) {
+                    let nr11 = r11f, nr12 = r12f;
+                    if (a >= 1) { /* absorb (2,0)→(1,0)=solved */ }
+                    else if (b >= 1) { nr11++; }
+                    else { nr12++; }
+                    const ntw = Math.floor(nr11 / 3) + Math.floor(nr12 / 3) + Math.ceil(((nr11 % 3) + (nr12 % 3)) / 3);
+                    this.algFullParity = (2 * (phase1Algs + phase2Algs + ntw) + 3 * (R - 1) + 1 + (p0 - 1)) / 2;
+                } else {
+                    this.algFullParity = this.algFullFloat;
+                }
+            }
         }
     }
 
@@ -130,10 +197,23 @@ const cycler = (() => {
     generateCycles(2, 12, oddEdges, evenEdges);
     const evenCorners = [], oddCorners = [];
     generateCycles(3, 8, oddCorners, evenCorners);
-    // // Debug: print length and sum of counts
-    // console.log(`Even Edges: ${evenEdges.length},     Total Count: ${sumArray(evenEdges.map(x => x.count))}`);
-    // console.log(`Odd Edges: ${oddEdges.length},       Total Count: ${sumArray(oddEdges.map(x => x.count))}`);
-    // console.log(`Even Corners: ${evenCorners.length}, Total Count: ${sumArray(evenCorners.map(x => x.count))}`);
-    // console.log(`Odd Corners: ${oddCorners.length},   Total Count: ${sumArray(oddCorners.map(x => x.count))}`);
-    return ({ evenEdges, oddEdges, evenCorners, oddCorners });
+
+    function selfTest() {
+        const allConfigs = [...evenEdges, ...oddEdges, ...evenCorners, ...oddCorners];
+        let errors = 0;
+        const details = [];
+        for (const cc of allConfigs) {
+            const expectInt = cc.parity === 0;
+            if (expectInt) {
+                if (cc.algFullFloat !== Math.round(cc.algFullFloat)) { errors++; details.push({config: cc, field: 'algFullFloat', parity: cc.parity, got: cc.algFullFloat}); }
+                if (cc.algFullParity !== Math.round(cc.algFullParity)) { errors++; details.push({config: cc, field: 'algFullParity', parity: cc.parity, got: cc.algFullParity}); }
+            } else {
+                if (cc.algFullFloat === Math.floor(cc.algFullFloat)) { errors++; details.push({config: cc, field: 'algFullFloat', parity: cc.parity, got: cc.algFullFloat}); }
+                if (cc.algFullParity === Math.floor(cc.algFullParity)) { errors++; details.push({config: cc, field: 'algFullParity', parity: cc.parity, got: cc.algFullParity}); }
+            }
+        }
+        return { errors, details };
+    }
+
+    return ({ evenEdges, oddEdges, evenCorners, oddCorners, selfTest });
 })();

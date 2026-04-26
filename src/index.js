@@ -44,6 +44,59 @@ const cornerHistoryItems = JSON.parse(localStorage.getItem('scr.hc') || '[]');
 let edgeSelectedIndex   = -1;
 let cornerSelectedIndex = -1;
 
+// ── Skill set logic ──────────────────────────────────────────────────
+
+function getSkills() {
+  return {
+    naiveEdge:   document.getElementById('skill-naive-edge').checked,
+    fullEdge:    document.getElementById('skill-fullfloat-edge').checked,
+    naiveCorner: document.getElementById('skill-naive-corner').checked,
+    fullCorner:  document.getElementById('skill-fullfloat-corner').checked,
+    fullParity:  document.getElementById('skill-fullfloat-parity').checked,
+  };
+}
+
+function edgeAlg(cc, skills) {
+  if (skills.fullParity) return cc.algFullParity;
+  if (skills.fullEdge) return cc.algFullFloat;
+  if (skills.naiveEdge) return cc.alg - cc.closed3;
+  return cc.alg;
+}
+
+function cornerAlg(cc, skills) {
+  if (skills.fullParity) return cc.algFullParity;
+  if (skills.fullCorner) return cc.algFullFloat;
+  if (skills.naiveCorner) return cc.alg - cc.closed3;
+  return cc.alg;
+}
+
+function saveSkills() {
+  const skills = getSkills();
+  localStorage.setItem('scr.skills', JSON.stringify(skills));
+}
+
+function loadSkills() {
+  try {
+    const s = JSON.parse(localStorage.getItem('scr.skills') || '{}');
+    document.getElementById('skill-naive-edge').checked = !!s.naiveEdge;
+    document.getElementById('skill-fullfloat-edge').checked = !!s.fullEdge;
+    document.getElementById('skill-naive-corner').checked = !!s.naiveCorner;
+    document.getElementById('skill-fullfloat-corner').checked = !!s.fullCorner;
+    document.getElementById('skill-fullfloat-parity').checked = !!s.fullParity;
+  } catch {}
+}
+
+document.querySelectorAll('.skill-checkboxes input[type="checkbox"]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    if (cb.id === 'skill-fullfloat-parity' && cb.checked) {
+      ['skill-fullfloat-edge', 'skill-fullfloat-corner',
+       'skill-naive-edge', 'skill-naive-corner'].forEach(id =>
+        document.getElementById(id).checked = true);
+    }
+    saveSkills(); updateProbability();
+  });
+});
+
 // ── Mini panel logic ──────────────────────────────────────────────────
 
 function updateProbability() {
@@ -75,18 +128,20 @@ function updateMiniProbability() {
   const cornerAlgsMin = Number(document.getElementById('corner-algs-min').value);
   const cornerAlgsMax = Number(document.getElementById('corner-algs-max').value);
 
+  const skills = getSkills();
+
   const edgeCond = x =>
     x.open1  >= edgeFlipsMin  && x.open1  <= edgeFlipsMax  &&
     x.breaks >= edgeBreaksMin && x.breaks <= edgeBreaksMax &&
     x.closed3 >= edgeClosed3Min && x.closed3 <= edgeClosed3Max &&
-    x.algs   >= edgeAlgsMin - 0.01 && x.algs <= edgeAlgsMax + 0.01 &&
+    edgeAlg(x, skills) >= edgeAlgsMin - 0.01 && edgeAlg(x, skills) <= edgeAlgsMax + 0.01 &&
     (x.parity === 0 ? allowParityEven : allowParityOdd);
 
   const cornerCond = x =>
     x.open1  >= cornFlipsMin  && x.open1  <= cornFlipsMax  &&
     x.breaks >= cornBreaksMin && x.breaks <= cornBreaksMax &&
     x.closed3 >= cornClosed3Min && x.closed3 <= cornClosed3Max &&
-    x.algs   >= cornerAlgsMin - 0.01 && x.algs <= cornerAlgsMax + 0.01 &&
+    cornerAlg(x, skills) >= cornerAlgsMin - 0.01 && cornerAlg(x, skills) <= cornerAlgsMax + 0.01 &&
     (x.parity === 0 ? allowParityEven : allowParityOdd);
 
   const prob = scrambler.getProbabilityFromBoolFunction(edgeCond, cornerCond);
@@ -379,6 +434,7 @@ scrambleButton.addEventListener('click', generateScramble);
 
 document.addEventListener('DOMContentLoaded', () => {
   loadMiniValues();
+  loadSkills();
   updateAmountSlider();
 
   // Restore URL params (set values before switchTab so probability is correct on first paint)

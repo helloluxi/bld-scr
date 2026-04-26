@@ -6,10 +6,10 @@
   <link rel="icon" href="./favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="./styles.css">
   <title>3BLD Scrambler</title>
-  <script src="./min2phase.js"></script>
-  <script src="./cycler.js"></script>
-  <script src="./scrambler.js"></script>
-  <script src="./theme.js"></script>
+  <script src="./src/min2phase.js"></script>
+  <script src="./src/cycler.js"></script>
+  <script src="./src/scrambler.js"></script>
+  <script src="./src/theme.js"></script>
 </head>
 <body>
   <div class="container wide">
@@ -39,6 +39,28 @@
           <li><strong>Algs:</strong> estimated algorithm count (each 3-style pair = 1 alg; a float-3 / 3-twist / 4-flip saves 1; parity adds 0.5).</li>
         </ul>
         <p>The <em>Probability</em> line shows what fraction of all scrambles match your current filter — useful to gauge how rare your target case is. Hitting <em>Scramble!</em> updates the URL so you can bookmark or share your current setup.</p>
+
+        <h2>Skill Set</h2>
+        <p>Select the techniques you can execute. This adjusts the estimated alg count shown in the Basic and Advanced panels.</p>
+        <div class="skill-checkboxes">
+          <div class="setting-line"><span>Edge</span>
+            <div class="parity-checkbox-row">
+              <div class="parity-checkbox"><input type="checkbox" id="skill-naive-edge"><label for="skill-naive-edge">Naive float 3-cycle</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-edge"><label for="skill-fullfloat-edge">Full floating</label></div>
+            </div>
+          </div>
+          <div class="setting-line"><span>Corner</span>
+            <div class="parity-checkbox-row">
+              <div class="parity-checkbox"><input type="checkbox" id="skill-naive-corner"><label for="skill-naive-corner">Naive float 3-cycle</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-corner"><label for="skill-fullfloat-corner">Full floating</label></div>
+            </div>
+          </div>
+          <div class="setting-line"><span>Parity</span>
+            <div class="parity-checkbox-row">
+              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-parity"><label for="skill-fullfloat-parity">Full floating parity</label></div>
+            </div>
+          </div>
+        </div>
 
         <h2>How does it work?</h2>
         <p>For the full mathematical background — cycle structure counting, scramble weights, and sampling — see the <a href="help.html" target="_blank">How It Works</a> page.</p>
@@ -168,7 +190,7 @@
           <ul>
             <li><strong>parity</strong> — 0 (even) or 1 (odd).</li>
             <li><strong>breaks</strong> — number of cycle breaks, i.e. how many times the memo had to jump to a new starting piece.</li>
-            <li><strong>algs</strong> — estimated algorithm count: each 3-style pair costs 1 alg (so each piece costs 0.5); a floating 3-cycle / 3-twist group / 4-flip saves 1 alg; parity adds 0.5.</li>
+            <li><strong>algs</strong> — estimated algorithm count (naive float 3-cycle reduced out). For basic count use <strong>alg</strong>; for full floating use <strong>algFullFloat</strong>; for full floating parity use <strong>algFullParity</strong>.</li>
             <li><strong>closed1</strong> — solved pieces in-place with correct orientation (free, no alg needed).</li>
             <li><strong>open1</strong> — pieces in-place but misoriented: flipped edges or twisted corners.</li>
             <li><strong>closed2 … closed5</strong> — clean k-cycles (correct orientation) that appear as secondary cycles.</li>
@@ -249,6 +271,6 @@ Corner: breaks&gt;=2</div>
       &copy; 2025-<span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" target="_blank" underline>GitHub</a> | <a href="#" id="theme-toggle" underline>Dark Theme</a>
     </footer>
   </div>
-  <script src="./index.js"></script>
+  <script src="./src/index.js"></script>
 </body>
 </html>
