@@ -471,5 +471,44 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('saved-algs-quip').textContent = isZh
       ? `要背 ${fmtNum(floatAlgs)} 个全浮动 3-style 公式，平均每把只省 ${savedFull.toFixed(2)} 个公式；再多背 ${fmtNum(parityAlgs)} 个全浮动奇偶公式，也只再省 ${savedParity.toFixed(2)} 个公式。`
       : `Bruh, would you really like to learn ${fmtNum(floatAlgs)} algs of full floating 3-style just to save ${savedFull.toFixed(2)} algs per scramble on average, and additional ${fmtNum(parityAlgs)} algs of full floating parity just to save ${savedParity.toFixed(2)} algs per scramble? Life is short, be happy :)`;
+
+    // Saved-alg distribution per skill level (vs Basic)
+    const distLevels = [
+      { name: isZh ? '只浮动三循环' : 'Naive float 3-style', e: cc => cc.closed3,            c: cc => cc.closed3 },
+      { name: t.fullFloat,       e: cc => cc.alg - cc.algFullFloat,  c: cc => cc.alg - cc.algFullFloat },
+      { name: t.fullFloatParity, e: cc => cc.alg - cc.algFullParity, c: cc => cc.alg - cc.algFullParity },
+    ];
+
+    function savedDist(configs, fn, total) {
+      const m = new Map();
+      for (const cc of configs) {
+        const k = fn(cc);
+        m.set(k, (m.get(k) || 0) + cc.count);
+      }
+      const out = new Map();
+      for (const [k, v] of m) out.set(k, v / total);
+      return out;
+    }
+
+    function renderSavedDist(tableEl, configs, pick, total) {
+      const dists = distLevels.map(lv => savedDist(configs, pick(lv), total));
+      const keys = new Set();
+      for (const d of dists) for (const k of d.keys()) keys.add(k);
+      const sorted = [...keys].sort((a, b) => a - b);
+      const fmtK = k => Number.isInteger(k) ? String(k) : k.toFixed(1);
+      let html = `<thead><tr><th>${isZh ? '节省' : 'Saved'}</th>` +
+        distLevels.map(lv => `<th>${lv.name}</th>`).join('') + `</tr></thead><tbody>`;
+      for (const k of sorted) {
+        html += `<tr><td>${fmtK(k)}</td>` +
+          dists.map(d => `<td>${(d.get(k) || 0).toFixed(4)}</td>`).join('') + `</tr>`;
+      }
+      html += '</tbody>';
+      tableEl.innerHTML = html;
+    }
+
+    const edgeDistEl = document.getElementById('saved-algs-edge-dist-table');
+    const cornerDistEl = document.getElementById('saved-algs-corner-dist-table');
+    if (edgeDistEl)   renderSavedDist(edgeDistEl,   allE, lv => lv.e, eT);
+    if (cornerDistEl) renderSavedDist(cornerDistEl, allC, lv => lv.c, cT);
   })();
 });
