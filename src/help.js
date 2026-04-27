@@ -514,7 +514,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const edgeDistEl = document.getElementById('saved-algs-edge-dist-table');
     const cornerDistEl = document.getElementById('saved-algs-corner-dist-table');
+    const totalDistEl = document.getElementById('saved-algs-total-dist-table');
     if (edgeDistEl)   renderSavedDist(edgeDistEl,   allE, lv => lv.e, eT);
     if (cornerDistEl) renderSavedDist(cornerDistEl, allC, lv => lv.c, cT);
+    if (totalDistEl)  renderSavedTotalDist(totalDistEl);
+
+    function renderSavedTotalDist(tableEl) {
+      const dists = distLevels.map(lv => {
+        const eByP = [new Map(), new Map()];
+        const cByP = [new Map(), new Map()];
+        for (const cc of allE) { const k = lv.e(cc); eByP[cc.parity].set(k, (eByP[cc.parity].get(k) || 0) + cc.count); }
+        for (const cc of allC) { const k = lv.c(cc); cByP[cc.parity].set(k, (cByP[cc.parity].get(k) || 0) + cc.count); }
+        const result = new Map();
+        let totalWeight = 0;
+        for (let p = 0; p <= 1; p++) {
+          let eS = 0, cS = 0;
+          for (const v of eByP[p].values()) eS += v;
+          for (const v of cByP[p].values()) cS += v;
+          totalWeight += eS * cS;
+          for (const [ek, ev] of eByP[p]) {
+            for (const [ck, cv] of cByP[p]) {
+              const k = Math.round((ek + ck) * 2) / 2;
+              result.set(k, (result.get(k) || 0) + ev * cv);
+            }
+          }
+        }
+        const out = new Map();
+        for (const [k, v] of result) out.set(k, v / totalWeight);
+        return out;
+      });
+      const keys = new Set();
+      for (const d of dists) for (const k of d.keys()) keys.add(k);
+      const sorted = [...keys].sort((a, b) => a - b);
+      const fmtK = k => Number.isInteger(k) ? String(k) : k.toFixed(1);
+      let html = `<thead><tr><th>${isZh ? '节省' : 'Saved'}</th>` +
+        distLevels.map(lv => `<th>${lv.name}</th>`).join('') + `</tr></thead><tbody>`;
+      for (const k of sorted) {
+        html += `<tr><td>${fmtK(k)}</td>` +
+          dists.map(d => `<td>${(d.get(k) || 0).toFixed(4)}</td>`).join('') + `</tr>`;
+      }
+      html += '</tbody>';
+      tableEl.innerHTML = html;
+    }
   })();
 });

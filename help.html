@@ -96,6 +96,8 @@
       <div id="algs-error" style="display:none;background:var(--error-bg,#fdd);color:var(--error-fg,#900);padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;"></div>
       <p>Exact scramble counts for 3BLD with buffers UF (edges, $P=12$, $O=2$) and UFR (corners, $P=8$, $O=3$), over all $980{,}995{,}276{,}800$ edge states and $88{,}179{,}840$ corner states. Select a skill set to see the corresponding alg count distribution.</p>
 
+      <p style="font-size:0.85rem; color:var(--text-secondary);">All 3BLD statistics on this page are generated at runtime from exhaustive cycle-configuration enumeration — no data is stored as static tables.</p>
+
       <details>
         <summary>Full Floating Reduction Logic (Long Boring Text Alert)</summary>
 
@@ -136,6 +138,8 @@
           <li><strong>Buffer cycle</strong> of length $p_0$: $(p_0-1)/2$ algs.</li>
         </ul>
         <p>Total: $\text{twist} + 1.5\,R + (p_0-1)/2$. All arithmetic is done in the $2\times$ form (integers) to avoid float precision issues, then divided by 2.</p>
+
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Note: the reduction above uses a fixed greedy pairing order for simplicity. In some configurations a different pairing strategy could yield a lower alg count, so the statistics presented here should be taken as an upper bound on the true optimum.</p>
 
         <h3>Full Floating Parity</h3>
         <p>When parity is odd and a residual $(2,0)$ remains, it is absorbed into the parity end-pair of the buffer cycle, reducing its cost from $1.5$ to $0.5$ algs — a saving of 1. A residual $(2,1)$ or $(2,2)$ cannot be absorbed cleanly, so it stays at cost $1.5$ and parity yields no saving.</p>
@@ -197,6 +201,8 @@
         <table id="saved-algs-edge-dist-table"></table>
         <h4>Corner</h4>
         <table id="saved-algs-corner-dist-table"></table>
+        <h4>Total</h4>
+        <table id="saved-algs-total-dist-table"></table>
       </details>
 
     </div>

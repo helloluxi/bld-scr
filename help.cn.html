@@ -97,6 +97,8 @@
       <div id="algs-error" style="display:none;background:var(--error-bg,#fdd);color:var(--error-fg,#900);padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;"></div>
       <p>在缓冲位 UF（棱，$P=12$, $O=2$）与 UFR（角，$P=8$, $O=3$）下，对全部 $980{,}995{,}276{,}800$ 种棱状态与 $88{,}179{,}840$ 种角状态给出精确打乱计数。选择技巧组合可查看对应的公式计数分布。</p>
 
+      <p style="font-size:0.85rem; color:var(--text-secondary);">本页所有三盲统计数据均在运行时由穷举循环配置生成，而非存储为静态表格。</p>
+
       <details>
         <summary>全浮动归约逻辑（又臭又长警告）</summary>
 
@@ -137,6 +139,8 @@
           <li><strong>缓冲循环</strong>长度为 $p_0$ 时贡献 $(p_0-1)/2$ 个公式。</li>
         </ul>
         <p>总计：$\text{twist} + 1.5\,R + (p_0-1)/2$。实现时全部以 $2\times$ 整数形式计算，避免浮点精度误差，最后再除以 2。</p>
+
+        <p style="font-size:0.85rem; color:var(--text-secondary);">注意：上述归约使用固定的贪心配对顺序，以求简洁。某些配置下，不同的配对策略可能得到更少的公式数，因此此处统计结果应视为真实最优的上界。</p>
 
         <h3>全浮动奇偶</h3>
         <p>当奇偶为奇且存在残余 $(2,0)$ 时，可将其吸收到缓冲循环末尾的奇偶对换中，使其成本由 $1.5$ 降到 $0.5$ 个公式，净省 1。残余 $(2,1)$ 或 $(2,2)$ 无法被干净地吸收，成本仍为 $1.5$，奇偶不会带来节省。</p>
@@ -198,6 +202,8 @@
         <table id="saved-algs-edge-dist-table"></table>
         <h4>角块</h4>
         <table id="saved-algs-corner-dist-table"></table>
+        <h4>总计</h4>
+        <table id="saved-algs-total-dist-table"></table>
       </details>
 
     </div>
