@@ -29,8 +29,23 @@
 <body>
   <div class="container wide">
     <h1>原理说明</h1>
+
     <div class="card">
-      <p>如果有能力最好读英文版<a href="help.html" target="_blank">How It Works</a>，因为中文版是AI翻译的，以后慢慢修...</p>
+      <p style="margin:0;">跳转：
+        <a href="#overview">概览</a> ·
+        <a href="#algs-card">公式统计</a> ·
+        <a href="#edge-stats">棱块统计</a> ·
+        <a href="#corner-stats">角块统计</a> ·
+        <a href="#bis">固定借位法</a> ·
+        <a href="#ltct-t2c-card">LTCT &amp; T2C</a> ·
+        <a href="#order-card">群元素阶</a> ·
+        <a href="#bigbld">Big BLD</a> ·
+        <a href="#repro">复现</a>
+      </p>
+    </div>
+
+    <div class="card" id="overview">
+      <p>如果有能力最好读英文版<a href="help.html" target="_blank">How It Works</a>，因为中文版是AI翻译的，以后慢慢修~</p>
       <p>一个三盲状态可分解为 12 条棱块与 8 个角块的独立「置换-朝向」结构。本工具会穷举所有<em>循环配置</em>，并预计算每种配置可对应的不同打乱数量，从而给出任意筛选条件下的精确概率。</p>
 
       <h2>示例</h2>
@@ -42,16 +57,16 @@
       <p><strong>角:</strong></p>
       $$\underbrace{(\mathrm{UFR},\,\mathrm{LDF},\,\mathrm{LUB},\,\mathrm{BDR},\,\mathrm{DBL},\,\mathrm{RUB},\,\mathrm{RDF})}_{o=2,\;\text{buffer}}\;\underbrace{(\mathrm{UFL})}_{o=1}$$
 
-      <p>这里的 $o$ 是该循环的<em>净朝向</em>：$o = \bigl(\sum_{\text{cycle}} o_i\bigr) \bmod m$，其中棱块 $m=2$，角块 $m=3$。朝向取值为：$0$ = 正向，$1$ = 翻棱或顺时针翻角，$2$ = 逆时针翻角。当 三循环 的 $o=0$ 时，朝向正确，可用一个三循环公式解决。全局约束 $\sum_{\text{all}} o_i \equiv 0\pmod{m}$ 始终成立。</p>
+      <p>这里的 $o$ 是该循环的<em>净朝向</em>：$o = \bigl(\sum_{\text{cycle}} o_i\bigr) \bmod O$，其中棱块 $O=2$，角块 $O=3$。朝向取值为：$0$ = 正向，$1$ = 翻棱或顺时针翻角，$2$ = 逆时针翻角。当 三循环 的 $o=0$ 时，朝向正确，可用一个三循环公式解决。全局约束 $\sum_{\text{all}} o_i \equiv 0\pmod{O}$ 始终成立。</p>
 
       <h2>循环配置</h2>
-      <p><em>循环配置</em>由缓冲循环 $(p_0, o_0)$ 与一组小循环类型 $(p_j, o_j, r_j)$ 描述，其中 $p_j$ 为循环长度，$o_j$ 为净朝向，$r_j$ 为该类型循环个数。对上面的打乱：</p>
+      <p><em>循环配置</em>由缓冲循环 $(p_0, o_0)$ 与一组小循环类型 $(p_j, o_j)*r_j$ 描述，其中 $p_j$ 为循环长度，$o_j$ 为净朝向，$r_j$ 为该类型循环个数。对上面的打乱：</p>
 
       <table>
-        <thead><tr><th>类型</th><th>缓冲 $(p_0,o_0)$</th><th>小循环类型 $(p_j,o_j,r_j)$</th></tr></thead>
+        <thead><tr><th>类型</th><th>缓冲 $(p_0,o_0)$</th><th>小循环类型 $(p_j,o_j)*r_j$</th></tr></thead>
         <tbody>
-          <tr><td>棱</td><td>$(4,0)$</td><td>$(2,0,2),\;(2,1,1),\;(1,1,1),\;(1,0,1)$</td></tr>
-          <tr><td>角</td><td>$(7,2)$</td><td>$(1,1,1)$</td></tr>
+          <tr><td>棱</td><td>$(4,0)$</td><td>$(2,0)*2 + (2,1) + (1,1) + (1,0)$</td></tr>
+          <tr><td>角</td><td>$(7,2)$</td><td>$(1,1)$</td></tr>
         </tbody>
       </table>
 
@@ -60,21 +75,20 @@
 
       <p>对该打乱（棱块 $P=12,\,O=2$；角块 $P=8,\,O=3$）：</p>
 
-      $$\operatorname{count}_{\mathrm{edges}} = \frac{11!\cdot 2^{12-1-5}}{2^2\cdot2!\;\cdot\;2^1\cdot1!\;\cdot\;1^1\cdot1!\;\cdot\;1^1\cdot1!} = \frac{39{,}916{,}800\cdot 64}{16} = 159{,}667{,}200$$
+      $$\operatorname{count}_{\mathrm{edges}} = \frac{11!\cdot 2^{12-1-5}}{2^2\cdot2!\;\cdot\;2^1} = \frac{39{,}916{,}800\cdot 64}{16} = 159{,}667{,}200$$
 
-      $$\operatorname{count}_{\mathrm{corners}} = \frac{7!\cdot 3^{8-1-1}}{1^1\cdot1!} = 5040\cdot 729 = 3{,}674{,}160$$
+      $$\operatorname{count}_{\mathrm{corners}} = 7!\cdot 3^{8-1-1} = 5040\cdot 729 = 3{,}674{,}160$$
 
       <h2>奇偶与采样</h2>
-      $$\text{parity} = (2 \cdot \text{algs}_{\text{base}}) \bmod 2$$
 
-      <p>任何有效的三盲打乱，其棱与角的置换奇偶必然一致，因此筛一个就等于同时筛两者。由于奇偶是顶层筛选项，配置会按奇偶拆成<strong>两个独立加权池</strong>：偶池与奇池；两者各自维护按打乱计数加权的 CDF。关闭 even 或 odd 时，只需从抽样中移除对应池，无需对另一个池重新归一化。</p>
+      <p>任何有效的三盲打乱，其棱与角的置换奇偶必然一致，因此筛一个就等于同时筛两者。由于奇偶是顶层筛选项，配置会按奇偶拆成<strong>两个独立加权池</strong>：偶池与奇池；两者各自维护按打乱计数加权的 CDF。</p>
 
       <p>生成打乱时：若两种奇偶都开启，则按总权重比例先选池（保证联合分布仍与未筛选分布一致）；再从该池的 CDF 中抽取一个配置；随后随机实例化与该配置匹配的置换与朝向赋值；最后用 <a href="https://github.com/cs0x7f/min2phase.js" target="_blank">min2phase.js</a> 还原得到打乱。</p>
 
-      <h2>随机示例（公式计数下文解释）</h2>
+      <h2>随机示例</h2>
       <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">再抽一个</button>
       <div id="worked-example-output"></div>
-      <p id="worked-example-bug" style="font-size:0.85rem; color:var(--text-secondary); display:none;">如果有任何地方对不上，请于GitHub反馈 bug。</p>
+      <p id="worked-example-bug" style="font-size:0.85rem; color:var(--text-secondary); display:none;">如果有任何地方对不上，请于GitHub反馈 issue。</p>
       <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; 收起</a>
     </div>
 
@@ -83,16 +97,63 @@
       <div id="algs-error" style="display:none;background:var(--error-bg,#fdd);color:var(--error-fg,#900);padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;"></div>
       <p>在缓冲位 UF（棱，$P=12$, $O=2$）与 UFR（角，$P=8$, $O=3$）下，对全部 $980{,}995{,}276{,}800$ 种棱状态与 $88{,}179{,}840$ 种角状态给出精确打乱计数。选择技巧组合可查看对应的公式计数分布。</p>
 
+      <details>
+        <summary>全浮动归约逻辑（又臭又长警告）</summary>
+
+        <p>在可使用任意浮动 三循环 的前提下，任何非缓冲循环都可按三阶段系统归约：</p>
+
+        <h3>阶段 1 - 缩短长循环</h3>
+        <p>对每个满足 $p \ge 3$ 的非缓冲循环，应用 $\lfloor(p-1)/2\rfloor$ 次浮动 3-cycle，每步将长度缩短 2。通过合适选取循环可保持朝向 $o$ 不变。阶段 1 后，非缓冲循环仅剩 $(2,o)$ 与 $(1,o)$：</p>
+        <ul>
+          <li>棱块（$O=2$）：$(2,0),\;(2,1),\;(1,1)$，其中 $(1,0)$ 视为已还原并忽略。</li>
+          <li>角块（$O=3$）：$(2,0),\;(2,1),\;(2,2),\;(1,1),\;(1,2)$。</li>
+        </ul>
+
+        <h3>阶段 2 - 配对 2-cycle（棱块）</h3>
+        <p>记阶段 1 后计数为 $r_{20},\,r_{21},\,r_{11}$。按以下顺序进行归约，每次配对耗 2 个浮动公式：</p>
+        <ol>
+          <li>$(2,0)+(2,0) \to$ 还原：配对数 $\lfloor r_{20}/2\rfloor$，更新 $r_{20} \leftarrow r_{20} \bmod 2$。</li>
+          <li>$(2,1)+(2,1) \to$ 还原：配对数 $\lfloor r_{21}/2\rfloor$，更新 $r_{21} \leftarrow r_{21} \bmod 2$。</li>
+          <li><strong>混合</strong> $(2,0)+(2,1) \to (1,1)$：配对数 $m = \min(r_{20}, r_{21})$，并令 $r_{20} \mathrel{-}= m$、$r_{21} \mathrel{-}= m$、$r_{11} \mathrel{+}= m$。</li>
+        </ol>
+        <p>阶段 2 结束后，最多剩余一个 2-cycle：$R = r_{20} + r_{21} \le 1$。每个贡献 $1.5$ 个公式。</p>
+
+        <h3>阶段 2 - 配对 2-cycle（角块）</h3>
+        <p>记阶段 1 后计数为 $r_{20},\,r_{21},\,r_{22},\,r_{11},\,r_{12}$。按以下顺序进行归约，每次配对耗 2 个浮动公式：</p>
+        <ol>
+          <li>$(2,0)+(2,0) \to$ 还原：配对数 $\lfloor r_{20}/2\rfloor$，更新 $r_{20} \leftarrow r_{20} \bmod 2$。</li>
+          <li><strong>混合</strong> $(2,1)+(2,2) \to$ 还原（mod 3 下翻角相消）：配对数 $\min(r_{21}, r_{22})$。</li>
+          <li>同类 $(2,1)+(2,1) \to$ 翻角 $(1,\cdot)$：配对数 $\lfloor r_{21}/2\rfloor$，将 $\lfloor r_{21}/2\rfloor$ 计入 $r_{12}$，更新 $r_{21} \leftarrow r_{21} \bmod 2$。</li>
+          <li>同类 $(2,2)+(2,2) \to$ 翻角 $(1,\cdot)$：配对数 $\lfloor r_{22}/2\rfloor$，将 $\lfloor r_{22}/2\rfloor$ 计入 $r_{12}$，更新 $r_{22} \leftarrow r_{22} \bmod 2$。</li>
+          <li>混合 $(2,0)+(2,1) \to (1,1)$：配对数 $\min(r_{20}, r_{21})$，转入 $r_{11}$。</li>
+          <li>混合 $(2,0)+(2,2) \to (1,2)$：配对数 $\min(r_{20}, r_{22})$，转入 $r_{12}$。</li>
+        </ol>
+        <p>阶段 2 结束后，最多剩余一个 2-cycle：$R = r_{20} + r_{21} + r_{22} \le 1$。每个贡献 $1.5$ 个公式。（同类配对的记账桶——计入 $r_{11}$ 还是 $r_{12}$——不会影响最终公式数，因为阶段 3 的翻角公式对 $r_{11}$ 与 $r_{12}$ 对称。）</p>
+
+        <h3>阶段 3 - 统计剩余公式</h3>
+        <ul>
+          <li><strong>翻角公式</strong>：棱块为 $\lceil r_{11}/4\rceil$；角块为 $\lfloor r_{11}/3\rfloor + \lfloor r_{12}/3\rfloor + \lceil(r_{11} \bmod 3 + r_{12} \bmod 3)/3\rceil$。</li>
+          <li><strong>残余 2-cycle</strong>：共 $1.5\,R$ 个公式。</li>
+          <li><strong>缓冲循环</strong>长度为 $p_0$ 时贡献 $(p_0-1)/2$ 个公式。</li>
+        </ul>
+        <p>总计：$\text{twist} + 1.5\,R + (p_0-1)/2$。实现时全部以 $2\times$ 整数形式计算，避免浮点精度误差，最后再除以 2。</p>
+
+        <h3>全浮动奇偶</h3>
+        <p>当奇偶为奇且存在残余 $(2,0)$ 时，可将其吸收到缓冲循环末尾的奇偶对换中，使其成本由 $1.5$ 降到 $0.5$ 个公式，净省 1。残余 $(2,1)$ 或 $(2,2)$ 无法被干净地吸收，成本仍为 $1.5$，奇偶不会带来节省。</p>
+
+        <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; 收起</a>
+      </details>
+
       <div class="skill-checkboxes" style="margin-bottom:1rem;">
         <div class="setting-line"><span>棱块</span>
           <div class="parity-checkbox-row">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">只浮动三循环</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">仅浮动纯三循环</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-edge"><label for="h-skill-fullfloat-edge">全浮动</label></div>
           </div>
         </div>
         <div class="setting-line"><span>角块</span>
           <div class="parity-checkbox-row">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">只浮动三循环</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">仅浮动纯三循环</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-corner"><label for="h-skill-fullfloat-corner">全浮动</label></div>
           </div>
         </div>
@@ -139,57 +200,12 @@
         <table id="saved-algs-corner-dist-table"></table>
       </details>
 
-      <details>
-        <summary>全浮动归约逻辑（又臭又长警告）</summary>
-
-        <p>在可使用任意浮动 三循环 的前提下，任何非缓冲循环都可按三阶段系统归约：</p>
-
-        <h3>阶段 1 - 缩短长循环</h3>
-        <p>对每个满足 $p \ge 3$ 的非缓冲循环，应用 $\lfloor(p-1)/2\rfloor$ 次浮动 3-cycle，每步将长度缩短 2。通过合适选取循环可保持朝向 $o$ 不变。阶段 1 后，非缓冲循环仅剩 $(2,o)$ 与 $(1,o)$：</p>
-        <ul>
-          <li>棱块（$O=2$）：$(2,0),\;(2,1),\;(1,1)$，其中 $(1,0)$ 视为已还原并忽略。</li>
-          <li>角块（$O=3$）：$(2,0),\;(2,1),\;(2,2),\;(1,1),\;(1,2)$。</li>
-        </ul>
-
-        <h3>阶段 2 - 配对 2-cycle（棱块）</h3>
-        <p>记阶段 1 后计数为 $r_{20}$、$r_{21}$、$r_{11}$：</p>
-        <ol>
-          <li>配对 $(2,0)+(2,0)$：耗 2 个浮动公式，余量 $a = r_{20} \bmod 2$。</li>
-          <li>配对 $(2,1)+(2,1)$：耗 2 个浮动公式，余量 $b = r_{21} \bmod 2$。</li>
-          <li>若 $a=1,\;b=1,\;r_{11}\ge 1$：再用 2 个浮动公式同时消去两者，并消耗 1 个 $r_{11}$。若 $r_{11}=0$：不做归约（净节省为 0）。</li>
-        </ol>
-        <p>最终最多剩余 $R = a + b \in \{0, 1, 2\}$ 个 2-cycle。每个贡献 $1.5$ 个公式。</p>
-
-        <h3>阶段 2 - 配对 2-cycle（角块）</h3>
-        <p>记阶段 1 后计数为 $r_{20},\,r_{21},\,r_{22},\,r_{11},\,r_{12}$：</p>
-        <ol>
-          <li>配对 $(2,0)+(2,0)$：耗 2 个浮动公式，余量 $a = r_{20} \bmod 2$。</li>
-          <li><strong>混合</strong>配对 $(2,1)+(2,2)$：耗 2 个浮动公式（mod 3 下翻角相消）。<em>不</em>使用同类配对 $(2,1)+(2,1)$ 或 $(2,2)+(2,2)$。余量为 $b = r_{21} - \min(r_{21},r_{22})$、$c = r_{22} - \min(r_{21},r_{22})$。</li>
-          <li><strong>规则 1</strong>：当 $b \ge 2$ 且 $r_{11} \ge 1$（或 $c \ge 2$ 且 $r_{12} \ge 1$）时，3 个公式可消去两个 $(2,x)$ 与一个 $(1,x)$。</li>
-          <li><strong>规则 2</strong>：若 $a=1,\;b\ge 1,\;r_{12}\ge 1$，用 3 个公式；否则若 $a=1,\;c\ge 1,\;r_{11}\ge 1$，也用 3 个公式。</li>
-        </ol>
-        <p>最多会剩余 $R = a + b + c \le 3$ 个 2-cycle，例如只有三个同类 $(2,1)$ 且没有 $(2,2)$ 可配对。</p>
-
-        <h3>阶段 3 - 统计剩余公式</h3>
-        <ul>
-          <li><strong>翻角公式</strong>：棱块为 $\lceil r_{11}/4\rceil$；角块为 $\lfloor r_{11}/3\rfloor + \lfloor r_{12}/3\rfloor + \lceil(r_{11} \bmod 3 + r_{12} \bmod 3)/3\rceil$。</li>
-          <li><strong>残余 2-cycle</strong>：共 $1.5\,R$ 个公式。</li>
-          <li><strong>缓冲循环</strong>长度为 $p_0$ 时贡献 $(p_0-1)/2$ 个公式。</li>
-        </ul>
-        <p>总计：$\text{twist} + 1.5\,R + (p_0-1)/2$。实现时全部以 $2\times$ 整数形式计算，避免浮点精度误差，最后再除以 2。</p>
-
-        <h3>全浮动奇偶</h3>
-        <p>当奇偶为奇且至少有一个残余 2-cycle 时，可将其中一个吸收到缓冲循环末尾的奇偶对换中，使其成本由 $1.5$ 降到 $0.5$ 个公式，净省 1。优先吸收 $(2,0)$，其次 $(2,1)$ 或 $(2,2)$。</p>
-
-        <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; 收起</a>
-      </details>
-
     </div>
 
-    <div class="card">
-      <h2>三盲小循环统计</h2>
+    <div class="card" id="edge-stats">
+      <h2>棱块统计</h2>
       <details>
-        <summary>棱块小循环</summary>
+        <summary>小循环</summary>
         <table data-stat="edge-breaks">
           <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
           <tbody></tbody>
@@ -197,18 +213,6 @@
         <div class="help-chart" data-chart-title="Edge Cycle Breaks"></div>
       </details>
 
-      <details>
-        <summary>角块小循环</summary>
-        <table data-stat="corner-breaks">
-          <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
-      </details>
-    </div>
-
-    <div class="card">
-      <h2>三盲翻棱 / 翻角</h2>
       <details>
         <summary>翻棱数（不含缓冲）</summary>
         <table data-stat="edge-flipped">
@@ -220,6 +224,27 @@
       </details>
 
       <details>
+        <summary>浮动 3-Cycle（不含缓冲）</summary>
+        <table data-stat="edge-float3">
+          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
+          <tbody></tbody>
+        </table>
+        <div class="help-chart" data-chart-title="Float 3-Cycles in Edges"></div>
+      </details>
+    </div>
+
+    <div class="card" id="corner-stats">
+      <h2>角块统计</h2>
+      <details>
+        <summary>小循环</summary>
+        <table data-stat="corner-breaks">
+          <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
+          <tbody></tbody>
+        </table>
+        <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
+      </details>
+
+      <details>
         <summary>翻角数（不含缓冲）</summary>
         <table data-stat="corner-twisted">
           <tr><th>数量</th><th>计数</th><th>概率</th></tr>
@@ -227,21 +252,9 @@
         </table>
         <div class="help-chart" data-chart-title="Twisted Corners"></div>
       </details>
-    </div>
-
-    <div class="card">
-      <h2>三盲浮动 3-Cycle</h2>
-      <details>
-        <summary>棱块中的浮动 3-Cycle（不含缓冲）</summary>
-        <table data-stat="edge-float3">
-          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart" data-chart-title="Float 3-Cycles in Edges"></div>
-      </details>
 
       <details>
-        <summary>角块中的浮动 3-Cycle（不含缓冲）</summary>
+        <summary>浮动 3-Cycle（不含缓冲）</summary>
         <table data-stat="corner-float3">
           <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tbody></tbody>
@@ -250,7 +263,7 @@
       </details>
     </div>
 
-    <div class="card">
+    <div class="card" id="bis">
       <h2>固定借位法</h2>
 
       <details>
@@ -306,7 +319,7 @@
 
     </div>
 
-    <div class="card">
+    <div class="card" id="ltct-t2c-card">
       <h2>LTCT &amp; T2C</h2>
 
       <details>
@@ -324,7 +337,7 @@
       </details>
     </div>
 
-    <div class="card">
+    <div class="card" id="order-card">
       <h2>3x3x3 群元素的阶</h2>
       <details>
         <summary>结果</summary>
@@ -336,7 +349,7 @@
       </details>
     </div>
 
-    <div class="card">
+    <div class="card" id="bigbld">
       <h2>附：Big BLD 统计</h2>
 
       <details>
@@ -499,7 +512,7 @@
       </details>
     </div>
 
-    <div class="card">
+    <div class="card" id="repro">
       <h2>复现</h2>
       <p>本页所有统计都可独立验证。克隆仓库后用 Node.js 运行：</p>
       <pre><code>git clone https://github.com/helloluxi/bld-scr.git

@@ -74,16 +74,16 @@ const cycler = (() => {
             let closed5 = otherCycles.filter(cycle => cycle.perm == 5 && cycle.ori == 0).length;
             let open5 = otherCycles.filter(cycle => cycle.perm == 5 && cycle.ori != 0).length;
             let baseLength = otherCycles.reduce((sum, cycle) => sum + (cycle.perm > 1 ? cycle.perm + 1 : 0), 0) + cycles[0].perm - 1;
-            let flipTwistAlgs = 0;
+            let algTw = 0;
             let twist1Count = otherCycles.filter(cycle => cycle.perm == 1 && cycle.ori == 1).length;
             let twist2Count = otherCycles.filter(cycle => cycle.perm == 1 && cycle.ori == 2).length;
             if (O == 2) {
-                flipTwistAlgs += Math.ceil(twist1Count / 4);
+                algTw += Math.ceil(twist1Count / 4);
             }
             else {
-                flipTwistAlgs += Math.floor(twist1Count / 3);
-                flipTwistAlgs += Math.floor(twist2Count / 3);
-                flipTwistAlgs += Math.ceil((twist1Count % 3 + twist2Count % 3) / 3);
+                algTw += Math.floor(twist1Count / 3);
+                algTw += Math.floor(twist2Count / 3);
+                algTw += Math.ceil((twist1Count % 3 + twist2Count % 3) / 3);
             }
 
             this.cycles = cycles;
@@ -99,74 +99,60 @@ const cycler = (() => {
             this.open4 = open4;
             this.closed5 = closed5;
             this.open5 = open5;
-            this.alg = flipTwistAlgs + baseLength * 0.5;
-            this.algs = flipTwistAlgs - closed3 + baseLength * 0.5;
+            this.alg = algTw + baseLength * 0.5;
+            this.algs = algTw - closed3 + baseLength * 0.5;
             this.count = caseCount;
 
             // Full floating reduction
             const p0 = cycles[0].perm;
-            let phase1Algs = 0, r20 = 0, r21 = 0, r22 = 0, r11f = 0, r12f = 0;
+            let algFullFloat = 0, r20 = 0, r21 = 0, r22 = 0, r11 = 0, r12 = 0;
             for (const cycle of otherCycles) {
                 let p = cycle.perm;
                 const o = cycle.ori;
                 if (p >= 3) {
-                    phase1Algs += Math.floor((p - 1) / 2);
+                    algFullFloat += Math.floor((p - 1) / 2);
                     p = p % 2 === 0 ? 2 : 1;
                 }
                 if (p === 2) {
                     if (o === 0) r20++;
                     else if (o === 1) r21++;
                     else r22++;
-                } else if (p === 1 && o !== 0) {
-                    if (o === 1) r11f++;
-                    else r12f++;
+                } else if (p === 1) {
+                    if (o === 1) r11++;
+                    else if (o === 2) r12++;
                 }
             }
 
-            let phase2Algs = 0;
             if (O === 2) {
-                phase2Algs += Math.floor(r20 / 2) * 2;
-                let a = r20 % 2;
-                phase2Algs += Math.floor(r21 / 2) * 2;
-                let b = r21 % 2;
-                if (a === 1 && b === 1 && r11f >= 1) {
-                    phase2Algs += 2;
-                    a = 0; b = 0; r11f--;
-                }
-                const R = a + b;
-                const tw = Math.ceil(r11f / 4);
-                this.algFullFloat = (2 * (phase1Algs + phase2Algs + tw) + 3 * R + (p0 - 1)) / 2;
-                if (this.parity === 1 && R >= 1) {
-                    let nr11 = r11f;
-                    if (a >= 1) { /* absorb (2,0)→(1,0)=solved */ }
-                    else { nr11++; /* absorb (2,1)→(1,1) */ }
-                    this.algFullParity = (2 * (phase1Algs + phase2Algs + Math.ceil(nr11 / 4)) + 3 * (R - 1) + 1 + (p0 - 1)) / 2;
-                } else {
-                    this.algFullParity = this.algFullFloat;
-                }
+                // Reduce (2, 0)*2 -> solved
+                algFullFloat += r20 >> 1 << 1; r20 %= 2;
+                // Reduce (2, 1)*2 -> solved
+                algFullFloat += r21 >> 1 << 1; r21 %= 2;
+                // Reduce (2, 0) + (2, 1) -> flipped
+                const mp = Math.min(r20, r21); algFullFloat += mp * 2; r20 -= mp; r21 -= mp; r11 += mp;
+                // Count flip
+                algFullFloat += Math.ceil(r11 / 4);
+                // Finalize
+                this.algFullFloat = (2 * algFullFloat + 3 * (r20 + r21) + (p0 - 1)) / 2;
+                this.algFullParity = (2 * algFullFloat + r20 + 3 * r21 + (p0 - 1)) / 2;
             } else {
-                phase2Algs += Math.floor(r20 / 2) * 2;
-                let a = r20 % 2;
-                const mp = Math.min(r21, r22);
-                phase2Algs += mp * 2;
-                let b = r21 - mp, c = r22 - mp;
-                while (b >= 2 && r11f >= 1) { phase2Algs += 3; b -= 2; r11f--; }
-                while (c >= 2 && r12f >= 1) { phase2Algs += 3; c -= 2; r12f--; }
-                if (a >= 1 && b >= 1 && r12f >= 1) { phase2Algs += 3; a = 0; b--; r12f--; }
-                else if (a >= 1 && c >= 1 && r11f >= 1) { phase2Algs += 3; a = 0; c--; r11f--; }
-                const R = a + b + c;
-                const tw = Math.floor(r11f / 3) + Math.floor(r12f / 3) + Math.ceil(((r11f % 3) + (r12f % 3)) / 3);
-                this.algFullFloat = (2 * (phase1Algs + phase2Algs + tw) + 3 * R + (p0 - 1)) / 2;
-                if (this.parity === 1 && R >= 1) {
-                    let nr11 = r11f, nr12 = r12f;
-                    if (a >= 1) { /* absorb (2,0)→(1,0)=solved */ }
-                    else if (b >= 1) { nr11++; }
-                    else { nr12++; }
-                    const ntw = Math.floor(nr11 / 3) + Math.floor(nr12 / 3) + Math.ceil(((nr11 % 3) + (nr12 % 3)) / 3);
-                    this.algFullParity = (2 * (phase1Algs + phase2Algs + ntw) + 3 * (R - 1) + 1 + (p0 - 1)) / 2;
-                } else {
-                    this.algFullParity = this.algFullFloat;
-                }
+                // Reduce (2, 0)*2 -> solved
+                algFullFloat += r20 >> 1 << 1; r20 %= 2;
+                // Reduce (2, 1) + (2, 2) -> solved
+                const mp = Math.min(r21, r22); algFullFloat += mp * 2; r21 -= mp; r22 -= mp;
+                // Reduce (2, 1 or 2)*2 -> twisted (2 or 1)
+                algFullFloat += r21 >> 1 << 1; r12+=r21>>1; r21 %= 2;
+                algFullFloat += r22 >> 1 << 1; r12+=r22>>1; r22 %= 2;
+                // Reduce (2, 0) + (2, 1 or 2) -> twisted (1 or 2)
+                const mp1 = Math.min(r20, r21); algFullFloat += mp1 * 2; r20 -= mp1; r21 -= mp1; r11 += mp1;
+                const mp2 = Math.min(r20, r22); algFullFloat += mp2 * 2; r20 -= mp2; r22 -= mp2; r12 += mp2;
+                // Count twist
+                algFullFloat += Math.floor(r11 / 3); r11 %= 3;
+                algFullFloat += Math.floor(r12 / 3); r12 %= 3;
+                algFullFloat += Math.ceil((r11 + r12) / 3);
+                // Finalize
+                this.algFullFloat = (2 * algFullFloat + 3 * (r20 + r21 + r22) + (p0 - 1)) / 2;
+                this.algFullParity = (2 * algFullFloat + r20 + 3 * (r21 + r22) + (p0 - 1)) / 2;
             }
         }
     }

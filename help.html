@@ -31,6 +31,20 @@
     <h1>How It Works</h1>
 
     <div class="card">
+      <p style="margin:0;">Jump to:
+        <a href="#overview">Overview</a> ·
+        <a href="#algs-card">3BLD Algs</a> ·
+        <a href="#edge-stats">Edge Stats</a> ·
+        <a href="#corner-stats">Corner Stats</a> ·
+        <a href="#bis">Fixed Break-In Swap</a> ·
+        <a href="#ltct-t2c-card">LTCT &amp; T2C</a> ·
+        <a href="#order-card">Group Order</a> ·
+        <a href="#bigbld">Big BLD</a> ·
+        <a href="#repro">Reproduction</a>
+      </p>
+    </div>
+
+    <div class="card" id="overview">
       <p>A 3BLD solution decomposes the 12 edges and 8 corners into independent permutation–orientation structures. This tool exhaustively enumerates every <em>cycle configuration</em> and precomputes how many distinct scrambles realise it, giving exact probabilities for any filter.</p>
 
       <h2>Example</h2>
@@ -42,16 +56,16 @@
       <p><strong>Corners:</strong></p>
       $$\underbrace{(\mathrm{UFR},\,\mathrm{LDF},\,\mathrm{LUB},\,\mathrm{BDR},\,\mathrm{DBL},\,\mathrm{RUB},\,\mathrm{RDF})}_{o=2,\;\text{buffer}}\;\underbrace{(\mathrm{UFL})}_{o=1}$$
 
-      <p>Here $o$ is the <em>net orientation</em> of a cycle: $o = \bigl(\sum_{\text{cycle}} o_i\bigr) \bmod m$, where $m=2$ for edges and $m=3$ for corners. Orientation values: $0$ = correct, $1$ = flipped (edges) or CW-twisted (corners), $2$ = CCW-twisted (corners). A 3-cycle with $o=0$ is orientation-clean and can be solved by a single 3-style alg. The global constraint $\sum_{\text{all}} o_i \equiv 0\pmod{m}$ always holds.</p>
+      <p>Here $o$ is the <em>net orientation</em> of a cycle: $o = \bigl(\sum_{\text{cycle}} o_i\bigr) \bmod O$, where $O=2$ for edges and $O=3$ for corners. Orientation values: $0$ = correct, $1$ = flipped (edges) or CW-twisted (corners), $2$ = CCW-twisted (corners). A 3-cycle with $o=0$ is orientation-clean and can be solved by a single 3-style alg. The global constraint $\sum_{\text{all}} o_i \equiv 0\pmod{O}$ always holds.</p>
 
       <h2>Cycle Configuration</h2>
-      <p>A <em>cycle configuration</em> is described by the buffer cycle $(p_0, o_0)$ and a list of secondary cycle types $(p_j, o_j, r_j)$, where $p_j$ is the cycle length, $o_j$ the net orientation, and $r_j$ the number of cycles of that type. For this scramble:</p>
+      <p>A <em>cycle configuration</em> is described by the buffer cycle $(p_0, o_0)$ and a list of secondary cycle types $(p_j, o_j)*r_j$, where $p_j$ is the cycle length, $o_j$ the net orientation, and $r_j$ the number of cycles of that type. For this scramble:</p>
 
       <table>
-        <thead><tr><th>Piece type</th><th>Buffer $(p_0,o_0)$</th><th>Secondary types $(p_j,o_j,r_j)$</th></tr></thead>
+        <thead><tr><th>Piece type</th><th>Buffer $(p_0,o_0)$</th><th>Secondary types $(p_j,o_j)*r_j$</th></tr></thead>
         <tbody>
-          <tr><td>Edges</td><td>$(4,0)$</td><td>$(2,0,2),\;(2,1,1),\;(1,1,1),\;(1,0,1)$</td></tr>
-          <tr><td>Corners</td><td>$(7,2)$</td><td>$(1,1,1)$</td></tr>
+          <tr><td>Edges</td><td>$(4,0)$</td><td>$(2,0)*2 + (2,1) + (1,1) + (1,0)$</td></tr>
+          <tr><td>Corners</td><td>$(7,2)$</td><td>$(1,1)$</td></tr>
         </tbody>
       </table>
 
@@ -60,21 +74,20 @@
 
       <p>For this scramble ($P=12,\,O=2$ for edges; $P=8,\,O=3$ for corners):</p>
 
-      $$\operatorname{count}_{\mathrm{edges}} = \frac{11!\cdot 2^{12-1-5}}{2^2\cdot2!\;\cdot\;2^1\cdot1!\;\cdot\;1^1\cdot1!\;\cdot\;1^1\cdot1!} = \frac{39{,}916{,}800\cdot 64}{16} = 159{,}667{,}200$$
+      $$\operatorname{count}_{\mathrm{edges}} = \frac{11!\cdot 2^{12-1-5}}{2^2\cdot2!\;\cdot\;2^1} = \frac{39{,}916{,}800\cdot 64}{16} = 159{,}667{,}200$$
 
-      $$\operatorname{count}_{\mathrm{corners}} = \frac{7!\cdot 3^{8-1-1}}{1^1\cdot1!} = 5040\cdot 729 = 3{,}674{,}160$$
+      $$\operatorname{count}_{\mathrm{corners}} = 7!\cdot 3^{8-1-1} = 5040\cdot 729 = 3{,}674{,}160$$
 
       <h2>Parity & Sampling</h2>
-      $$\text{parity} = (2 \cdot \text{algs}_{\text{base}}) \bmod 2$$
 
-      <p>Any valid 3BLD scramble has equal edge and corner permutation parity, so filtering one automatically filters both. Because parity is a top-level filter, configurations are split by parity into <strong>two separate weighted pools</strong> — an even-parity pool and an odd-parity pool — each with its own CDF weighted by scramble count. Toggling even or odd off simply drops the corresponding pool from the draw, with no need to re-normalise the other one.</p>
+      <p>Any valid 3BLD scramble has equal edge and corner permutation parity, so filtering one automatically filters both. Because parity is a top-level filter, configurations are split by parity into <strong>two separate weighted pools</strong> — an even-parity pool and an odd-parity pool — each with its own CDF weighted by scramble count.</p>
 
       <p>To generate a scramble: if both parities are enabled, pick a pool in proportion to its total weight (so the joint distribution still matches the unfiltered scramble distribution); sample a configuration from that pool's CDF; instantiate a random permutation and orientation assignment matching the configuration; solve the resulting cube state with <a href="https://github.com/cs0x7f/min2phase.js" target="_blank">min2phase.js</a>.</p>
 
-      <h2>Random Worked Example (Alg Count Explained Later)</h2>
+      <h2>Random Worked Example</h2>
       <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">Roll another</button>
       <div id="worked-example-output"></div>
-      <p id="worked-example-bug" style="font-size:0.85rem; color:var(--text-secondary); display:none;">If anything doesn't add up, please report the bug on GitHub.</p>
+      <p id="worked-example-bug" style="font-size:0.85rem; color:var(--text-secondary); display:none;">If anything doesn't add up, please report the issue on GitHub.</p>
       <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
     </div>
 
@@ -83,16 +96,63 @@
       <div id="algs-error" style="display:none;background:var(--error-bg,#fdd);color:var(--error-fg,#900);padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;"></div>
       <p>Exact scramble counts for 3BLD with buffers UF (edges, $P=12$, $O=2$) and UFR (corners, $P=8$, $O=3$), over all $980{,}995{,}276{,}800$ edge states and $88{,}179{,}840$ corner states. Select a skill set to see the corresponding alg count distribution.</p>
 
+      <details>
+        <summary>Full Floating Reduction Logic (Long Boring Text Alert)</summary>
+
+        <p>With arbitrary floating 3-cycles, any non-buffer cycle can be reduced systematically in three phases:</p>
+
+        <h3>Phase 1 — Shrink long cycles</h3>
+        <p>For each non-buffer cycle with $p \ge 3$, apply $\lfloor(p-1)/2\rfloor$ floating 3-cycles to shrink it by 2 per step. Orientation $o$ is preserved by a well-chosen cycle. After Phase 1, only $(2,o)$ and $(1,o)$ cycles remain among non-buffer cycles:</p>
+        <ul>
+          <li>Edges ($O=2$): $(2,0),\;(2,1),\;(1,1)$ — where $(1,0)$ is solved and ignored.</li>
+          <li>Corners ($O=3$): $(2,0),\;(2,1),\;(2,2),\;(1,1),\;(1,2)$.</li>
+        </ul>
+
+        <h3>Phase 2 — Pair 2-cycles (edges)</h3>
+        <p>Let post-Phase-1 counts be $r_{20},\,r_{21},\,r_{11}$. Reductions are applied in order, each pair costing 2 floating algs:</p>
+        <ol>
+          <li>$(2,0)+(2,0) \to$ solved: pairs $\lfloor r_{20}/2\rfloor$, then $r_{20} \leftarrow r_{20} \bmod 2$.</li>
+          <li>$(2,1)+(2,1) \to$ solved: pairs $\lfloor r_{21}/2\rfloor$, then $r_{21} \leftarrow r_{21} \bmod 2$.</li>
+          <li><strong>Mixed</strong> $(2,0)+(2,1) \to (1,1)$: pairs $m = \min(r_{20}, r_{21})$, with $r_{20} \mathrel{-}= m$, $r_{21} \mathrel{-}= m$, $r_{11} \mathrel{+}= m$.</li>
+        </ol>
+        <p>After Phase 2, at most one residual 2-cycle remains: $R = r_{20} + r_{21} \le 1$. Each contributes $1.5$ algs.</p>
+
+        <h3>Phase 2 — Pair 2-cycles (corners)</h3>
+        <p>Let post-Phase-1 counts be $r_{20},\,r_{21},\,r_{22},\,r_{11},\,r_{12}$. Reductions are applied in order, each pair costing 2 floating algs:</p>
+        <ol>
+          <li>$(2,0)+(2,0) \to$ solved: pairs $\lfloor r_{20}/2\rfloor$, then $r_{20} \leftarrow r_{20} \bmod 2$.</li>
+          <li><strong>Mixed</strong> $(2,1)+(2,2) \to$ solved (twists cancel mod 3): pairs $\min(r_{21}, r_{22})$.</li>
+          <li>Same-type $(2,1)+(2,1) \to$ twisted $(1,\cdot)$: pairs $\lfloor r_{21}/2\rfloor$, contributing $\lfloor r_{21}/2\rfloor$ to $r_{12}$, then $r_{21} \leftarrow r_{21} \bmod 2$.</li>
+          <li>Same-type $(2,2)+(2,2) \to$ twisted $(1,\cdot)$: pairs $\lfloor r_{22}/2\rfloor$, contributing $\lfloor r_{22}/2\rfloor$ to $r_{12}$, then $r_{22} \leftarrow r_{22} \bmod 2$.</li>
+          <li>Mixed $(2,0)+(2,1) \to (1,1)$: pairs $\min(r_{20}, r_{21})$, transferring into $r_{11}$.</li>
+          <li>Mixed $(2,0)+(2,2) \to (1,2)$: pairs $\min(r_{20}, r_{22})$, transferring into $r_{12}$.</li>
+        </ol>
+        <p>After Phase 2, at most one residual 2-cycle remains: $R = r_{20} + r_{21} + r_{22} \le 1$. Each contributes $1.5$ algs. (The bookkeeping bucket — $r_{11}$ vs $r_{12}$ — for same-type pairings doesn't affect the final alg count, since the Phase-3 twist formula is symmetric in $r_{11}$ and $r_{12}$.)</p>
+
+        <h3>Phase 3 — Count remaining algs</h3>
+        <ul>
+          <li><strong>Twist algs</strong>: edges $\lceil r_{11}/4\rceil$; corners $\lfloor r_{11}/3\rfloor + \lfloor r_{12}/3\rfloor + \lceil(r_{11} \bmod 3 + r_{12} \bmod 3)/3\rceil$.</li>
+          <li><strong>Residual 2-cycles</strong>: $1.5\,R$ algs.</li>
+          <li><strong>Buffer cycle</strong> of length $p_0$: $(p_0-1)/2$ algs.</li>
+        </ul>
+        <p>Total: $\text{twist} + 1.5\,R + (p_0-1)/2$. All arithmetic is done in the $2\times$ form (integers) to avoid float precision issues, then divided by 2.</p>
+
+        <h3>Full Floating Parity</h3>
+        <p>When parity is odd and a residual $(2,0)$ remains, it is absorbed into the parity end-pair of the buffer cycle, reducing its cost from $1.5$ to $0.5$ algs — a saving of 1. A residual $(2,1)$ or $(2,2)$ cannot be absorbed cleanly, so it stays at cost $1.5$ and parity yields no saving.</p>
+
+        <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
+      </details>
+
       <div class="skill-checkboxes" style="margin-bottom:1rem;">
         <div class="setting-line"><span>Edge</span>
           <div class="parity-checkbox-row">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">Naive float 3-cycle</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">Float plain 3-cycle only</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-edge"><label for="h-skill-fullfloat-edge">Full floating</label></div>
           </div>
         </div>
         <div class="setting-line"><span>Corner</span>
           <div class="parity-checkbox-row">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">Naive float 3-cycle</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">Float plain 3-cycle only</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-corner"><label for="h-skill-fullfloat-corner">Full floating</label></div>
           </div>
         </div>
@@ -138,59 +198,13 @@
         <h4>Corner</h4>
         <table id="saved-algs-corner-dist-table"></table>
       </details>
-      
-      
-      <details>
-        <summary>Full Floating Reduction Logic (Long Boring Text Alert)</summary>
-
-        <p>With arbitrary floating 3-cycles, any non-buffer cycle can be reduced systematically in three phases:</p>
-
-        <h3>Phase 1 — Shrink long cycles</h3>
-        <p>For each non-buffer cycle with $p \ge 3$, apply $\lfloor(p-1)/2\rfloor$ floating 3-cycles to shrink it by 2 per step. Orientation $o$ is preserved by a well-chosen cycle. After Phase 1, only $(2,o)$ and $(1,o)$ cycles remain among non-buffer cycles:</p>
-        <ul>
-          <li>Edges ($O=2$): $(2,0),\;(2,1),\;(1,1)$ — where $(1,0)$ is solved and ignored.</li>
-          <li>Corners ($O=3$): $(2,0),\;(2,1),\;(2,2),\;(1,1),\;(1,2)$.</li>
-        </ul>
-
-        <h3>Phase 2 — Pair 2-cycles (edges)</h3>
-        <p>Let post-Phase-1 counts be $r_{20}$, $r_{21}$, $r_{11}$:</p>
-        <ol>
-          <li>Pair $(2,0)+(2,0)$: 2 floating algs, leaving $a = r_{20} \bmod 2$.</li>
-          <li>Pair $(2,1)+(2,1)$: 2 floating algs, leaving $b = r_{21} \bmod 2$.</li>
-          <li>If $a=1,\;b=1,\;r_{11}\ge 1$: 2 floating algs eliminate both, consuming 1 $r_{11}$. If $r_{11}=0$: leave unreduced (net zero saving).</li>
-        </ol>
-        <p>At most $R = a + b \in \{0, 1, 2\}$ residual 2-cycles remain. Each contributes $1.5$ algs.</p>
-
-        <h3>Phase 2 — Pair 2-cycles (corners)</h3>
-        <p>Let post-Phase-1 counts be $r_{20},\,r_{21},\,r_{22},\,r_{11},\,r_{12}$:</p>
-        <ol>
-          <li>Pair $(2,0)+(2,0)$: 2 floating algs, leaving $a = r_{20} \bmod 2$.</li>
-          <li>Pair <strong>mixed</strong> $(2,1)+(2,2)$: 2 floating algs (twists cancel mod 3). Same-type $(2,1)+(2,1)$ or $(2,2)+(2,2)$ pairing is <em>not</em> used. Leaves $b = r_{21} - \min(r_{21},r_{22})$ and $c = r_{22} - \min(r_{21},r_{22})$.</li>
-          <li><strong>Rule 1</strong>: while $b \ge 2$ and $r_{11} \ge 1$ (or $c \ge 2$ and $r_{12} \ge 1$): 3 algs eliminate two $(2,x)$ and one $(1,x)$.</li>
-          <li><strong>Rule 2</strong>: if $a=1,\;b\ge 1,\;r_{12}\ge 1$: 3 algs. Else if $a=1,\;c\ge 1,\;r_{11}\ge 1$: 3 algs.</li>
-        </ol>
-        <p>Up to $R = a + b + c \le 3$ residual 2-cycles may remain — e.g. three same-type $(2,1)$ with no $(2,2)$ to pair against.</p>
-
-        <h3>Phase 3 — Count remaining algs</h3>
-        <ul>
-          <li><strong>Twist algs</strong>: edges $\lceil r_{11}/4\rceil$; corners $\lfloor r_{11}/3\rfloor + \lfloor r_{12}/3\rfloor + \lceil(r_{11} \bmod 3 + r_{12} \bmod 3)/3\rceil$.</li>
-          <li><strong>Residual 2-cycles</strong>: $1.5\,R$ algs.</li>
-          <li><strong>Buffer cycle</strong> of length $p_0$: $(p_0-1)/2$ algs.</li>
-        </ul>
-        <p>Total: $\text{twist} + 1.5\,R + (p_0-1)/2$. All arithmetic is done in the $2\times$ form (integers) to avoid float precision issues, then divided by 2.</p>
-
-        <h3>Full Floating Parity</h3>
-        <p>When parity is odd and at least one residual 2-cycle remains, one is absorbed into the parity end-pair of the buffer cycle, reducing its cost from $1.5$ to $0.5$ algs — a saving of 1. Prefer absorbing $(2,0)$, then $(2,1)$ or $(2,2)$.</p>
-
-        <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
-      </details>
 
     </div>
 
-    <div class="card">
-      <h2>3BLD Cycle Breaks</h2>
+    <div class="card" id="edge-stats">
+      <h2>Edge Statistics</h2>
       <details>
-        <summary>Edge Cycle Breaks</summary>
+        <summary>Cycle Breaks</summary>
         <table data-stat="edge-breaks">
           <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
           <tbody></tbody>
@@ -198,18 +212,6 @@
         <div class="help-chart" data-chart-title="Edge Cycle Breaks"></div>
       </details>
 
-      <details>
-        <summary>Corner Cycle Breaks</summary>
-        <table data-stat="corner-breaks">
-          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
-      </details>
-    </div>
-
-    <div class="card">
-      <h2>3BLD Flip / Twist</h2>
       <details>
         <summary>Flipped Edges (buffer excluded)</summary>
         <table data-stat="edge-flipped">
@@ -221,6 +223,27 @@
       </details>
 
       <details>
+        <summary>Float 3-Cycles (buffer excluded)</summary>
+        <table data-stat="edge-float3">
+          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tbody></tbody>
+        </table>
+        <div class="help-chart" data-chart-title="Float 3-Cycles in Edges"></div>
+      </details>
+    </div>
+
+    <div class="card" id="corner-stats">
+      <h2>Corner Statistics</h2>
+      <details>
+        <summary>Cycle Breaks</summary>
+        <table data-stat="corner-breaks">
+          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
+          <tbody></tbody>
+        </table>
+        <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
+      </details>
+
+      <details>
         <summary>Twisted Corners (buffer excluded)</summary>
         <table data-stat="corner-twisted">
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
@@ -228,21 +251,9 @@
         </table>
         <div class="help-chart" data-chart-title="Twisted Corners"></div>
       </details>
-    </div>
-
-    <div class="card">
-      <h2>3BLD Float 3-Cycles</h2>
-      <details>
-        <summary>Float 3-Cycles in Edges (buffer excluded)</summary>
-        <table data-stat="edge-float3">
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart" data-chart-title="Float 3-Cycles in Edges"></div>
-      </details>
 
       <details>
-        <summary>Float 3-Cycles in Corners (buffer excluded)</summary>
+        <summary>Float 3-Cycles (buffer excluded)</summary>
         <table data-stat="corner-float3">
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
           <tbody></tbody>
@@ -251,7 +262,7 @@
       </details>
     </div>
 
-    <div class="card">
+    <div class="card" id="bis">
       <h2>Fixed Break-In Swap</h2>
 
       <details>
@@ -307,7 +318,7 @@
 
     </div>
 
-    <div class="card">
+    <div class="card" id="ltct-t2c-card">
       <h2>LTCT &amp; T2C</h2>
 
       <details>
@@ -325,7 +336,7 @@
       </details>
     </div>
 
-    <div class="card">
+    <div class="card" id="order-card">
       <h2>Order of 3x3x3 Rubik's Cube Group Elements</h2>
       <details>
         <summary>Results</summary>
@@ -337,7 +348,7 @@
       </details>
     </div>
 
-    <div class="card">
+    <div class="card" id="bigbld">
       <h2>Bonus: Big BLD Statistics</h2>
 
       <details>
@@ -500,7 +511,7 @@
       </details>
     </div>
 
-    <div class="card">
+    <div class="card" id="repro">
       <h2>Reproduction</h2>
       <p>All statistics on this page can be independently verified. Clone the repo and run with Node.js:</p>
       <pre><code>git clone https://github.com/helloluxi/bld-scr.git

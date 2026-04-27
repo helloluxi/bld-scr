@@ -23,7 +23,7 @@ const t = {
   mean: isZh ? '均值' : 'mean',
   std: isZh ? '标准差' : 'std',
   basic: isZh ? '基础' : 'Basic',
-  naiveFloat3: isZh ? '只浮动三循环' : 'Naive Float 3-Cycle',
+  naiveFloat3: isZh ? '仅浮动纯三循环' : 'Float plain 3-cycle only',
   fullFloat: isZh ? '全浮动' : 'Full Floating',
   fullFloatParity: isZh ? '全浮动奇偶' : 'Full Floating Parity',
   parityEven: isZh ? '偶' : 'even',
@@ -34,6 +34,7 @@ const t = {
   workedCorners: isZh ? '角块' : 'Corners',
   parityError: isZh ? '奇偶检查失败' : 'Parity check failed',
   reductionLogic: isZh ? '归约逻辑' : 'reduction logic',
+  flipTwist: isZh ? '翻色' : 'Flip / Twist',
 };
 
 function edgeSkillLabel(s) {
@@ -371,22 +372,29 @@ document.addEventListener('DOMContentLoaded', () => {
       return groups.map(g => g.n > 1 ? g.key + '*' + g.n : g.key).join(' + ');
     }
 
-    function renderConfig(label, cc) {
+    function configTitle(label, cc) {
       const buf = cc.cycles[0];
-      const parityStr = cc.parity ? t.parityOdd : t.parityEven;
       const secondary = fmtCycles(cc.cycles);
       const cfgTitle = secondary
         ? `(${buf.perm},${buf.ori}) + ${secondary}`
         : `(${buf.perm},${buf.ori})`;
-      let h = `<h3>${label}: ${cfgTitle}</h3>`;
-      h += '<table class="worked-example-table">';
-      h += `<tr><td>${t.parity}</td><td>${parityStr}</td></tr>`;
-      h += `<tr><td>${t.breaks}</td><td>${cc.breaks}</td></tr>`;
-      h += `<tr><td>${t.count}</td><td>${cc.count.toLocaleString()}</td></tr>`;
-      h += `<tr><td>${t.alg} (${t.basic})</td><td>${fmtHalf(cc.alg)}</td></tr>`;
-      h += `<tr><td>${t.alg} (${t.naiveFloat3})</td><td>${fmtHalf(cc.alg - cc.closed3)}</td></tr>`;
-      h += `<tr><td>${t.alg} (${t.fullFloat})</td><td>${fmtHalf(cc.algFullFloat)}</td></tr>`;
-      h += `<tr><td>${t.alg} (${t.fullFloatParity})</td><td>${fmtHalf(cc.algFullParity)}</td></tr>`;
+      return `<h3>${label}: ${cfgTitle}</h3>`;
+    }
+
+    function renderCombinedTable(eCC, cCC) {
+      const ep = eCC.parity ? t.parityOdd : t.parityEven;
+      const cp = cCC.parity ? t.parityOdd : t.parityEven;
+      const row = (name, e, c) => `<tr><td>${name}</td><td>${e}</td><td>${c}</td></tr>`;
+      let h = '<table class="worked-example-table">';
+      h += `<tr><th></th><th>${t.workedEdges}</th><th>${t.workedCorners}</th></tr>`;
+      h += row(t.parity, ep, cp);
+      h += row(t.breaks, eCC.breaks, cCC.breaks);
+      h += row(t.flipTwist, eCC.open1, cCC.open1);
+      h += row(`${t.alg} (${t.basic})`, fmtHalf(eCC.alg), fmtHalf(cCC.alg));
+      h += row(`${t.alg} (${t.naiveFloat3})`, fmtHalf(eCC.alg - eCC.closed3), fmtHalf(cCC.alg - cCC.closed3));
+      h += row(`${t.alg} (${t.fullFloat})`, fmtHalf(eCC.algFullFloat), fmtHalf(cCC.algFullFloat));
+      h += row(`${t.alg} (${t.fullFloatParity})`, fmtHalf(eCC.algFullParity), fmtHalf(cCC.algFullParity));
+      h += row(t.count, eCC.count.toLocaleString(), cCC.count.toLocaleString());
       h += '</table>';
       return h;
     }
@@ -403,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (e) {}
 
-    h += renderConfig(t.workedEdges, eCC) + renderConfig(t.workedCorners, cCC);
+    h += configTitle(t.workedEdges, eCC) + configTitle(t.workedCorners, cCC) + renderCombinedTable(eCC, cCC);
     out.innerHTML = h;
   }
 
@@ -424,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const levels = [
       { name: t.basic, e: cc => cc.alg, c: cc => cc.alg },
-      { name: isZh ? '只浮动三循环' : 'Naive float 3-style', e: cc => cc.alg - cc.closed3, c: cc => cc.alg - cc.closed3 },
+      { name: isZh ? '仅浮动纯三循环' : 'Float plain 3-cycle only', e: cc => cc.alg - cc.closed3, c: cc => cc.alg - cc.closed3 },
       { name: t.fullFloat, e: cc => cc.algFullFloat, c: cc => cc.algFullFloat },
       { name: t.fullFloatParity, e: cc => cc.algFullParity, c: cc => cc.algFullParity },
     ];
@@ -464,17 +472,15 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML += `<tr><td>${lv.name}</td><td>${fmt(eM)}</td><td>${saved(eM, baseE)}</td><td>${fmt(cM)}</td><td>${saved(cM, baseC)}</td><td>${fmt(tM)}</td><td>${saved(tM, baseT)}</td></tr>`;
     }
     const fmtNum = n => n.toLocaleString('en-US');
-    const floatAlgs = 2768;
-    const parityAlgs = 11088;
-    const savedFull = totalsByName[isZh ? '只浮动三循环' : 'Naive float 3-style'] - totalsByName[t.fullFloat];
+    const savedFull = totalsByName[isZh ? '仅浮动纯三循环' : 'Float plain 3-cycle only'] - totalsByName[t.fullFloat];
     const savedParity = totalsByName[t.fullFloat] - totalsByName[t.fullFloatParity];
     document.getElementById('saved-algs-quip').textContent = isZh
-      ? `你真的会想背 ${fmtNum(floatAlgs)} 个全浮动 3-style 公式，只为了平均每把少 ${savedFull.toFixed(2)} 个公式；再多 ${fmtNum(parityAlgs)} 个全浮动奇偶公式，也只再少背 ${savedParity.toFixed(2)} 个公式吗？这些都只是理论上界，还没考虑人类实际能力。人生苦短，别背了～`
-      : `Bruh, would you really want to learn ${fmtNum(floatAlgs)} full-floating 3-style algs just to save ${savedFull.toFixed(2)} algs per scramble on average, and another ${fmtNum(parityAlgs)} full-floating parity algs just to save ${savedParity.toFixed(2)} algs per scramble? These are only theoretical upper bounds, without accounting for human-level practicality. Life is short, be happy :)`;
+      ? `你真的会想背 2768 个全浮动 3-style 公式，只为了平均每把少 ${savedFull.toFixed(2)} 个公式；再多背 11088 个全浮动奇偶公式，也只再少背 ${savedParity.toFixed(2)} 个公式吗？这些都只是理论上界，还没考虑人类实际能力。人生苦短，别背了～`
+      : `Bruh, would you really want to learn 2,768 full-floating 3-style algs just to save ${savedFull.toFixed(2)} algs per scramble on average, and another 11,088 full-floating parity algs just to save ${savedParity.toFixed(2)} algs per scramble? These are only theoretical upper bounds, without accounting for human-level practicality. Life is short, be happy :)`;
 
     // Saved-alg distribution per skill level (vs Basic)
     const distLevels = [
-      { name: isZh ? '只浮动三循环' : 'Naive float 3-style', e: cc => cc.closed3,            c: cc => cc.closed3 },
+      { name: isZh ? '仅浮动纯三循环' : 'Float plain 3-cycle only', e: cc => cc.closed3,            c: cc => cc.closed3 },
       { name: t.fullFloat,       e: cc => cc.alg - cc.algFullFloat,  c: cc => cc.alg - cc.algFullFloat },
       { name: t.fullFloatParity, e: cc => cc.alg - cc.algFullParity, c: cc => cc.alg - cc.algFullParity },
     ];

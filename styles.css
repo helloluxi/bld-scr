@@ -775,31 +775,23 @@ tbody tr:hover td {
   transition: background-color 0.15s ease;
 }
 
-/* Worked example tables on help pages */
-.worked-example-table td:nth-child(2) {
-  color: var(--primary);
+.worked-example-table td {
   font-family: 'Courier New', monospace;
   font-weight: 600;
 }
 
-/* Stats tables (inside details): column-specific styling */
-details table td:nth-child(2),
-details table th:nth-child(2),
-details table td:nth-child(3),
-details table th:nth-child(3),
-details table td:nth-child(4),
-details table th:nth-child(4) {
-  font-family: 'Courier New', monospace;
-}
-
-/* Count column: blue */
-details table td:nth-child(2) {
+/* Column color cycle: col 1 = default (label), then alternate blue / green. */
+.card table td:nth-child(even) {
   color: #88aaff;
 }
 
-/* Probability column: green */
-details table td:nth-child(3) {
+.card table td:nth-child(odd):not(:first-child) {
   color: #88cc88;
+}
+
+.card table.prose td:nth-child(even),
+.card table.prose td:nth-child(odd):not(:first-child) {
+  color: inherit;
 }
 
 /* Collapsible details/summary */
