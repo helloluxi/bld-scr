@@ -88,6 +88,26 @@
       <p>生成打乱时：若两种奇偶都开启，则按总权重比例先选池（保证联合分布仍与未筛选分布一致）；再从该池的 CDF 中抽取一个配置；随后随机实例化与该配置匹配的置换与朝向赋值；最后用 <a href="https://github.com/cs0x7f/min2phase.js" target="_blank">min2phase.js</a> 还原得到打乱。</p>
 
       <h2>随机示例</h2>
+      <details id="letter-scheme-details" style="margin-bottom:1rem;">
+        <summary>编码方案</summary>
+        <div style="display:flex; align-items:center; gap:0.4rem; margin:0.75rem 0 0.5rem; flex-wrap:wrap;">
+          <button class="button" style="width:auto;padding:0.25rem 0.75rem;" onclick="applyLetterPreset('mine')">默认</button>
+          <button class="button" style="width:auto;padding:0.25rem 0.75rem;" onclick="applyLetterPreset('彳亍')">彳亍</button>
+          <button class="button" style="width:auto;padding:0.25rem 0.75rem;" onclick="applyLetterPreset('speffz')">Speffz</button>
+        </div>
+        <p style="font-size:0.75rem; color:var(--text-secondary); margin:0 0 0.75rem;">默认 = 彳亍 棱块 + Speffz 扩展角块，我一直在用的方案。传统 彳亍 用户强烈建议切换。</p>
+        <div style="margin-bottom:0.5rem;">
+          <label for="letter-scheme-edge" style="font-weight:600; margin-bottom:0.25rem; display:block;">棱块</label>
+          <input type="text" id="letter-scheme-edge" value="" maxlength="24"
+                 style="width:100%; box-sizing:border-box; font-family:monospace; font-size:0.9em; letter-spacing:0.05em; text-transform:uppercase; padding:0.35rem 0.5rem;" spellcheck="false" />
+        </div>
+        <div style="margin-bottom:0.75rem;">
+          <label for="letter-scheme-corner" style="font-weight:600; margin-bottom:0.25rem; display:block;">角块</label>
+          <input type="text" id="letter-scheme-corner" value="" maxlength="24"
+                 style="width:100%; box-sizing:border-box; font-family:monospace; font-size:0.9em; letter-spacing:0.05em; text-transform:lowercase; padding:0.35rem 0.5rem;" spellcheck="false" />
+        </div>
+        <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; 收起</a>
+      </details>
       <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">再抽一个</button>
       <div id="worked-example-output"></div>
       <p id="worked-example-bug" style="font-size:0.85rem; color:var(--text-secondary); display:none;">如果有任何地方对不上，请于GitHub反馈 issue。</p>

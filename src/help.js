@@ -398,6 +398,119 @@ function updateWingAlgsTable() {
   if (statsEl) statsEl.textContent = `${t.mean}: ${mean.toFixed(2)}, ${t.std}: ${Math.sqrt(variance).toFixed(2)}`;
 }
 
+// Letter scheme presets
+const LETTER_PRESETS = {
+  mine:   { edge: 'ABCDEFGHIJKLMNOPQRSTWXYZ', corner: 'ahqcbtedwgfzilsknxmpyojr' },
+  chichu: { edge: 'ABCDEFGHIJKLMNOPQRSTWXYZ', corner: 'jklabcdefghiwmnopqrstxyz' },
+  speffz: { edge: 'CIDEAQBMUKXGWSVOJPLFRHTN', corner: 'cmjdihaerbqnuglxsfwtovkp' },
+};
+const LS_KEY = 'bld-scr.letterScheme';
+
+const edgePositions = [
+  'UF','FU','UL','LU','UB','BU','UR','RU',
+  'DF','FD','DL','LD','DB','BD','DR','RD',
+  'FR','RF','FL','LF','BL','LB','BR','RB'
+];
+const cornerPositions = [
+  'UFR','RUF','FUR','UFL','FUL','LUF',
+  'UBL','LUB','BUL','UBR','BUR','RUB',
+  'DFL','LDF','FDL','DBL','BDL','LDB',
+  'DBR','BRD','RDB','DFR','FDR','RDF'
+];
+
+function updateInputHint(input, positions) {
+  const v = input.value;
+  if (v.length === 24) {
+    input.style.backgroundImage = 'none';
+  } else if (v.length < 24) {
+    const nextPos = positions[v.length];
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.font = '13px monospace';
+    const text = `← ${nextPos}`;
+    const metrics = ctx.measureText(text);
+    canvas.width = metrics.width + 10;
+    canvas.height = 20;
+    ctx.font = '13px monospace';
+    ctx.fillStyle = '#888888';
+    ctx.fillText(text, 5, 15);
+    input.style.backgroundImage = `url(${canvas.toDataURL()})`;
+    input.style.backgroundRepeat = 'no-repeat';
+    input.style.backgroundPosition = 'right 8px center';
+  } else {
+    input.style.backgroundImage = 'none';
+  }
+}
+
+function _applyLetterPreset(name) {
+  const p = LETTER_PRESETS[name];
+  if (!p) return;
+  const ei = document.getElementById('letter-scheme-edge');
+  const ci = document.getElementById('letter-scheme-corner');
+  if (ei) { ei.value = p.edge; updateInputHint(ei, edgePositions); }
+  if (ci) { ci.value = p.corner; updateInputHint(ci, cornerPositions); }
+  validateSchemeInputs();
+  persistLetterScheme();
+  if (typeof window._rollExample === 'function') window._rollExample();
+}
+
+function validateSchemeInputs() {
+  const ei = document.getElementById('letter-scheme-edge');
+  const ci = document.getElementById('letter-scheme-corner');
+  let valid = true;
+  [ei, ci].forEach(input => {
+    if (!input) return;
+    const v = input.value;
+    if (v.length !== 24 || new Set(v).size !== 24) {
+      input.style.borderColor = 'red';
+      input.style.borderWidth = '2px';
+      valid = false;
+    } else {
+      input.style.borderColor = '';
+      input.style.borderWidth = '';
+    }
+  });
+  return valid;
+}
+
+function persistLetterScheme() {
+  const ei = document.getElementById('letter-scheme-edge');
+  const ci = document.getElementById('letter-scheme-corner');
+  if (!ei || !ci) return;
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({ edge: ei.value, corner: ci.value }));
+  } catch (e) { /* ignore */ }
+}
+
+function loadLetterScheme() {
+  const ei = document.getElementById('letter-scheme-edge');
+  const ci = document.getElementById('letter-scheme-corner');
+  if (!ei || !ci) return;
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) {
+      const { edge, corner } = JSON.parse(saved);
+      if (edge && edge.length === 24) ei.value = edge;
+      if (corner && corner.length === 24) ci.value = corner;
+    }
+  } catch (e) { /* ignore */ }
+  // Default to "mine" preset if empty
+  if (!ei.value) ei.value = LETTER_PRESETS.mine.edge;
+  if (!ci.value) ci.value = LETTER_PRESETS.mine.corner;
+  validateSchemeInputs();
+}
+
+function getActiveScheme() {
+  const ei = document.getElementById('letter-scheme-edge');
+  const ci = document.getElementById('letter-scheme-corner');
+  const edge = ei && ei.value.length === 24 && new Set(ei.value).size === 24 ? ei.value : LETTER_PRESETS.mine.edge;
+  const corner = ci && ci.value.length === 24 && new Set(ci.value).size === 24 ? ci.value : LETTER_PRESETS.mine.corner;
+  return { edge, corner };
+}
+
+// Expose applyLetterPreset globally for onclick handlers
+window.applyLetterPreset = _applyLetterPreset;
+
 document.addEventListener('DOMContentLoaded', () => {
   let t3bld = 0, tBigBld = 0;
 
@@ -498,6 +611,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateAlgsSection();
 
+  // Letter scheme setup
+  loadLetterScheme();
+  const lsEdge = document.getElementById('letter-scheme-edge');
+  const lsCorner = document.getElementById('letter-scheme-corner');
+  [lsEdge, lsCorner].forEach(input => {
+    if (!input) return;
+    const positions = input === lsEdge ? edgePositions : cornerPositions;
+    input.addEventListener('input', () => {
+      setTimeout(() => {
+        // Sanitize
+        if (input === lsEdge) {
+          input.value = input.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
+        } else {
+          input.value = input.value.replace(/[^a-zA-Z]/g, '').toLowerCase();
+        }
+        if (input.value.length > 24) input.value = input.value.substring(0, 24);
+        updateInputHint(input, positions);
+        validateSchemeInputs();
+        persistLetterScheme();
+        rollExample();
+      }, 0);
+    });
+    input.addEventListener('focus', () => updateInputHint(input, positions));
+  });
+  if (lsEdge) updateInputHint(lsEdge, edgePositions);
+  if (lsCorner) updateInputHint(lsCorner, cornerPositions);
+
   // Random worked example
   function rollExample() {
     const out = document.getElementById('worked-example-output');
@@ -563,8 +703,15 @@ document.addEventListener('DOMContentLoaded', () => {
       h += `<p><code>${scramble}</code></p>`;
       // Generate memo notation from code strings and cycle configs
       if (window.Example && typeof Example.generateFullMemoFromCode === 'function') {
-        const memo = Example.generateFullMemoFromCode(edgeCodeStr, cornerCodeStr, eCC, cCC);        memo.edges.representation = edgeCodeStr;
-        memo.corners.representation = cornerCodeStr;        h += `<div class="memo-container" style="margin: 1rem 0;">`;
+        // Translate codes to user's letter scheme
+        const scheme = getActiveScheme();
+        const translatedEdge = Example.translateCodeStr(edgeCodeStr, Example.DEFAULT_EDGE_CODE, scheme.edge);
+        const translatedCorner = Example.translateCodeStr(cornerCodeStr, Example.DEFAULT_CORNER_CODE, scheme.corner);
+        Example.setLetterScheme(scheme.edge, scheme.corner);
+        const memo = Example.generateFullMemoFromCode(translatedEdge, translatedCorner, eCC, cCC);
+        memo.edges.representation = translatedEdge;
+        memo.corners.representation = translatedCorner;
+        h += `<div class="memo-container" style="margin: 1rem 0;">`;
         h += renderMemoSection(t.workedEdges, eCC, memo.edges);
         h += renderMemoSection(t.workedCorners, cCC, memo.corners);
         h += `</div>`;
@@ -579,6 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.getElementById('reroll-btn').addEventListener('click', rollExample);
+  window._rollExample = rollExample;  // expose for applyLetterPreset
   rollExample();
 
   // Saved-alg statistics

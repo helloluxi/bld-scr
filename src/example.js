@@ -16,12 +16,34 @@
 //   Index % 3 == 1 = orientation 1 (CW twist)
 //   Index % 3 == 2 = orientation 2 (CCW twist)
 // ============================================================================
-const edgeCode = 'ABCDEFGHIJKLMNOPQRSTWXYZ';  // 12 pieces * 2 orientations
-const cornerCode = 'ahqcbtedwgfzilsknxmpyojr';  // 8 pieces * 3 orientations
+const DEFAULT_EDGE_CODE = 'ABCDEFGHIJKLMNOPQRSTWXYZ';   // Chichu edge
+const DEFAULT_CORNER_CODE = 'ahqcbtedwgfzilsknxmpyojr';  // Speffz-expanded corner
+let edgeCode = DEFAULT_EDGE_CODE;
+let cornerCode = DEFAULT_CORNER_CODE;
 let edgeCodeIdxMap = {}, cornerCodeIdxMap = {};
-for (let i = 0; i < 24; i++) {
-  edgeCodeIdxMap[edgeCode[i]] = [i >> 1, i & 1];  // Map letter to [piece index (0-11), orientation (0 or 1)]
-  cornerCodeIdxMap[cornerCode[i]] = [i / 3 | 0, i % 3];  // Map letter to [piece index (0-7), orientation (0, 1, or 2)]
+
+function buildIndexMaps() {
+  edgeCodeIdxMap = {}; cornerCodeIdxMap = {};
+  for (let i = 0; i < 24; i++) {
+    edgeCodeIdxMap[edgeCode[i]] = [i >> 1, i & 1];
+    cornerCodeIdxMap[cornerCode[i]] = [i / 3 | 0, i % 3];
+  }
+}
+buildIndexMaps();
+
+function setLetterScheme(newEdge, newCorner) {
+  if (newEdge && newEdge.length === 24) edgeCode = newEdge;
+  if (newCorner && newCorner.length === 24) cornerCode = newCorner;
+  buildIndexMaps();
+}
+
+function translateCodeStr(codeStr, fromScheme, toScheme) {
+  let out = '';
+  for (let i = 0; i < codeStr.length; i++) {
+    const idx = fromScheme.indexOf(codeStr[i]);
+    out += idx >= 0 ? toScheme[idx] : codeStr[i];
+  }
+  return out;
 }
 
 // Color palette for cycles - used to color-code different cycles in memo
@@ -217,5 +239,9 @@ function generateFullMemoFromCode(edgeCodeStr, cornerCodeStr, edgeCC, cornerCC) 
 
 // Export minimal API for use in help.js
 window.Example = {
-  generateFullMemoFromCode
+  generateFullMemoFromCode,
+  setLetterScheme,
+  translateCodeStr,
+  DEFAULT_EDGE_CODE,
+  DEFAULT_CORNER_CODE
 };

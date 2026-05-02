@@ -64,6 +64,26 @@
       <p>To generate a scramble: if both parities are enabled, pick a pool in proportion to its total weight (so the joint distribution still matches the unfiltered scramble distribution); sample a configuration from that pool's CDF; instantiate a random permutation and orientation assignment matching the configuration; solve the resulting cube state with <a href="https://github.com/cs0x7f/min2phase.js" target="_blank">min2phase.js</a>.</p>
 
       <h2>Random Worked Example</h2>
+      <details id="letter-scheme-details" style="margin-bottom:1rem;">
+        <summary>Letter Scheme</summary>
+        <div style="display:flex; align-items:center; gap:0.4rem; margin:0.75rem 0 0.5rem; flex-wrap:wrap;">
+          <button class="button" style="width:auto;padding:0.25rem 0.75rem;" onclick="applyLetterPreset('mine')">Default</button>
+          <button class="button" style="width:auto;padding:0.25rem 0.75rem;" onclick="applyLetterPreset('chichu')">Chichu</button>
+          <button class="button" style="width:auto;padding:0.25rem 0.75rem;" onclick="applyLetterPreset('speffz')">Speffz</button>
+        </div>
+        <p style="font-size:0.75rem; color:var(--text-secondary); margin:0 0 0.75rem;">Default = Chichu edge + Speffz-expanded corner, which I've been using. Traditional Chichu users are strongly recommended to switch.</p>
+        <div style="margin-bottom:0.5rem;">
+          <label for="letter-scheme-edge" style="font-weight:600; margin-bottom:0.25rem; display:block;">Edge</label>
+          <input type="text" id="letter-scheme-edge" value="" maxlength="24"
+                 style="width:100%; box-sizing:border-box; font-family:monospace; font-size:0.9em; letter-spacing:0.05em; text-transform:uppercase; padding:0.35rem 0.5rem;" spellcheck="false" />
+        </div>
+        <div style="margin-bottom:0.75rem;">
+          <label for="letter-scheme-corner" style="font-weight:600; margin-bottom:0.25rem; display:block;">Corner</label>
+          <input type="text" id="letter-scheme-corner" value="" maxlength="24"
+                 style="width:100%; box-sizing:border-box; font-family:monospace; font-size:0.9em; letter-spacing:0.05em; text-transform:lowercase; padding:0.35rem 0.5rem;" spellcheck="false" />
+        </div>
+        <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
+      </details>
       <p>Each example shows the scramble, the memo notation (buffer letters omitted, cycles separated by space, flips/twists shown with +/-), and detailed statistics.</p>
       <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">Roll another</button>
       <div id="worked-example-output"></div>
