@@ -81,13 +81,13 @@ function saveSkills() {
 function loadSkills() {
   try {
     const s = JSON.parse(localStorage.getItem('scr.skills') || '{}');
-    document.getElementById('skill-basic-edge').checked = !!s.basicEdge;
+    document.getElementById('skill-basic-edge').checked = s.basicEdge !== false;
     document.getElementById('skill-naive-edge').checked = !!s.naiveEdge;
     document.getElementById('skill-fullfloat-edge').checked = !!s.fullEdge;
-    document.getElementById('skill-basic-corner').checked = !!s.basicCorner;
+    document.getElementById('skill-basic-corner').checked = s.basicCorner !== false;
     document.getElementById('skill-naive-corner').checked = !!s.naiveCorner;
     document.getElementById('skill-fullfloat-corner').checked = !!s.fullCorner;
-    document.getElementById('skill-basic-parity').checked = !!s.basicParity;
+    document.getElementById('skill-basic-parity').checked = s.basicParity !== false;
     document.getElementById('skill-fullfloat-parity').checked = !!s.fullParity;
   } catch {}
 }

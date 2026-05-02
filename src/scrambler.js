@@ -35,7 +35,7 @@ const scrambler = (() => {
         return cube.join('');
     }
 
-    let evenEdgeCDF, oddEdgeCDF, evenCornerCDF, oddCornerCDF, oddProb;
+    let evenEdgeCDF, oddEdgeCDF, evenCornerCDF, oddCornerCDF, oddProb = 0.5;
     let evenEdgeCount = 0, oddEdgeCount = 0, evenCornerCount = 0, oddCornerCount = 0;
 
     function parseCond(text) {
@@ -148,14 +148,38 @@ const scrambler = (() => {
         let edgeIdx = 0, cornerIdx = 0;
         while (edgeIdx < edgeCDF.length && edgeCDF[edgeIdx] < edgeRand) edgeIdx++;
         while (cornerIdx < cornerCDF.length && cornerCDF[cornerIdx] < cornerRand) cornerIdx++;
-        const scr = min2phase.scramble(genCube(genCode(
-            parity == 0 ? cycler.evenEdges[edgeIdx].cycles : cycler.oddEdges[edgeIdx].cycles,
-            edgeCode, 12, 2
-        ) + genCode(
-            parity == 0 ? cycler.evenCorners[cornerIdx].cycles : cycler.oddCorners[cornerIdx].cycles,
-            cornerCode, 8, 3
-        )));
+        const edgeCycles = parity == 0 ? cycler.evenEdges[edgeIdx].cycles : cycler.oddEdges[edgeIdx].cycles;
+        const cornerCycles = parity == 0 ? cycler.evenCorners[cornerIdx].cycles : cycler.oddCorners[cornerIdx].cycles;
+        const edgeCodeStr = genCode(edgeCycles, edgeCode, 12, 2);
+        const cornerCodeStr = genCode(cornerCycles, cornerCode, 8, 3);
+        const scr = min2phase.scramble(genCube(edgeCodeStr + cornerCodeStr));
         return scr.length === 0 ? 'Seriously? You are not even trying.' : scr;
+    }
+
+    function getScrambleAndCode() {
+        // Initialize CDFs if empty (use all configs)
+        if (!evenEdgeCDF || evenEdgeCDF.length === 0) {
+            getProbabilityFromBoolFunction(x => true, x => true);
+        }
+
+        const parity = Math.random() < oddProb ? 1 : 0;
+        const edgeCDF = parity == 0 ? evenEdgeCDF : oddEdgeCDF, cornerCDF = parity == 0 ? evenCornerCDF : oddCornerCDF;
+        const edgeRand = Math.random() * edgeCDF[edgeCDF.length - 1], cornerRand = Math.random() * cornerCDF[cornerCDF.length - 1];
+        let edgeIdx = 0, cornerIdx = 0;
+        while (edgeIdx < edgeCDF.length && edgeCDF[edgeIdx] < edgeRand) edgeIdx++;
+        while (cornerIdx < cornerCDF.length && cornerCDF[cornerIdx] < cornerRand) cornerIdx++;
+        const edgeCycles = parity == 0 ? cycler.evenEdges[edgeIdx].cycles : cycler.oddEdges[edgeIdx].cycles;
+        const cornerCycles = parity == 0 ? cycler.evenCorners[cornerIdx].cycles : cycler.oddCorners[cornerIdx].cycles;
+        const edgeCodeStr = genCode(edgeCycles, edgeCode, 12, 2);
+        const cornerCodeStr = genCode(cornerCycles, cornerCode, 8, 3);
+        const scr = min2phase.scramble(genCube(edgeCodeStr + cornerCodeStr));
+        return {
+            scramble: scr.length === 0 ? 'Seriously? You are not even trying.' : scr,
+            edgeCode: edgeCodeStr,
+            cornerCode: cornerCodeStr,
+            edgeCC: parity == 0 ? cycler.evenEdges[edgeIdx] : cycler.oddEdges[edgeIdx],
+            cornerCC: parity == 0 ? cycler.evenCorners[cornerIdx] : cycler.oddCorners[cornerIdx]
+        };
     }
 
     return {
@@ -163,5 +187,6 @@ const scrambler = (() => {
         getProbabilityFromBoolFunction,
         getProbabilityFromTextFilter,
         getScramble,
+        getScrambleAndCode,
     };
 })();

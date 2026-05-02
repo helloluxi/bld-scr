@@ -12,6 +12,7 @@
   <script src="./src/cycler4.js"></script>
   <script src="./src/min2phase.js"></script>
   <script src="./src/scrambler.js"></script>
+  <script src="./src/example.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"
     onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]})"></script>
@@ -363,25 +364,24 @@
     <div class="card" id="bigbld">
       <h2>附：高盲统计</h2>
 
-      <div class="skill-checkboxes" style="margin-bottom:1rem;">
-        <div class="setting-line"><span>技巧</span>
-          <div class="parity-checkbox-row tab-style">
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-basic" checked><label for="bigbld-skill-basic">基础</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-naive"><label for="bigbld-skill-naive">仅浮动纯三循环</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-full"><label for="bigbld-skill-full">全浮动</label></div>
-          </div>
-        </div>
-        <div class="setting-line"><span>奇偶</span>
-          <div class="parity-checkbox-row tab-style">
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-both" checked><label for="bigbld-parity-both">两者</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-even"><label for="bigbld-parity-even">仅偶</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-odd"><label for="bigbld-parity-odd">仅奇</label></div>
-          </div>
-        </div>
-      </div>
-
       <details>
         <summary id="bigbld-wing-algs-summary">翼棱：公式</summary>
+        <div class="skill-checkboxes" style="margin-bottom:1rem;">
+          <div class="setting-line"><span>技巧</span>
+            <div class="parity-checkbox-row tab-style">
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-basic" checked><label for="bigbld-skill-basic">基础</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-naive"><label for="bigbld-skill-naive">仅浮动纯三循环</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-full"><label for="bigbld-skill-full">全浮动</label></div>
+            </div>
+          </div>
+          <div class="setting-line"><span>奇偶</span>
+            <div class="parity-checkbox-row tab-style">
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-both" checked><label for="bigbld-parity-both">两者</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-even"><label for="bigbld-parity-even">仅偶</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-odd"><label for="bigbld-parity-odd">仅奇</label></div>
+            </div>
+          </div>
+        </div>
         <table data-stat="wing-algs">
           <tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tbody></tbody>

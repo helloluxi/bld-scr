@@ -12,6 +12,7 @@
   <script src="./src/cycler4.js"></script>
   <script src="./src/min2phase.js"></script>
   <script src="./src/scrambler.js"></script>
+  <script src="./src/example.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"
     onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]})"></script>
@@ -48,36 +49,13 @@
     <div class="card" id="overview">
       <p>A 3BLD solution decomposes the 12 edges and 8 corners into independent permutation–orientation structures. This tool exhaustively enumerates every <em>cycle configuration</em> and precomputes how many distinct scrambles realise it, giving exact probabilities for any filter.</p>
 
-      <h2>Example</h2>
-      <p>Consider the scramble <code>U2 L2 U' R D2 F' L D B' D R2 F2 L2 F2 U' R2 U B2 U2 B2 U</code>. With buffer UF (edges) and UFR (corners), the cycle decomposition is:</p>
-
-      <p><strong>Edges:</strong></p>
-      $$\underbrace{(\mathrm{UF},\,\mathrm{BU},\,\mathrm{DL},\,\mathrm{FL})}_{o=0,\;\text{buffer}}\;\underbrace{(\mathrm{UR},\,\mathrm{RB})}_{o=0}\;\underbrace{(\mathrm{UL},\,\mathrm{LB})}_{o=0}\;\underbrace{(\mathrm{FR},\,\mathrm{BD})}_{o=1}\;\underbrace{(\mathrm{DR})}_{o=1}\;\underbrace{(\mathrm{DF})}_{o=0,\;\text{solved}}$$
-
-      <p><strong>Corners:</strong></p>
-      $$\underbrace{(\mathrm{UFR},\,\mathrm{LDF},\,\mathrm{LUB},\,\mathrm{BDR},\,\mathrm{DBL},\,\mathrm{RUB},\,\mathrm{RDF})}_{o=2,\;\text{buffer}}\;\underbrace{(\mathrm{UFL})}_{o=1}$$
+      <h2>Cycle Configuration</h2>
+      <p>A <em>cycle configuration</em> is described by the buffer cycle $(p_0, o_0)$ and a list of secondary cycle types $(p_j, o_j)*r_j$, where $p_j$ is the cycle length, $o_j$ the net orientation, and $r_j$ the number of cycles of that type.</p>
 
       <p>Here $o$ is the <em>net orientation</em> of a cycle: $o = \bigl(\sum_{\text{cycle}} o_i\bigr) \bmod O$, where $O=2$ for edges and $O=3$ for corners. Orientation values: $0$ = correct, $1$ = flipped (edges) or CW-twisted (corners), $2$ = CCW-twisted (corners). A 3-cycle with $o=0$ is orientation-clean and can be solved by a single 3-style alg. The global constraint $\sum_{\text{all}} o_i \equiv 0\pmod{O}$ always holds.</p>
 
-      <h2>Cycle Configuration</h2>
-      <p>A <em>cycle configuration</em> is described by the buffer cycle $(p_0, o_0)$ and a list of secondary cycle types $(p_j, o_j)*r_j$, where $p_j$ is the cycle length, $o_j$ the net orientation, and $r_j$ the number of cycles of that type. For this scramble:</p>
-
-      <table>
-        <thead><tr><th>Piece type</th><th>Buffer $(p_0,o_0)$</th><th>Secondary types $(p_j,o_j)*r_j$</th></tr></thead>
-        <tbody>
-          <tr><td>Edges</td><td>$(4,0)$</td><td>$(2,0)*2 + (2,1) + (1,1) + (1,0)$</td></tr>
-          <tr><td>Corners</td><td>$(7,2)$</td><td>$(1,1)$</td></tr>
-        </tbody>
-      </table>
-
       <h2>Counting Scrambles per Configuration</h2>
       $$\operatorname{count} = \frac{(P-1)!\cdot O^{P-1-\sum_j r_j}}{\displaystyle\prod_j p_j^{r_j} \cdot r_j!}$$
-
-      <p>For this scramble ($P=12,\,O=2$ for edges; $P=8,\,O=3$ for corners):</p>
-
-      $$\operatorname{count}_{\mathrm{edges}} = \frac{11!\cdot 2^{12-1-5}}{2^2\cdot2!\;\cdot\;2^1} = \frac{39{,}916{,}800\cdot 64}{16} = 159{,}667{,}200$$
-
-      $$\operatorname{count}_{\mathrm{corners}} = 7!\cdot 3^{8-1-1} = 5040\cdot 729 = 3{,}674{,}160$$
 
       <h2>Parity & Sampling</h2>
 
@@ -86,9 +64,10 @@
       <p>To generate a scramble: if both parities are enabled, pick a pool in proportion to its total weight (so the joint distribution still matches the unfiltered scramble distribution); sample a configuration from that pool's CDF; instantiate a random permutation and orientation assignment matching the configuration; solve the resulting cube state with <a href="https://github.com/cs0x7f/min2phase.js" target="_blank">min2phase.js</a>.</p>
 
       <h2>Random Worked Example</h2>
+      <p>Each example shows the scramble, the memo notation (buffer letters omitted, cycles separated by space, flips/twists shown with +/-), and detailed statistics.</p>
       <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">Roll another</button>
       <div id="worked-example-output"></div>
-      <p id="worked-example-bug" style="font-size:0.85rem; color:var(--text-secondary); display:none;">If anything doesn't add up, please report the issue on GitHub.</p>
+      <p id="worked-example-bug" style="font-size:0.85rem; color:var(--text-secondary);">If anything doesn't add up, please report the issue on GitHub.</p>
       <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
     </div>
 
@@ -362,25 +341,24 @@
     <div class="card" id="bigbld">
       <h2>Bonus: Big BLD Statistics</h2>
 
-      <div class="skill-checkboxes" style="margin-bottom:1rem;">
-        <div class="setting-line"><span>Skill</span>
-          <div class="parity-checkbox-row tab-style">
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-basic" checked><label for="bigbld-skill-basic">Basic</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-naive"><label for="bigbld-skill-naive">Float plain 3-cycle only</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-full"><label for="bigbld-skill-full">Full floating</label></div>
-          </div>
-        </div>
-        <div class="setting-line"><span>Parity</span>
-          <div class="parity-checkbox-row tab-style">
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-both" checked><label for="bigbld-parity-both">Both</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-even"><label for="bigbld-parity-even">Even</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-odd"><label for="bigbld-parity-odd">Odd</label></div>
-          </div>
-        </div>
-      </div>
-
       <details>
         <summary id="bigbld-wing-algs-summary">Wing: Algs</summary>
+        <div class="skill-checkboxes" style="margin-bottom:1rem;">
+          <div class="setting-line"><span>Skill</span>
+            <div class="parity-checkbox-row tab-style">
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-basic" checked><label for="bigbld-skill-basic">Basic</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-naive"><label for="bigbld-skill-naive">Float plain 3-cycle only</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-full"><label for="bigbld-skill-full">Full floating</label></div>
+            </div>
+          </div>
+          <div class="setting-line"><span>Parity</span>
+            <div class="parity-checkbox-row tab-style">
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-both" checked><label for="bigbld-parity-both">Both</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-even"><label for="bigbld-parity-even">Even</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-odd"><label for="bigbld-parity-odd">Odd</label></div>
+            </div>
+          </div>
+        </div>
         <table data-stat="wing-algs">
           <tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>

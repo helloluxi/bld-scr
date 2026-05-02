@@ -23,6 +23,7 @@ const t = {
   mean: isZh ? '均值' : 'mean',
   std: isZh ? '标准差' : 'std',
   basic: isZh ? '基础' : 'Basic',
+  advanced: isZh ? '进阶' : 'Advanced',
   naiveFloat3: isZh ? '仅浮动纯三循环' : 'Float plain 3-cycle only',
   fullFloat: isZh ? '全浮动' : 'Full Floating',
   fullFloatParity: isZh ? '全浮动奇偶' : 'Full Floating Parity',
@@ -35,6 +36,8 @@ const t = {
   parityError: isZh ? '奇偶检查失败' : 'Parity check failed',
   reductionLogic: isZh ? '归约逻辑' : 'reduction logic',
   flipTwist: isZh ? '翻色' : 'Flip / Twist',
+  rawMemo: isZh ? '原始编码' : 'Raw Memo',
+  execution: isZh ? '执行' : 'Execution',
 };
 
 function edgeSkillLabel(s) {
@@ -499,29 +502,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Random worked example
   function rollExample() {
     const out = document.getElementById('worked-example-output');
-    const bugEl = document.getElementById('worked-example-bug');
-
-    // Weighted pick proportional to count
-    function pickWeighted(configs) {
-      let total = 0;
-      for (const cc of configs) total += cc.count;
-      let r = Math.random() * total;
-      for (const cc of configs) { r -= cc.count; if (r <= 0) return cc; }
-      return configs[configs.length - 1];
-    }
-
-    // Decide parity proportionally: weight = evenEdgeTotal*evenCornerTotal vs oddEdgeTotal*oddCornerTotal
-    let evenW = 0, oddW = 0;
-    for (const cc of cycler.evenEdges) evenW += cc.count;
-    for (const cc of cycler.oddEdges) oddW += cc.count;
-    const parity = Math.random() < evenW / (evenW + oddW) ? 0 : 1;
-    const eCC = pickWeighted(parity === 0 ? cycler.evenEdges : cycler.oddEdges);
-    const cCC = pickWeighted(parity === 0 ? cycler.evenCorners : cycler.oddCorners);
 
     function fmtHalf(v) { return Number.isInteger(v) ? String(v) : v.toFixed(1); }
 
     function fmtCycles(cycles) {
-      // Group secondaries by (perm, ori), show e.g. (2,1)*3
       const sec = cycles.slice(1);
       const groups = [];
       for (const c of sec) {
@@ -533,13 +517,24 @@ document.addEventListener('DOMContentLoaded', () => {
       return groups.map(g => g.n > 1 ? g.key + '*' + g.n : g.key).join(' + ');
     }
 
-    function configTitle(label, cc) {
+    function fmtConfig(cc) {
       const buf = cc.cycles[0];
       const secondary = fmtCycles(cc.cycles);
-      const cfgTitle = secondary
-        ? `(${buf.perm},${buf.ori}) + ${secondary}`
-        : `(${buf.perm},${buf.ori})`;
-      return `<h3>${label}: ${cfgTitle}</h3>`;
+      return secondary ? `(${buf.perm},${buf.ori}) + ${secondary}` : `(${buf.perm},${buf.ori})`;
+    }
+
+    function renderMemoSection(label, cc, memoData) {
+      const cfg = fmtConfig(cc);
+      let h = `<div class="memo-section" style="margin-bottom: 1.5rem;">`;
+      h += `<h3 style="margin-top: 0;">${label}: ${cfg}</h3>`;
+      h += `<div style="font-family: 'Consolas', monospace; line-height: 1.8;">`;
+      h += `<div>${t.rawMemo}: ${memoData.rawMemo}</div>`;
+      h += `<div>${t.execution} (${t.basic}): ${memoData.basicExec}</div>`;
+      h += `<div>${t.execution} (${t.advanced}): ${memoData.advancedExec}</div>`;
+      h += `<div>${t.execution} (${t.fullFloat}): ${memoData.floatingExec}</div>`;
+      h += `</div>`;
+      h += `</div>`;
+      return h;
     }
 
     function renderCombinedTable(eCC, cCC) {
@@ -562,17 +557,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let h = '';
 
-    // Generate scramble first
-    try {
-      const eRef = eCC, cRef = cCC;
-      scrambler.getProbabilityFromBoolFunction(x => x === eRef, x => x === cRef);
-      if (scrambler.isValid()) {
-        h += `<p><code>${scrambler.getScramble()}</code></p>`;
-        bugEl.style.display = '';
-      }
-    } catch (e) {}
+    // Generate scramble and get actual code strings
+    if (typeof scrambler.getScrambleAndCode === 'function') {
+      const { scramble, edgeCode: edgeCodeStr, cornerCode: cornerCodeStr, edgeCC: eCC, cornerCC: cCC } = scrambler.getScrambleAndCode();
 
-    h += configTitle(t.workedEdges, eCC) + configTitle(t.workedCorners, cCC) + renderCombinedTable(eCC, cCC);
+      h += `<p><code>${scramble}</code></p>`;
+      // Generate memo notation from code strings and cycle configs
+      if (window.Example && typeof Example.generateFullMemoFromCode === 'function') {
+        const memo = Example.generateFullMemoFromCode(edgeCodeStr, cornerCodeStr, eCC, cCC);        memo.edges.representation = edgeCodeStr;
+        memo.corners.representation = cornerCodeStr;        h += `<div class="memo-container" style="margin: 1rem 0;">`;
+        h += renderMemoSection(t.workedEdges, eCC, memo.edges);
+        h += renderMemoSection(t.workedCorners, cCC, memo.corners);
+        h += `</div>`;
+      }
+
+      h += renderCombinedTable(eCC, cCC);
+    } else {
+      h += '<p>Scramble generator not available.</p>';
+    }
+
     out.innerHTML = h;
   }
 
