@@ -203,14 +203,14 @@ function generateFullMemoFromCode(edgeCodeStr, cornerCodeStr, edgeCC, cornerCC) 
     edges: {
       rawMemo: edgeMemoParts.join(' '),
       basicExec: edgeExecParts.join(''),
-      advancedExec: '-',
-      floatingExec: '-'
+      advancedExec: 'TBD',
+      floatingExec: 'TBD'
     },
     corners: {
       rawMemo: cornerMemoParts.join(' '),
       basicExec: cornerExecParts.join(''),
-      advancedExec: '-',
-      floatingExec: '-'
+      advancedExec: 'TBD',
+      floatingExec: 'TBD'
     }
   };
 }

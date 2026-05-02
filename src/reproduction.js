@@ -164,7 +164,7 @@ function show4(name, rows, denom, fmt = k => k) {
   }
 }
 
-show4('Wing Algs',               tally4(c => c.algs2),   WT, k => `${k / 2}`);
+show4('Wing Algs',               tally4(c => c.algF3),   WT);
 show4('Wing Cycle Breaks',       tally4(c => c.breaks),  WT);
 show4('Solved Wings',            tally4(c => c.closed1), WT);
 show4('Float 2-Cycles in Wings', tally4(c => c.closed2), WT);

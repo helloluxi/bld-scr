@@ -364,17 +364,16 @@ function updateWingAlgsTable() {
   const bothChecked = document.getElementById('bigbld-parity-both').checked;
   const parity = evenChecked && !oddChecked ? 'even' : oddChecked && !evenChecked ? 'odd' : 'total';
 
-  const algKey = w => skill === 'full' ? w.algFullFloat2
-    : skill === 'naive' ? w.algs2
-    : w.algs2 + 2 * w.closed3;
+  const getAlg = w => skill === 'full' ? Math.ceil(w.algFF)
+    : skill === 'naive' ? w.algF3
+    : w.alg;
+  const isOdd = w => w.parity === 1;
 
   const m = new Map();
   for (const w of wings) {
-    const a2 = algKey(w);
-    const isOdd = a2 % 2 === 1;
-    if (parity === 'even' && isOdd) continue;
-    if (parity === 'odd' && !isOdd) continue;
-    const k = Math.ceil(a2 / 2);
+    if (parity === 'even' && isOdd(w)) continue;
+    if (parity === 'odd' && !isOdd(w)) continue;
+    const k = getAlg(w);
     m.set(k, (m.get(k) || 0n) + w.count);
   }
   const sorted = [...m].sort((a, b) => a[0] - b[0]);
@@ -729,9 +728,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const wingTotalNum = Number(wingTotal);
 
       const levels = [
-        { name: t.basic, fn: w => w.algs2 / 2 + 2 * w.closed3 },
-        { name: t.naiveFloat3, fn: w => w.algs2 / 2 },
-        { name: t.fullFloat, fn: w => w.algFullFloat2 / 2 },
+        { name: t.basic, fn: w => w.alg },
+        { name: t.naiveFloat3, fn: w => w.algF3 },
+        { name: t.fullFloat, fn: w => w.algFF },
       ];
 
       let baseMean = null;
@@ -751,7 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
       function bigBldSavedDist(fn) {
         const m = new Map();
         for (const w of wings) {
-          const basic = w.algs2 / 2 + 2 * w.closed3;
+          const basic = w.alg;
           const k = basic - fn(w);
           m.set(k, (m.get(k) || 0n) + w.count);
         }
