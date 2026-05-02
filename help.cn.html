@@ -9,6 +9,7 @@
   <title>原理说明</title>
   <script src="./src/theme.js"></script>
   <script src="./src/cycler.js"></script>
+  <script src="./src/cycler4.js"></script>
   <script src="./src/min2phase.js"></script>
   <script src="./src/scrambler.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
@@ -31,6 +32,7 @@
     <h1>原理说明</h1>
 
     <div class="card">
+      <p>如果有能力最好读英文版<a href="help.html" target="_blank">How It Works</a>，因为中文版是AI翻译的，以后慢慢修~</p>
       <p style="margin:0;">跳转：
         <a href="#overview">概览</a> ·
         <a href="#algs-card">公式统计</a> ·
@@ -39,13 +41,12 @@
         <a href="#bis">固定借位法</a> ·
         <a href="#ltct-t2c-card">LTCT &amp; T2C</a> ·
         <a href="#order-card">群元素阶</a> ·
-        <a href="#bigbld">Big BLD</a> ·
+        <a href="#bigbld">高盲</a> ·
         <a href="#repro">复现</a>
       </p>
     </div>
 
     <div class="card" id="overview">
-      <p>如果有能力最好读英文版<a href="help.html" target="_blank">How It Works</a>，因为中文版是AI翻译的，以后慢慢修~</p>
       <p>一个三盲状态可分解为 12 条棱块与 8 个角块的独立「置换-朝向」结构。本工具会穷举所有<em>循环配置</em>，并预计算每种配置可对应的不同打乱数量，从而给出任意筛选条件下的精确概率。</p>
 
       <h2>示例</h2>
@@ -133,6 +134,7 @@
         <p>阶段 2 结束后，最多剩余一个 2-cycle：$R = r_{20} + r_{21} + r_{22} \le 1$。每个贡献 $1.5$ 个公式。（同类配对的记账桶——计入 $r_{11}$ 还是 $r_{12}$——不会影响最终公式数，因为阶段 3 的翻角公式对 $r_{11}$ 与 $r_{12}$ 对称。）</p>
 
         <h3>阶段 3 - 统计剩余公式</h3>
+        <p>棱块 2 翻棱和 4 翻棱；角块 2 翻角和 3 翻角，各计为 1 个公式。</p>
         <ul>
           <li><strong>翻角公式</strong>：棱块为 $\lceil r_{11}/4\rceil$；角块为 $\lfloor r_{11}/3\rfloor + \lfloor r_{12}/3\rfloor + \lceil(r_{11} \bmod 3 + r_{12} \bmod 3)/3\rceil$。</li>
           <li><strong>残余 2-cycle</strong>：共 $1.5\,R$ 个公式。</li>
@@ -150,19 +152,22 @@
 
       <div class="skill-checkboxes" style="margin-bottom:1rem;">
         <div class="setting-line"><span>棱块</span>
-          <div class="parity-checkbox-row">
+          <div class="parity-checkbox-row tab-style">
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-edge" checked><label for="h-skill-basic-edge">基础</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">仅浮动纯三循环</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-edge"><label for="h-skill-fullfloat-edge">全浮动</label></div>
           </div>
         </div>
         <div class="setting-line"><span>角块</span>
-          <div class="parity-checkbox-row">
+          <div class="parity-checkbox-row tab-style">
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-corner" checked><label for="h-skill-basic-corner">基础</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">仅浮动纯三循环</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-corner"><label for="h-skill-fullfloat-corner">全浮动</label></div>
           </div>
         </div>
         <div class="setting-line"><span>奇偶</span>
-          <div class="parity-checkbox-row">
+          <div class="parity-checkbox-row tab-style">
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-parity" checked><label for="h-skill-basic-parity">基础</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-parity"><label for="h-skill-fullfloat-parity">全浮动奇偶</label></div>
           </div>
         </div>
@@ -230,7 +235,7 @@
       </details>
 
       <details>
-        <summary>浮动 3-Cycle（不含缓冲）</summary>
+        <summary>浮动纯三循环（不含缓冲）</summary>
         <table data-stat="edge-float3">
           <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tbody></tbody>
@@ -260,7 +265,7 @@
       </details>
 
       <details>
-        <summary>浮动 3-Cycle（不含缓冲）</summary>
+        <summary>浮动纯三循环（不含缓冲）</summary>
         <table data-stat="corner-float3">
           <tr><th>数量</th><th>计数</th><th>概率</th></tr>
           <tbody></tbody>
@@ -356,165 +361,85 @@
     </div>
 
     <div class="card" id="bigbld">
-      <h2>附：Big BLD 统计</h2>
+      <h2>附：高盲统计</h2>
+
+      <div class="skill-checkboxes" style="margin-bottom:1rem;">
+        <div class="setting-line"><span>技巧</span>
+          <div class="parity-checkbox-row tab-style">
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-basic" checked><label for="bigbld-skill-basic">基础</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-naive"><label for="bigbld-skill-naive">仅浮动纯三循环</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-full"><label for="bigbld-skill-full">全浮动</label></div>
+          </div>
+        </div>
+        <div class="setting-line"><span>奇偶</span>
+          <div class="parity-checkbox-row tab-style">
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-both" checked><label for="bigbld-parity-both">两者</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-even"><label for="bigbld-parity-even">仅偶</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-odd"><label for="bigbld-parity-odd">仅奇</label></div>
+          </div>
+        </div>
+      </div>
 
       <details>
-        <summary>翼棱公式分布</summary>
-        <table>
-          <tr><th>公式</th><th>计数</th><th>概率</th></tr>
-          <tr><td>0</td><td>1</td><td>0.0000</td></tr>
-          <tr><td>0.5</td><td>23</td><td>0.0000</td></tr>
-          <tr><td>1</td><td>4048</td><td>0.0000</td></tr>
-          <tr><td>1.5</td><td>81719</td><td>0.0000</td></tr>
-          <tr><td>2</td><td>5601673</td><td>0.0000</td></tr>
-          <tr><td>2.5</td><td>97741490</td><td>0.0000</td></tr>
-          <tr><td>3</td><td>3429330751</td><td>0.0000</td></tr>
-          <tr><td>3.5</td><td>50866755863</td><td>0.0000</td></tr>
-          <tr><td>4</td><td>1031688021298</td><td>0.0000</td></tr>
-          <tr><td>4.5</td><td>12819836019089</td><td>0.0000</td></tr>
-          <tr><td>5</td><td>167829676060453</td><td>0.0000</td></tr>
-          <tr><td>5.5</td><td>1735175012658560</td><td>0.0000</td></tr>
-          <tr><td>6</td><td>16739322673026226</td><td>0.0000</td></tr>
-          <tr><td>6.5</td><td>143861278565939438</td><td>0.0000</td></tr>
-          <tr><td>7</td><td>1121812217325379888</td><td>0.0000</td></tr>
-          <tr><td>7.5</td><td>7898904607165148654</td><td>0.0000</td></tr>
-          <tr><td>8</td><td>49698003528034271938</td><td>0.0001</td></tr>
-          <tr><td>8.5</td><td>276058482262564058420</td><td>0.0004</td></tr>
-          <tr><td>9</td><td>1332665348212783702326</td><td>0.0021</td></tr>
-          <tr><td>9.5</td><td>5478875096568082590678</td><td>0.0088</td></tr>
-          <tr><td>10</td><td>18678549414599082242388</td><td>0.0301</td></tr>
-          <tr><td>10.5</td><td>50940093837362748215274</td><td>0.0821</td></tr>
-          <tr><td>11</td><td>105746544932495097005298</td><td>0.1704</td></tr>
-          <tr><td>11.5</td><td>156007083933041171735520</td><td>0.2514</td></tr>
-          <tr><td>12</td><td>150237171433661433024861</td><td>0.2421</td></tr>
-          <tr><td>12.5</td><td>89846678630542887096363</td><td>0.1448</td></tr>
-          <tr><td>13</td><td>33083280599751977351328</td><td>0.0533</td></tr>
-          <tr><td>13.5</td><td>7567204707993518672139</td><td>0.0122</td></tr>
-          <tr><td>14</td><td>1089248351431363367013</td><td>0.0018</td></tr>
-          <tr><td>14.5</td><td>99937471630913234010</td><td>0.0002</td></tr>
-          <tr><td>15</td><td>5898720783297777435</td><td>0.0000</td></tr>
-          <tr><td>15.5</td><td>224123398544080035</td><td>0.0000</td></tr>
-          <tr><td>16</td><td>5341435619369850</td><td>0.0000</td></tr>
-          <tr><td>16.5</td><td>69887745652725</td><td>0.0000</td></tr>
-          <tr><td>17</td><td>316234143225</td><td>0.0000</td></tr>
+        <summary id="bigbld-wing-algs-summary">翼棱：公式</summary>
+        <table data-stat="wing-algs">
+          <tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <tbody></tbody>
         </table>
+        <p id="bigbld-wing-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">翼棱奇偶计为 1 个公式。</p>
+      </details>
+
+      <details>
+        <summary>翼棱：节省公式统计</summary>
+        <p>按技巧等级统计的平均翼棱公式数（在所有 4x4x4 翼棱状态上计算）：</p>
+        <table id="bigbld-saved-algs-table">
+          <thead><tr><th>技巧等级</th><th>均值</th><th>节省</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p style="margin-top:1rem;">每把节省公式数的分布（相对基础）：</p>
+        <table id="bigbld-saved-algs-dist-table"></table>
       </details>
 
       <details>
         <summary>翼棱小循环</summary>
-        <table>
+        <table data-stat="wing-breaks">
           <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
-          <tr><td>0</td><td>70273067330330098091156</td><td>0.1133</td></tr>
-          <tr><td>1</td><td>189019970161389580884524</td><td>0.3047</td></tr>
-          <tr><td>2</td><td>201253771471008242664284</td><td>0.3244</td></tr>
-          <tr><td>3</td><td>113378533305062196308324</td><td>0.1827</td></tr>
-          <tr><td>4</td><td>37698946270548915619784</td><td>0.0608</td></tr>
-          <tr><td>5</td><td>7747136939402310371768</td><td>0.0125</td></tr>
-          <tr><td>6</td><td>994791387564031284920</td><td>0.0016</td></tr>
-          <tr><td>7</td><td>78471397371278791880</td><td>0.0001</td></tr>
-          <tr><td>8</td><td>3623440897443026660</td><td>0.0000</td></tr>
-          <tr><td>9</td><td>89060442830459100</td><td>0.0000</td></tr>
-          <tr><td>10</td><td>966270993187500</td><td>0.0000</td></tr>
-          <tr><td>11</td><td>2951518670100</td><td>0.0000</td></tr>
+          <tbody></tbody>
         </table>
       </details>
 
       <details>
         <summary>已还原翼棱（不含缓冲）</summary>
-        <table>
+        <table data-stat="wing-solved">
           <tr><th>数量</th><th>计数</th><th>概率</th></tr>
-          <tr><td>0</td><td>237760636776394448431551</td><td>0.3832</td></tr>
-          <tr><td>1</td><td>228250211305338670494289</td><td>0.3679</td></tr>
-          <tr><td>2</td><td>109369892917141446278513</td><td>0.1763</td></tr>
-          <tr><td>3</td><td>34871560060537852436631</td><td>0.0562</td></tr>
-          <tr><td>4</td><td>8321622287173805695085</td><td>0.0134</td></tr>
-          <tr><td>5</td><td>1585070911842629656291</td><td>0.0026</td></tr>
-          <tr><td>6</td><td>250969561041749695299</td><td>0.0004</td></tr>
-          <tr><td>7</td><td>33965805253770636213</td><td>0.0001</td></tr>
-          <tr><td>8</td><td>4009852009125698406</td><td>0.0000</td></tr>
-          <tr><td>9</td><td>419330929058899770</td><td>0.0000</td></tr>
-          <tr><td>10</td><td>39312274599266746</td><td>0.0000</td></tr>
-          <tr><td>11</td><td>3335586935702294</td><td>0.0000</td></tr>
-          <tr><td>12</td><td>258110893826058</td><td>0.0000</td></tr>
-          <tr><td>13</td><td>18327400753046</td><td>0.0000</td></tr>
-          <tr><td>14</td><td>1200008375830</td><td>0.0000</td></tr>
-          <tr><td>15</td><td>72727785306</td><td>0.0000</td></tr>
-          <tr><td>16</td><td>4090934859</td><td>0.0000</td></tr>
-          <tr><td>17</td><td>213906693</td><td>0.0000</td></tr>
-          <tr><td>18</td><td>10397541</td><td>0.0000</td></tr>
-          <tr><td>19</td><td>469315</td><td>0.0000</td></tr>
-          <tr><td>20</td><td>19481</td><td>0.0000</td></tr>
-          <tr><td>21</td><td>759</td><td>0.0000</td></tr>
-          <tr><td>22</td><td>23</td><td>0.0000</td></tr>
-          <tr><td>23</td><td>1</td><td>0.0000</td></tr>
+          <tbody></tbody>
         </table>
       </details>
 
       <details>
-        <summary>翼棱中的浮动二循环（不含缓冲）</summary>
-        <table>
+        <summary>翼棱浮动二循环（不含缓冲）</summary>
+        <table data-stat="wing-float2">
           <tr><th>数量</th><th>计数</th><th>概率</th></tr>
-          <tr><td>0</td><td>392001019188447730411350</td><td>0.6318</td></tr>
-          <tr><td>1</td><td>180320468826698605354950</td><td>0.2906</td></tr>
-          <tr><td>2</td><td>41160107014714277840250</td><td>0.0663</td></tr>
-          <tr><td>3</td><td>6206682804082198688250</td><td>0.0100</td></tr>
-          <tr><td>4</td><td>694168470822632305500</td><td>0.0011</td></tr>
-          <tr><td>5</td><td>61250160417964818300</td><td>0.0001</td></tr>
-          <tr><td>6</td><td>4423621073517746100</td><td>0.0000</td></tr>
-          <tr><td>7</td><td>267363318731008500</td><td>0.0000</td></tr>
-          <tr><td>8</td><td>13670802011616750</td><td>0.0000</td></tr>
-          <tr><td>9</td><td>591357847830750</td><td>0.0000</td></tr>
-          <tr><td>10</td><td>20871453452850</td><td>0.0000</td></tr>
-          <tr><td>11</td><td>632468286450</td><td>0.0000</td></tr>
+          <tbody></tbody>
         </table>
       </details>
 
       <details>
-        <summary>翼棱中的浮动三循环（不含缓冲）</summary>
-        <table>
+        <summary>翼棱浮动三循环（不含缓冲）</summary>
+        <table data-stat="wing-float3">
           <tr><th>数量</th><th>计数</th><th>概率</th></tr>
-          <tr><td>0</td><td>463094485862053613568000</td><td>0.7464</td></tr>
-          <tr><td>1</td><td>135841049280018001920000</td><td>0.2189</td></tr>
-          <tr><td>2</td><td>19552877932326875136000</td><td>0.0315</td></tr>
-          <tr><td>3</td><td>1829509910390722560000</td><td>0.0029</td></tr>
-          <tr><td>4</td><td>123871784214097920000</td><td>0.0002</td></tr>
-          <tr><td>5</td><td>6353662092890112000</td><td>0.0000</td></tr>
-          <tr><td>6</td><td>246265972592640000</td><td>0.0000</td></tr>
-          <tr><td>7</td><td>7036170645504000</td><td>0.0000</td></tr>
+          <tbody></tbody>
         </table>
       </details>
 
       <details>
-        <summary>未还原角心/棱心(5BLD)</summary>
-        <table>
+        <summary>未还原角心/棱心</summary>
+        <table data-stat="wing-centers">
           <tr><th>数量</th><th>计数</th><th>概率</th></tr>
-          <tr><td>0</td><td>1</td><td>0.0000</td></tr>
-          <tr><td>1</td><td>0</td><td>0.0000</td></tr>
-          <tr><td>2</td><td>240</td><td>0.0000</td></tr>
-          <tr><td>3</td><td>2560</td><td>0.0000</td></tr>
-          <tr><td>4</td><td>46620</td><td>0.0000</td></tr>
-          <tr><td>5</td><td>581376</td><td>0.0000</td></tr>
-          <tr><td>6</td><td>6629680</td><td>0.0000</td></tr>
-          <tr><td>7</td><td>64154880</td><td>0.0000</td></tr>
-          <tr><td>8</td><td>539147295</td><td>0.0000</td></tr>
-          <tr><td>9</td><td>3927917440</td><td>0.0000</td></tr>
-          <tr><td>10</td><td>24886550016</td><td>0.0000</td></tr>
-          <tr><td>11</td><td>137209752960</td><td>0.0000</td></tr>
-          <tr><td>12</td><td>658128223120</td><td>0.0002</td></tr>
-          <tr><td>13</td><td>2741884721280</td><td>0.0008</td></tr>
-          <tr><td>14</td><td>9892350759360</td><td>0.0030</td></tr>
-          <tr><td>15</td><td>30763384990336</td><td>0.0095</td></tr>
-          <tr><td>16</td><td>81910672955415</td><td>0.0252</td></tr>
-          <tr><td>17</td><td>185000621132160</td><td>0.0570</td></tr>
-          <tr><td>18</td><td>349913277503440</td><td>0.1078</td></tr>
-          <tr><td>19</td><td>544438016772480</td><td>0.1677</td></tr>
-          <tr><td>20</td><td>679274481651396</td><td>0.2092</td></tr>
-          <tr><td>21</td><td>654044867816320</td><td>0.2015</td></tr>
-          <tr><td>22</td><td>456702275019600</td><td>0.1407</td></tr>
-          <tr><td>23</td><td>206032439164800</td><td>0.0635</td></tr>
-          <tr><td>24</td><td>45131501617225</td><td>0.0139</td></tr>
+          <tbody></tbody>
         </table>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">均值：20</p>
+        <p id="bigbld-centers-mean" style="font-size:0.85rem; color:var(--text-secondary);"></p>
       </details>
     </div>
 
@@ -525,6 +450,7 @@
 cd bld-scr
 node src/reproduction.js</code></pre>
       <p style="font-size:0.85rem; color:var(--text-secondary);">需要 Node.js &ge; 14（支持 BigInt）。</p>
+      <p id="all-timing">所有表格均为运行时生成。3BLD: <code id="timing-3bld">--</code>。Big BLD: <code id="timing-bigbld">--</code>。</p>
     </div>
 
     <footer>

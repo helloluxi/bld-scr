@@ -38,20 +38,22 @@ const t = {
 };
 
 function edgeSkillLabel(s) {
-  if (s.fullParity) return t.fullFloatParity;
-  if (s.fullEdge) return t.fullFloat;
+  if (s.basicEdge) return t.basic;
   if (s.naiveEdge) return t.naiveFloat3;
+  if (s.fullEdge) return t.fullFloat;
   return t.basic;
 }
 function cornerSkillLabel(s) {
-  if (s.fullParity) return t.fullFloatParity;
-  if (s.fullCorner) return t.fullFloat;
+  if (s.basicCorner) return t.basic;
   if (s.naiveCorner) return t.naiveFloat3;
+  if (s.fullCorner) return t.fullFloat;
   return t.basic;
 }
 function totalSkillLabel(s) {
   const e = edgeSkillLabel(s), c = cornerSkillLabel(s);
-  return e === c ? e : `${e} + ${c}`;
+  const parityLabel = s.basicParity ? '' : s.fullParity ? ` + ${t.fullFloatParity}` : '';
+  const base = e === c ? e : `${e} + ${c}`;
+  return base + parityLabel;
 }
 
 function getHelpSkills() {
@@ -61,6 +63,9 @@ function getHelpSkills() {
     naiveCorner: document.getElementById('h-skill-naive-corner').checked,
     fullCorner:  document.getElementById('h-skill-fullfloat-corner').checked,
     fullParity:  document.getElementById('h-skill-fullfloat-parity').checked,
+    basicEdge:   document.getElementById('h-skill-basic-edge').checked,
+    basicCorner: document.getElementById('h-skill-basic-corner').checked,
+    basicParity: document.getElementById('h-skill-basic-parity').checked,
   };
 }
 
@@ -247,18 +252,16 @@ function updateAlgsSection() {
   const edgeDist = tallyByAlg([...cycler.evenEdges, ...cycler.oddEdges], edgeAlgH, skills);
   const edgeRows = distToRows(edgeDist, eT);
   const es = meanStd(edgeRows);
-  document.getElementById('edge-algs-summary').textContent = `${t.edge} ${t.alg} (${eLabel})`;
   renderTable(document.getElementById('edge-algs-table'), edgeRows);
-  renderChart(document.getElementById('edge-algs-chart'), edgeRows, `${t.edge} ${t.alg} (${eLabel})`);
+  renderChart(document.getElementById('edge-algs-chart'), edgeRows, '');
   document.getElementById('edge-algs-stats').textContent = `${t.edge}${t.mean} (${eLabel.toLowerCase()}): ${es.mean.toFixed(2)}, ${t.std}: ${es.std.toFixed(2)}`;
 
   // Corner
   const cornerDist = tallyByAlg([...cycler.evenCorners, ...cycler.oddCorners], cornerAlgH, skills);
   const cornerRows = distToRows(cornerDist, cT);
   const cs = meanStd(cornerRows);
-  document.getElementById('corner-algs-summary').textContent = `${t.corner} ${t.alg} (${cLabel})`;
   renderTable(document.getElementById('corner-algs-table'), cornerRows);
-  renderChart(document.getElementById('corner-algs-chart'), cornerRows, `${t.corner} ${t.alg} (${cLabel})`);
+  renderChart(document.getElementById('corner-algs-chart'), cornerRows, '');
   document.getElementById('corner-algs-stats').textContent = `${t.corner}${t.mean} (${cLabel.toLowerCase()}): ${cs.mean.toFixed(2)}, ${t.std}: ${cs.std.toFixed(2)}`;
 
   // Total (convolve edge+corner with parity matching)
@@ -288,13 +291,114 @@ function updateAlgsSection() {
   }
   const totalRows = distToRows([...totalDist].sort((a, b) => a[0] - b[0]), totalWeight);
   const ts = meanStd(totalRows);
-  document.getElementById('total-algs-summary').textContent = `${t.total} ${t.alg} (${tLabel})`;
   renderTable(document.getElementById('total-algs-table'), totalRows);
-  renderChart(document.getElementById('total-algs-chart'), totalRows, `${t.total} ${t.alg} (${tLabel})`);
+  renderChart(document.getElementById('total-algs-chart'), totalRows, '');
   document.getElementById('total-algs-stats').textContent = `${t.total}${t.mean} (${tLabel.toLowerCase()}): ${ts.mean.toFixed(2)}, ${t.std}: ${ts.std.toFixed(2)}`;
 }
 
+function populateBigBldTables() {
+  if (typeof cycler4 === 'undefined') return 0;
+  const t0 = performance.now();
+
+  const { wings, centers } = cycler4;
+
+  let wingTotal = 0n;
+  for (const w of wings) wingTotal += w.count;
+  const wingTotalNum = Number(wingTotal);
+
+  function tallyBigInt(keyFn) {
+    const m = new Map();
+    for (const w of wings) {
+      const k = keyFn(w);
+      m.set(k, (m.get(k) || 0n) + w.count);
+    }
+    return [...m].sort((a, b) => a[0] - b[0]);
+  }
+
+  function fillBigBld(stat, rows, fmtLabel) {
+    const tbody = lastTbody(stat);
+    if (!tbody) return;
+    tbody.innerHTML = rows.map(([k, v]) =>
+      `<tr><td>${fmtLabel ? fmtLabel(k) : k}</td><td>${v}</td><td>${(Number(v) / wingTotalNum).toFixed(4)}</td></tr>`
+    ).join('');
+  }
+
+  fillBigBld('wing-breaks', tallyBigInt(w => w.breaks));
+  fillBigBld('wing-solved', tallyBigInt(w => w.closed1));
+  fillBigBld('wing-float2', tallyBigInt(w => w.closed2));
+  fillBigBld('wing-float3', tallyBigInt(w => w.closed3));
+
+  const centerData = centers();
+  const centerTotal = centerData.reduce((s, [, c]) => s + c, 0);
+  const centerTbody = lastTbody('wing-centers');
+  if (centerTbody) {
+    let meanC = 0;
+    centerTbody.innerHTML = centerData.map(([u, c]) => {
+      const p = c / centerTotal;
+      meanC += u * p;
+      return `<tr><td>${u}</td><td>${c}</td><td>${p.toFixed(4)}</td></tr>`;
+    }).join('');
+    const meanEl = document.getElementById('bigbld-centers-mean');
+    if (meanEl) meanEl.textContent = `Mean: ${Math.round(meanC)}`;
+  }
+
+  updateWingAlgsTable();
+
+  const elapsed = performance.now() - t0;
+  const timingEl = document.getElementById('bigbld-timing');
+  if (timingEl) timingEl.textContent = `Computed in ${elapsed.toFixed(0)} ms`;
+  return elapsed;
+}
+
+function updateWingAlgsTable() {
+  if (typeof cycler4 === 'undefined') return;
+  const { wings } = cycler4;
+
+  const skill = document.getElementById('bigbld-skill-full').checked ? 'full'
+    : document.getElementById('bigbld-skill-naive').checked ? 'naive' : 'basic';
+  const evenChecked = document.getElementById('bigbld-parity-even').checked;
+  const oddChecked = document.getElementById('bigbld-parity-odd').checked;
+  const bothChecked = document.getElementById('bigbld-parity-both').checked;
+  const parity = evenChecked && !oddChecked ? 'even' : oddChecked && !evenChecked ? 'odd' : 'total';
+
+  const algKey = w => skill === 'full' ? w.algFullFloat2
+    : skill === 'naive' ? w.algs2
+    : w.algs2 + 2 * w.closed3;
+
+  const m = new Map();
+  for (const w of wings) {
+    const a2 = algKey(w);
+    const isOdd = a2 % 2 === 1;
+    if (parity === 'even' && isOdd) continue;
+    if (parity === 'odd' && !isOdd) continue;
+    const k = Math.ceil(a2 / 2);
+    m.set(k, (m.get(k) || 0n) + w.count);
+  }
+  const sorted = [...m].sort((a, b) => a[0] - b[0]);
+
+  let total = 0n;
+  for (const [, v] of sorted) total += v;
+  const totalNum = Number(total);
+
+  const tbody = lastTbody('wing-algs');
+  if (!tbody) return;
+  let cum = 0;
+  tbody.innerHTML = sorted.map(([k, v]) => {
+    const p = Number(v) / totalNum;
+    cum += p;
+    return `<tr><td>${k}</td><td>${v}</td><td>${p.toFixed(4)}</td><td>${cum.toFixed(4)}</td></tr>`;
+  }).join('');
+
+  let mean = 0, variance = 0;
+  for (const [k, v] of sorted) { const p = Number(v) / totalNum; mean += k * p; }
+  for (const [k, v] of sorted) { const p = Number(v) / totalNum; variance += Math.pow(k - mean, 2) * p; }
+  const statsEl = document.getElementById('bigbld-wing-algs-stats');
+  if (statsEl) statsEl.textContent = `${t.mean}: ${mean.toFixed(2)}, ${t.std}: ${Math.sqrt(variance).toFixed(2)}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  let t3bld = 0, tBigBld = 0;
+
   // Self-test
   const test = cycler.selfTest();
   if (test.errors > 0) {
@@ -303,20 +407,77 @@ document.addEventListener('DOMContentLoaded', () => {
     errEl.textContent = `${t.parityError}: ${test.errors} ${isZh ? '处' : ''}${t.reductionLogic}${isZh ? '错误。' : ' errors.'}`;
   }
 
-  // Wire up skill checkboxes
-  document.querySelectorAll('.skill-checkboxes input[type="checkbox"]').forEach(cb => {
+  // Wire up 3BLD skill checkboxes (row-exclusive)
+  document.querySelectorAll('#algs-card .skill-checkboxes input[type="checkbox"]').forEach(cb => {
     cb.addEventListener('change', () => {
-      if (cb.id === 'h-skill-fullfloat-parity' && cb.checked) {
-        ['h-skill-fullfloat-edge', 'h-skill-fullfloat-corner',
-         'h-skill-naive-edge', 'h-skill-naive-corner'].forEach(id =>
-          document.getElementById(id).checked = true);
+      // Row-exclusive behavior: only one checked per row
+      if (cb.checked) {
+        cb.closest('.parity-checkbox-row').querySelectorAll('input[type="checkbox"]').forEach(o => { if (o !== cb) o.checked = false; });
+      } else {
+        // Ensure at least one is always checked (re-check Basic if nothing is)
+        const row = cb.closest('.parity-checkbox-row');
+        const anyChecked = row.querySelector('input[type="checkbox"]:checked');
+        if (!anyChecked) {
+          const basicCb = row.querySelector('input[type="checkbox"][id*="-basic"]');
+          if (basicCb) basicCb.checked = true;
+        }
       }
+      // When Full Floating Parity is checked, auto-check full floating for edge/corner and uncheck others
+      if (cb.id === 'h-skill-fullfloat-parity' && cb.checked) {
+        document.getElementById('h-skill-fullfloat-edge').checked = true;
+        document.getElementById('h-skill-naive-edge').checked = false;
+        document.getElementById('h-skill-basic-edge').checked = false;
+        document.getElementById('h-skill-fullfloat-corner').checked = true;
+        document.getElementById('h-skill-naive-corner').checked = false;
+        document.getElementById('h-skill-basic-corner').checked = false;
+      }
+      // Uncheck Full Floating Parity if either edge or corner is not full floating
+      const pCb = document.getElementById('h-skill-fullfloat-parity');
+      if (pCb.checked && (!document.getElementById('h-skill-fullfloat-edge').checked || !document.getElementById('h-skill-fullfloat-corner').checked))
+        pCb.checked = false;
       updateAlgsSection();
     });
   });
 
   // Populate static data tables from cycler.js (must run before chart parsing)
+  const t0 = performance.now();
   populateStaticTables();
+  updateAlgsSection();
+  t3bld = performance.now() - t0;
+
+  // Populate Big BLD tables from cycler4.js
+  tBigBld = populateBigBldTables();
+
+  // Wire up Big BLD skill checkboxes
+  document.querySelectorAll('#bigbld .skill-checkboxes input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      // Skill row: exclusive (always one checked)
+      if (cb.id.includes('skill')) {
+        if (cb.checked) {
+          cb.closest('.parity-checkbox-row').querySelectorAll('input[type="checkbox"]').forEach(o => { if (o !== cb) o.checked = false; });
+        } else {
+          // Ensure at least one is always checked
+          const row = cb.closest('.parity-checkbox-row');
+          const anyChecked = row.querySelector('input[type="checkbox"]:checked');
+          if (!anyChecked) {
+            const basicCb = row.querySelector('input[type="checkbox"][id*="basic"]');
+            if (basicCb) basicCb.checked = true;
+          }
+        }
+      }
+      // Parity row: non-exclusive, "Both" option available
+      // When "Both" is checked, uncheck individual parities
+      if (cb.id === 'bigbld-parity-both' && cb.checked) {
+        document.getElementById('bigbld-parity-even').checked = false;
+        document.getElementById('bigbld-parity-odd').checked = false;
+      }
+      // When individual parity is checked, uncheck "Both"
+      if ((cb.id === 'bigbld-parity-even' || cb.id === 'bigbld-parity-odd') && cb.checked) {
+        document.getElementById('bigbld-parity-both').checked = false;
+      }
+      updateWingAlgsTable();
+    });
+  });
 
   // Static charts (non-algs)
   document.querySelectorAll('.help-chart').forEach(mount => {
@@ -555,6 +716,70 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       html += '</tbody>';
       tableEl.innerHTML = html;
+    }
+
+    // Big BLD saved-alg statistics
+    if (typeof cycler4 !== 'undefined') {
+      const { wings } = cycler4;
+      let wingTotal = 0n;
+      for (const w of wings) wingTotal += w.count;
+      const wingTotalNum = Number(wingTotal);
+
+      const levels = [
+        { name: t.basic, fn: w => w.algs2 / 2 + 2 * w.closed3 },
+        { name: t.naiveFloat3, fn: w => w.algs2 / 2 },
+        { name: t.fullFloat, fn: w => w.algFullFloat2 / 2 },
+      ];
+
+      let baseMean = null;
+      const bigBldTbody = document.querySelector('#bigbld-saved-algs-table tbody');
+      if (bigBldTbody) {
+        for (const lv of levels) {
+          let sum = 0;
+          for (const w of wings) sum += lv.fn(w) * Number(w.count);
+          const mean = sum / wingTotalNum;
+          if (baseMean === null) baseMean = mean;
+          const saved = baseMean - mean;
+          bigBldTbody.innerHTML += `<tr><td>${lv.name}</td><td>${mean.toFixed(2)}</td><td>${saved.toFixed(2)}</td></tr>`;
+        }
+      }
+
+      // Saved distribution for Big BLD
+      function bigBldSavedDist(fn) {
+        const m = new Map();
+        for (const w of wings) {
+          const basic = w.algs2 / 2 + 2 * w.closed3;
+          const k = basic - fn(w);
+          m.set(k, (m.get(k) || 0n) + w.count);
+        }
+        const out = new Map();
+        for (const [k, v] of m) out.set(k, Number(v) / wingTotalNum);
+        return out;
+      }
+
+      const bigBldDistEl = document.getElementById('bigbld-saved-algs-dist-table');
+      if (bigBldDistEl) {
+        const dists = levels.slice(1).map(lv => ({ name: lv.name, dist: bigBldSavedDist(lv.fn) }));
+        const keys = new Set();
+        for (const d of dists) for (const k of d.dist.keys()) keys.add(k);
+        const sorted = [...keys].sort((a, b) => a - b);
+        let html = `<thead><tr><th>${isZh ? '节省' : 'Saved'}</th>` +
+          dists.map(d => `<th>${d.name}</th>`).join('') + `</tr></thead><tbody>`;
+        for (const k of sorted) {
+          html += `<tr><td>${k}</td>` +
+            dists.map(d => `<td>${(d.dist.get(k) || 0).toFixed(4)}</td>`).join('') + `</tr>`;
+        }
+        html += '</tbody>';
+        bigBldDistEl.innerHTML = html;
+      }
+    }
+
+    // Display combined timing
+    const timing3bldEl = document.getElementById('timing-3bld');
+    const timingBigbldEl = document.getElementById('timing-bigbld');
+    if (timing3bldEl && timingBigbldEl && t3bld > 0 && tBigBld > 0) {
+      timing3bldEl.textContent = `${t3bld.toFixed(0)} ms`;
+      timingBigbldEl.textContent = `${tBigBld.toFixed(0)} ms`;
     }
   })();
 });

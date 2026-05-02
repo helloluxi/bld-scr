@@ -9,6 +9,7 @@
   <title>3BLD Scrambler — How It Works</title>
   <script src="./src/theme.js"></script>
   <script src="./src/cycler.js"></script>
+  <script src="./src/cycler4.js"></script>
   <script src="./src/min2phase.js"></script>
   <script src="./src/scrambler.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
@@ -132,6 +133,7 @@
         <p>After Phase 2, at most one residual 2-cycle remains: $R = r_{20} + r_{21} + r_{22} \le 1$. Each contributes $1.5$ algs. (The bookkeeping bucket — $r_{11}$ vs $r_{12}$ — for same-type pairings doesn't affect the final alg count, since the Phase-3 twist formula is symmetric in $r_{11}$ and $r_{12}$.)</p>
 
         <h3>Phase 3 — Count remaining algs</h3>
+        <p>Edge 2-flip and 4-flip; corner 2-twist and 3-twist each count as 1 alg.</p>
         <ul>
           <li><strong>Twist algs</strong>: edges $\lceil r_{11}/4\rceil$; corners $\lfloor r_{11}/3\rfloor + \lfloor r_{12}/3\rfloor + \lceil(r_{11} \bmod 3 + r_{12} \bmod 3)/3\rceil$.</li>
           <li><strong>Residual 2-cycles</strong>: $1.5\,R$ algs.</li>
@@ -149,19 +151,22 @@
 
       <div class="skill-checkboxes" style="margin-bottom:1rem;">
         <div class="setting-line"><span>Edge</span>
-          <div class="parity-checkbox-row">
+          <div class="parity-checkbox-row tab-style">
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-edge" checked><label for="h-skill-basic-edge">Basic</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">Float plain 3-cycle only</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-edge"><label for="h-skill-fullfloat-edge">Full floating</label></div>
           </div>
         </div>
         <div class="setting-line"><span>Corner</span>
-          <div class="parity-checkbox-row">
+          <div class="parity-checkbox-row tab-style">
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-corner" checked><label for="h-skill-basic-corner">Basic</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">Float plain 3-cycle only</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-corner"><label for="h-skill-fullfloat-corner">Full floating</label></div>
           </div>
         </div>
         <div class="setting-line"><span>Parity</span>
-          <div class="parity-checkbox-row">
+          <div class="parity-checkbox-row tab-style">
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-parity" checked><label for="h-skill-basic-parity">Basic</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-parity"><label for="h-skill-fullfloat-parity">Full floating parity</label></div>
           </div>
         </div>
@@ -357,163 +362,83 @@
     <div class="card" id="bigbld">
       <h2>Bonus: Big BLD Statistics</h2>
 
+      <div class="skill-checkboxes" style="margin-bottom:1rem;">
+        <div class="setting-line"><span>Skill</span>
+          <div class="parity-checkbox-row tab-style">
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-basic" checked><label for="bigbld-skill-basic">Basic</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-naive"><label for="bigbld-skill-naive">Float plain 3-cycle only</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-full"><label for="bigbld-skill-full">Full floating</label></div>
+          </div>
+        </div>
+        <div class="setting-line"><span>Parity</span>
+          <div class="parity-checkbox-row tab-style">
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-both" checked><label for="bigbld-parity-both">Both</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-even"><label for="bigbld-parity-even">Even</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="bigbld-parity-odd"><label for="bigbld-parity-odd">Odd</label></div>
+          </div>
+        </div>
+      </div>
+
       <details>
-        <summary>Wing Algs</summary>
-        <table>
-          <tr><th>Algs</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>1</td><td>0.0000</td></tr>
-          <tr><td>0.5</td><td>23</td><td>0.0000</td></tr>
-          <tr><td>1</td><td>4048</td><td>0.0000</td></tr>
-          <tr><td>1.5</td><td>81719</td><td>0.0000</td></tr>
-          <tr><td>2</td><td>5601673</td><td>0.0000</td></tr>
-          <tr><td>2.5</td><td>97741490</td><td>0.0000</td></tr>
-          <tr><td>3</td><td>3429330751</td><td>0.0000</td></tr>
-          <tr><td>3.5</td><td>50866755863</td><td>0.0000</td></tr>
-          <tr><td>4</td><td>1031688021298</td><td>0.0000</td></tr>
-          <tr><td>4.5</td><td>12819836019089</td><td>0.0000</td></tr>
-          <tr><td>5</td><td>167829676060453</td><td>0.0000</td></tr>
-          <tr><td>5.5</td><td>1735175012658560</td><td>0.0000</td></tr>
-          <tr><td>6</td><td>16739322673026226</td><td>0.0000</td></tr>
-          <tr><td>6.5</td><td>143861278565939438</td><td>0.0000</td></tr>
-          <tr><td>7</td><td>1121812217325379888</td><td>0.0000</td></tr>
-          <tr><td>7.5</td><td>7898904607165148654</td><td>0.0000</td></tr>
-          <tr><td>8</td><td>49698003528034271938</td><td>0.0001</td></tr>
-          <tr><td>8.5</td><td>276058482262564058420</td><td>0.0004</td></tr>
-          <tr><td>9</td><td>1332665348212783702326</td><td>0.0021</td></tr>
-          <tr><td>9.5</td><td>5478875096568082590678</td><td>0.0088</td></tr>
-          <tr><td>10</td><td>18678549414599082242388</td><td>0.0301</td></tr>
-          <tr><td>10.5</td><td>50940093837362748215274</td><td>0.0821</td></tr>
-          <tr><td>11</td><td>105746544932495097005298</td><td>0.1704</td></tr>
-          <tr><td>11.5</td><td>156007083933041171735520</td><td>0.2514</td></tr>
-          <tr><td>12</td><td>150237171433661433024861</td><td>0.2421</td></tr>
-          <tr><td>12.5</td><td>89846678630542887096363</td><td>0.1448</td></tr>
-          <tr><td>13</td><td>33083280599751977351328</td><td>0.0533</td></tr>
-          <tr><td>13.5</td><td>7567204707993518672139</td><td>0.0122</td></tr>
-          <tr><td>14</td><td>1089248351431363367013</td><td>0.0018</td></tr>
-          <tr><td>14.5</td><td>99937471630913234010</td><td>0.0002</td></tr>
-          <tr><td>15</td><td>5898720783297777435</td><td>0.0000</td></tr>
-          <tr><td>15.5</td><td>224123398544080035</td><td>0.0000</td></tr>
-          <tr><td>16</td><td>5341435619369850</td><td>0.0000</td></tr>
-          <tr><td>16.5</td><td>69887745652725</td><td>0.0000</td></tr>
-          <tr><td>17</td><td>316234143225</td><td>0.0000</td></tr>
+        <summary id="bigbld-wing-algs-summary">Wing: Algs</summary>
+        <table data-stat="wing-algs">
+          <tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <tbody></tbody>
         </table>
+        <p id="bigbld-wing-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Wing parity counts as 1 alg.</p>
       </details>
 
       <details>
-        <summary>Wing Cycle Breaks</summary>
-        <table>
+        <summary>Wing: Saved-alg Statistics</summary>
+        <p>Mean wing alg counts by skill level, computed over all 4x4x4 wing states:</p>
+        <table id="bigbld-saved-algs-table">
+          <thead><tr><th>Skill Level</th><th>Mean</th><th>Saved</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p style="margin-top:1rem;">Distribution of algs saved per scramble by skill level (vs. Basic):</p>
+        <table id="bigbld-saved-algs-dist-table"></table>
+      </details>
+
+      <details>
+        <summary>Wing: Cycle Breaks</summary>
+        <table data-stat="wing-breaks">
           <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>70273067330330098091156</td><td>0.1133</td></tr>
-          <tr><td>1</td><td>189019970161389580884524</td><td>0.3047</td></tr>
-          <tr><td>2</td><td>201253771471008242664284</td><td>0.3244</td></tr>
-          <tr><td>3</td><td>113378533305062196308324</td><td>0.1827</td></tr>
-          <tr><td>4</td><td>37698946270548915619784</td><td>0.0608</td></tr>
-          <tr><td>5</td><td>7747136939402310371768</td><td>0.0125</td></tr>
-          <tr><td>6</td><td>994791387564031284920</td><td>0.0016</td></tr>
-          <tr><td>7</td><td>78471397371278791880</td><td>0.0001</td></tr>
-          <tr><td>8</td><td>3623440897443026660</td><td>0.0000</td></tr>
-          <tr><td>9</td><td>89060442830459100</td><td>0.0000</td></tr>
-          <tr><td>10</td><td>966270993187500</td><td>0.0000</td></tr>
-          <tr><td>11</td><td>2951518670100</td><td>0.0000</td></tr>
+          <tbody></tbody>
         </table>
       </details>
 
       <details>
-        <summary>Solved Wings (buffer excluded)</summary>
-        <table>
+        <summary>Wing: Solved Non-Buffer Pieces</summary>
+        <table data-stat="wing-solved">
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>237760636776394448431551</td><td>0.3832</td></tr>
-          <tr><td>1</td><td>228250211305338670494289</td><td>0.3679</td></tr>
-          <tr><td>2</td><td>109369892917141446278513</td><td>0.1763</td></tr>
-          <tr><td>3</td><td>34871560060537852436631</td><td>0.0562</td></tr>
-          <tr><td>4</td><td>8321622287173805695085</td><td>0.0134</td></tr>
-          <tr><td>5</td><td>1585070911842629656291</td><td>0.0026</td></tr>
-          <tr><td>6</td><td>250969561041749695299</td><td>0.0004</td></tr>
-          <tr><td>7</td><td>33965805253770636213</td><td>0.0001</td></tr>
-          <tr><td>8</td><td>4009852009125698406</td><td>0.0000</td></tr>
-          <tr><td>9</td><td>419330929058899770</td><td>0.0000</td></tr>
-          <tr><td>10</td><td>39312274599266746</td><td>0.0000</td></tr>
-          <tr><td>11</td><td>3335586935702294</td><td>0.0000</td></tr>
-          <tr><td>12</td><td>258110893826058</td><td>0.0000</td></tr>
-          <tr><td>13</td><td>18327400753046</td><td>0.0000</td></tr>
-          <tr><td>14</td><td>1200008375830</td><td>0.0000</td></tr>
-          <tr><td>15</td><td>72727785306</td><td>0.0000</td></tr>
-          <tr><td>16</td><td>4090934859</td><td>0.0000</td></tr>
-          <tr><td>17</td><td>213906693</td><td>0.0000</td></tr>
-          <tr><td>18</td><td>10397541</td><td>0.0000</td></tr>
-          <tr><td>19</td><td>469315</td><td>0.0000</td></tr>
-          <tr><td>20</td><td>19481</td><td>0.0000</td></tr>
-          <tr><td>21</td><td>759</td><td>0.0000</td></tr>
-          <tr><td>22</td><td>23</td><td>0.0000</td></tr>
-          <tr><td>23</td><td>1</td><td>0.0000</td></tr>
+          <tbody></tbody>
         </table>
       </details>
 
       <details>
-        <summary>Float 2-Cycles in Wings (buffer excluded)</summary>
-        <table>
+        <summary>Wing: Floating Plain 2-Cycles</summary>
+        <table data-stat="wing-float2">
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>392001019188447730411350</td><td>0.6318</td></tr>
-          <tr><td>1</td><td>180320468826698605354950</td><td>0.2906</td></tr>
-          <tr><td>2</td><td>41160107014714277840250</td><td>0.0663</td></tr>
-          <tr><td>3</td><td>6206682804082198688250</td><td>0.0100</td></tr>
-          <tr><td>4</td><td>694168470822632305500</td><td>0.0011</td></tr>
-          <tr><td>5</td><td>61250160417964818300</td><td>0.0001</td></tr>
-          <tr><td>6</td><td>4423621073517746100</td><td>0.0000</td></tr>
-          <tr><td>7</td><td>267363318731008500</td><td>0.0000</td></tr>
-          <tr><td>8</td><td>13670802011616750</td><td>0.0000</td></tr>
-          <tr><td>9</td><td>591357847830750</td><td>0.0000</td></tr>
-          <tr><td>10</td><td>20871453452850</td><td>0.0000</td></tr>
-          <tr><td>11</td><td>632468286450</td><td>0.0000</td></tr>
+          <tbody></tbody>
         </table>
       </details>
 
       <details>
-        <summary>Float 3-Cycles in Wings (buffer excluded)</summary>
-        <table>
+        <summary>Wing: Floating Plain 3-Cycles</summary>
+        <table data-stat="wing-float3">
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>463094485862053613568000</td><td>0.7464</td></tr>
-          <tr><td>1</td><td>135841049280018001920000</td><td>0.2189</td></tr>
-          <tr><td>2</td><td>19552877932326875136000</td><td>0.0315</td></tr>
-          <tr><td>3</td><td>1829509910390722560000</td><td>0.0029</td></tr>
-          <tr><td>4</td><td>123871784214097920000</td><td>0.0002</td></tr>
-          <tr><td>5</td><td>6353662092890112000</td><td>0.0000</td></tr>
-          <tr><td>6</td><td>246265972592640000</td><td>0.0000</td></tr>
-          <tr><td>7</td><td>7036170645504000</td><td>0.0000</td></tr>
+          <tbody></tbody>
         </table>
       </details>
 
       <details>
         <summary>Unsolved x/t-Centers</summary>
-        <table>
+        <table data-stat="wing-centers">
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
-          <tr><td>0</td><td>1</td><td>0.0000</td></tr>
-          <tr><td>1</td><td>0</td><td>0.0000</td></tr>
-          <tr><td>2</td><td>240</td><td>0.0000</td></tr>
-          <tr><td>3</td><td>2560</td><td>0.0000</td></tr>
-          <tr><td>4</td><td>46620</td><td>0.0000</td></tr>
-          <tr><td>5</td><td>581376</td><td>0.0000</td></tr>
-          <tr><td>6</td><td>6629680</td><td>0.0000</td></tr>
-          <tr><td>7</td><td>64154880</td><td>0.0000</td></tr>
-          <tr><td>8</td><td>539147295</td><td>0.0000</td></tr>
-          <tr><td>9</td><td>3927917440</td><td>0.0000</td></tr>
-          <tr><td>10</td><td>24886550016</td><td>0.0000</td></tr>
-          <tr><td>11</td><td>137209752960</td><td>0.0000</td></tr>
-          <tr><td>12</td><td>658128223120</td><td>0.0002</td></tr>
-          <tr><td>13</td><td>2741884721280</td><td>0.0008</td></tr>
-          <tr><td>14</td><td>9892350759360</td><td>0.0030</td></tr>
-          <tr><td>15</td><td>30763384990336</td><td>0.0095</td></tr>
-          <tr><td>16</td><td>81910672955415</td><td>0.0252</td></tr>
-          <tr><td>17</td><td>185000621132160</td><td>0.0570</td></tr>
-          <tr><td>18</td><td>349913277503440</td><td>0.1078</td></tr>
-          <tr><td>19</td><td>544438016772480</td><td>0.1677</td></tr>
-          <tr><td>20</td><td>679274481651396</td><td>0.2092</td></tr>
-          <tr><td>21</td><td>654044867816320</td><td>0.2015</td></tr>
-          <tr><td>22</td><td>456702275019600</td><td>0.1407</td></tr>
-          <tr><td>23</td><td>206032439164800</td><td>0.0635</td></tr>
-          <tr><td>24</td><td>45131501617225</td><td>0.0139</td></tr>
+          <tbody></tbody>
         </table>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">Mean: 20</p>
+        <p id="bigbld-centers-mean" style="font-size:0.85rem; color:var(--text-secondary);"></p>
       </details>
     </div>
 
@@ -524,6 +449,7 @@
 cd bld-scr
 node src/reproduction.js</code></pre>
       <p style="font-size:0.85rem; color:var(--text-secondary);">Requires Node.js &ge; 14 (for BigInt support).</p>
+      <p id="all-timing">All tables generated in runtime. 3BLD: <code id="timing-3bld">--</code>. Big BLD: <code id="timing-bigbld">--</code>.</p>
     </div>
 
     <footer>

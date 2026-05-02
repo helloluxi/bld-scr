@@ -959,6 +959,62 @@ details[open] summary::before {
   gap: 0.75rem;
 }
 
+/* Tab-button style for exclusive checkbox groups (like spectrum) */
+.parity-checkbox-row.tab-style {
+  gap: 0;
+}
+
+.parity-checkbox-row.tab-style .parity-checkbox {
+  margin: 0;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-radius: 0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background-color: var(--bg-color);
+}
+
+.parity-checkbox-row.tab-style .parity-checkbox:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.parity-checkbox-row.tab-style .parity-checkbox:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.parity-checkbox-row.tab-style .parity-checkbox:hover {
+  background-color: var(--hover-color);
+}
+
+.parity-checkbox-row.tab-style .parity-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.parity-checkbox-row.tab-style .parity-checkbox label {
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+/* Checked state: primary border and label color */
+.parity-checkbox-row.tab-style .parity-checkbox input[type="checkbox"]:checked + label {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.parity-checkbox-row.tab-style .parity-checkbox:has(input[type="checkbox"]:checked) {
+  background-color: var(--hover-color);
+  border-color: var(--primary);
+}
+
+/* When checked, set next sibling's left border to primary */
+.parity-checkbox-row.tab-style .parity-checkbox:has(input[type="checkbox"]:checked) + .parity-checkbox {
+  border-left-color: var(--primary);
+}
+
 /* Setting groups for Quick Setup tab */
 #panel-mini .setting-line {
   display: flex;

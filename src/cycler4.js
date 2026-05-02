@@ -30,6 +30,19 @@ const cycler4 = (() => {
       this.breaks  = ps.filter(p => p > 1).length;
       const base = ps.reduce((s, p) => s + (p > 1 ? p + 1 : 0), 0) + buf - 1;
       this.algs2 = base - 2 * this.closed3; // 2 * algs, integer
+
+      // Full floating reduction (O=1, no orientation)
+      let algFF = 0, r2 = 0;
+      for (const p of ps) {
+        if (p >= 3) {
+          algFF += Math.floor((p - 1) / 2);
+          if (p % 2 === 0) r2++;
+        } else if (p === 2) {
+          r2++;
+        }
+      }
+      algFF += r2 >> 1 << 1; r2 %= 2;
+      this.algFullFloat2 = 2 * algFF + 3 * r2 + buf - 1;
     }
   }
 

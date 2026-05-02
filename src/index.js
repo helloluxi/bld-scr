@@ -48,10 +48,13 @@ let cornerSelectedIndex = -1;
 
 function getSkills() {
   return {
+    basicEdge:   document.getElementById('skill-basic-edge').checked,
     naiveEdge:   document.getElementById('skill-naive-edge').checked,
     fullEdge:    document.getElementById('skill-fullfloat-edge').checked,
+    basicCorner: document.getElementById('skill-basic-corner').checked,
     naiveCorner: document.getElementById('skill-naive-corner').checked,
     fullCorner:  document.getElementById('skill-fullfloat-corner').checked,
+    basicParity: document.getElementById('skill-basic-parity').checked,
     fullParity:  document.getElementById('skill-fullfloat-parity').checked,
   };
 }
@@ -78,21 +81,44 @@ function saveSkills() {
 function loadSkills() {
   try {
     const s = JSON.parse(localStorage.getItem('scr.skills') || '{}');
+    document.getElementById('skill-basic-edge').checked = !!s.basicEdge;
     document.getElementById('skill-naive-edge').checked = !!s.naiveEdge;
     document.getElementById('skill-fullfloat-edge').checked = !!s.fullEdge;
+    document.getElementById('skill-basic-corner').checked = !!s.basicCorner;
     document.getElementById('skill-naive-corner').checked = !!s.naiveCorner;
     document.getElementById('skill-fullfloat-corner').checked = !!s.fullCorner;
+    document.getElementById('skill-basic-parity').checked = !!s.basicParity;
     document.getElementById('skill-fullfloat-parity').checked = !!s.fullParity;
   } catch {}
 }
 
 document.querySelectorAll('.skill-checkboxes input[type="checkbox"]').forEach(cb => {
   cb.addEventListener('change', () => {
-    if (cb.id === 'skill-fullfloat-parity' && cb.checked) {
-      ['skill-fullfloat-edge', 'skill-fullfloat-corner',
-       'skill-naive-edge', 'skill-naive-corner'].forEach(id =>
-        document.getElementById(id).checked = true);
+    // Row-exclusive behavior: only one checked per row
+    if (cb.checked) {
+      cb.closest('.parity-checkbox-row').querySelectorAll('input[type="checkbox"]').forEach(o => { if (o !== cb) o.checked = false; });
+    } else {
+      // Ensure at least one is always checked (re-check Basic if nothing is)
+      const row = cb.closest('.parity-checkbox-row');
+      const anyChecked = row.querySelector('input[type="checkbox"]:checked');
+      if (!anyChecked) {
+        const basicCb = row.querySelector('input[type="checkbox"][id*="-basic"]');
+        if (basicCb) basicCb.checked = true;
+      }
     }
+    // When Full Floating Parity is checked, auto-check full floating for edge/corner and uncheck others
+    if (cb.id === 'skill-fullfloat-parity' && cb.checked) {
+      document.getElementById('skill-fullfloat-edge').checked = true;
+      document.getElementById('skill-naive-edge').checked = false;
+      document.getElementById('skill-basic-edge').checked = false;
+      document.getElementById('skill-fullfloat-corner').checked = true;
+      document.getElementById('skill-naive-corner').checked = false;
+      document.getElementById('skill-basic-corner').checked = false;
+    }
+    // Uncheck Full Floating Parity if either edge or corner is not full floating
+    const pCb = document.getElementById('skill-fullfloat-parity');
+    if (pCb.checked && (!document.getElementById('skill-fullfloat-edge').checked || !document.getElementById('skill-fullfloat-corner').checked))
+      pCb.checked = false;
     saveSkills(); updateProbability();
   });
 });
