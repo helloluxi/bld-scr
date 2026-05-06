@@ -28,8 +28,8 @@
       <div id="panel-help" style="display:none;">
 
         <h2>What is this?</h2>
-        <p>3BLD Scrambler generates 3x3 scrambles filtered by the <em>cycle structure</em> of their BLD solution. Buffers are <strong>UF</strong> (edges) and <strong>UFR</strong> (corners). Scramble in your own orientation.</p>
-        <p>This project is actually a vibe-coded remastering of another tool when I just started learning programming and wanted to make something fun. It just works. While I can't think of practical use case of this project, I would self-promote another tool of mine — <a href="https://helloluxi.github.io/ufufr" target="_blank" underline>LuTimer</a> for more serious training.</p>
+        <p>3BLD Scrambler generates 3x3 scrambles filtered by the <em>cycle structure</em> of their BLD solution. Buffers are <strong>UF</strong> (edges) and <strong>UFR</strong> (corners) only for now. Scramble in your own orientation.</p>
+        <p>I would also like to self-promote another tool of mine — <a href="https://helloluxi.github.io/ufufr" target="_blank" underline>BLD Doctor</a> for more serious training.</p>
 
         <h2>Concepts</h2>
         <ul>
@@ -46,22 +46,22 @@
         <div class="skill-checkboxes">
           <div class="setting-line"><span>Edge</span>
             <div class="parity-checkbox-row tab-style">
-              <div class="parity-checkbox"><input type="checkbox" id="skill-basic-edge" checked><label for="skill-basic-edge">Basic</label></div>
-              <div class="parity-checkbox"><input type="checkbox" id="skill-naive-edge"><label for="skill-naive-edge">Naive float 3-cycle</label></div>
-              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-edge"><label for="skill-fullfloat-edge">Full floating</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="skill-basic-edge" checked><label for="skill-basic-edge">Basic 3-style</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="skill-naive-edge"><label for="skill-naive-edge">Floating plain 3-cycles only</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-edge"><label for="skill-fullfloat-edge">Full Floating</label></div>
             </div>
           </div>
           <div class="setting-line"><span>Corner</span>
             <div class="parity-checkbox-row tab-style">
-              <div class="parity-checkbox"><input type="checkbox" id="skill-basic-corner" checked><label for="skill-basic-corner">Basic</label></div>
-              <div class="parity-checkbox"><input type="checkbox" id="skill-naive-corner"><label for="skill-naive-corner">Naive float 3-cycle</label></div>
-              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-corner"><label for="skill-fullfloat-corner">Full floating</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="skill-basic-corner" checked><label for="skill-basic-corner">Basic 3-style</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="skill-naive-corner"><label for="skill-naive-corner">Floating plain 3-cycles only</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-corner"><label for="skill-fullfloat-corner">Full Floating</label></div>
             </div>
           </div>
           <div class="setting-line"><span>Parity</span>
             <div class="parity-checkbox-row tab-style">
-              <div class="parity-checkbox"><input type="checkbox" id="skill-basic-parity" checked><label for="skill-basic-parity">Basic</label></div>
-              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-parity"><label for="skill-fullfloat-parity">Full floating parity</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="skill-basic-parity" checked><label for="skill-basic-parity">Basic 3-style</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-parity"><label for="skill-fullfloat-parity">Full Floating Parity</label></div>
             </div>
           </div>
         </div>
@@ -194,32 +194,40 @@
           <ul>
             <li><strong>parity</strong> — 0 (even) or 1 (odd).</li>
             <li><strong>breaks</strong> — number of cycle breaks, i.e. how many times the memo had to jump to a new starting piece.</li>
-            <li><strong>algs</strong> — estimated algorithm count (naive float 3-cycle reduced out). For basic count use <strong>alg</strong>; for full floating use <strong>algFullFloat</strong>; for full floating parity use <strong>algFullParity</strong>.</li>
+            <li><strong>algs</strong> — alg count under Floating plain 3-cycles only. For Basic 3-style use <strong>alg</strong>; for Full Floating use <strong>algFullFloat</strong>; for Full Floating Parity use <strong>algFullParity</strong>.</li>
             <li><strong>closed1</strong> — solved pieces in-place with correct orientation (free, no alg needed).</li>
             <li><strong>open1</strong> — pieces in-place but misoriented: flipped edges or twisted corners.</li>
             <li><strong>closed2 … closed5</strong> — clean k-cycles (correct orientation) that appear as secondary cycles.</li>
             <li><strong>open2 … open5</strong> — k-cycles with at least one misoriented piece.</li>
+            <li><strong>cwTwist</strong> / <strong>ccwTwist</strong> — number of CW / CCW twisted-in-place corners. Corner-only; for edges, use <code>open1</code> instead.</li>
           </ul>
           <p>Your last 5 expressions are saved per-field. Use ↑↓ in the input to navigate history. Hitting Enter generates scrambles. The URL updates so you can bookmark or share a filter.</p>
         <h2>Examples</h2>
 
-        <h3>Beginner — clean single cycle, no twists, even parity</h3>
-        <div class="example">Edge:   breaks==0 &amp;&amp; open1==0 &amp;&amp; parity==0
-Corner: breaks==0 &amp;&amp; open1==0</div>
-
-        <h3>Parity only</h3>
-        <div class="example">Edge:   parity==1
-Corner: parity==1</div>
-
-        <h3>Twisted corners (3-twist group)</h3>
-        <div class="example">Corner: open1==2</div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">Two twisted-in-place corners means one clockwise and one counter-clockwise — handled as a single 3-twist alg.</p>
-
-        <h3>Floating 3-cycle edges</h3>
+        <h3>Floating plain 3-cycle drill</h3>
         <div class="example">Edge: closed3&gt;0</div>
 
-        <h3>Exactly 4 edge algs, no cycle breaks</h3>
-        <div class="example">Edge: algs==4 &amp;&amp; breaks==0</div>
+        <h3>4-flip practice (edges)</h3>
+        <div class="example">Edge: open1&gt;=3</div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Three or more flipped-in-place edges forces a 4-flip alg.</p>
+
+        <h3>3-twist practice (corners)</h3>
+        <div class="example">Corner: cwTwist&gt;=3 || ccwTwist&gt;=3 || (cwTwist==2 &amp;&amp; ccwTwist==0) || (ccwTwist==2 &amp;&amp; cwTwist==0)</div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Forces a 3-twist alg case. Two same-direction twists invoke a 3-twist; mixed CW+CCW pairs cancel into a 2-twist.</p>
+
+        <h3>Non-buffer 2-twist (corners)</h3>
+        <div class="example">Corner: cwTwist==1 &amp;&amp; ccwTwist==1</div>
+
+        <h3>LTCT</h3>
+        <div class="example">Corner: parity==1 &amp;&amp; open1&gt;=1</div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Odd parity with a twisted-in-place corner — the canonical LTCT setup.</p>
+
+        <h3>T2C</h3>
+        <div class="example">Corner: parity==1 &amp;&amp; open2&gt;=1</div>
+
+        <h3>Easy scrambles</h3>
+        <div class="example">Edge:   algs&lt;=5
+Corner: algs&lt;=3</div>
 
         <h3>Heavy memo — many cycle breaks</h3>
         <div class="example">Edge:   breaks&gt;=2
