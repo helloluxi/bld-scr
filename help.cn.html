@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
   <title>原理说明</title>
   <script src="./src/theme.js"></script>
+  <script src="./src/ui.js"></script>
   <script src="./src/cycler.js"></script>
   <script src="./src/cycler4.js"></script>
   <script src="./src/min2phase.js"></script>
@@ -206,22 +207,22 @@
       <details id="edge-algs-details">
         <summary id="edge-algs-summary">棱块公式</summary>
         <table id="edge-algs-table"><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></table>
-        <div class="help-chart" id="edge-algs-chart"></div>
         <p id="edge-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <div class="help-chart" id="edge-algs-chart"></div>
       </details>
 
       <details id="corner-algs-details">
         <summary id="corner-algs-summary">角块公式</summary>
         <table id="corner-algs-table"><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></table>
-        <div class="help-chart" id="corner-algs-chart"></div>
         <p id="corner-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <div class="help-chart" id="corner-algs-chart"></div>
       </details>
 
       <details id="total-algs-details">
         <summary id="total-algs-summary">总公式</summary>
         <table id="total-algs-table"><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></table>
-        <div class="help-chart" id="total-algs-chart"></div>
         <p id="total-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <div class="help-chart" id="total-algs-chart"></div>
       </details>
 
       <details>
@@ -248,7 +249,7 @@
       <details>
         <summary>棱块</summary>
         <table data-stat="edge-breaks">
-          <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
+          <tr><th>小循环数</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Edge Cycle Breaks"></div>
@@ -257,7 +258,7 @@
       <details>
         <summary>角块</summary>
         <table data-stat="corner-breaks">
-          <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
+          <tr><th>小循环数</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
@@ -269,7 +270,7 @@
       <details>
         <summary>翻棱数（不含缓冲）</summary>
         <table data-stat="edge-flipped">
-          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Flipped Edges"></div>
@@ -279,7 +280,7 @@
       <details>
         <summary>翻角数（不含缓冲）</summary>
         <table data-stat="corner-twisted">
-          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Twisted Corners"></div>
@@ -332,23 +333,17 @@
       </details>
 
       <details>
-        <summary>棱缓冲索引（不限制奇偶）</summary>
-        <table data-stat="bis-no-parity">
+        <summary>棱缓冲索引</summary>
+        <div class="parity-checkbox-row tab-style" style="margin-bottom:1rem;">
+          <div class="parity-checkbox"><input type="checkbox" id="bis-mode-all" checked><label for="bis-mode-all">不限制奇偶</label></div>
+          <div class="parity-checkbox"><input type="checkbox" id="bis-mode-odd"><label for="bis-mode-odd">仅奇偶为奇</label></div>
+        </div>
+        <table data-stat="bis">
           <tr><th>索引</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tbody></tbody>
         </table>
-        <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — No Parity Constraint" data-chart-spaced="false"></div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">“—” 表示没有棱小循环且最终停在错朝向棱块上的情况，因此没有借位空间。</p>
-      </details>
-
-      <details>
-        <summary>棱缓冲索引（仅奇偶为奇）</summary>
-        <table data-stat="bis-odd">
-          <tr><th>索引</th><th>计数</th><th>概率</th><th>累积</th></tr>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — Odd Parity Only" data-chart-spaced="false"></div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">“—” 表示没有棱小循环且最终停在错朝向棱块上的情况，因此没有借位空间。</p>
+        <div class="help-chart dense" data-chart-title="Cascading Pseudo Swap" data-chart-spaced="false"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">索引 #12–#22 表示无可用借位位置（无棱小循环且停在错朝向棱块）的情况，均匀分摊以让曲线连续。</p>
       </details>
 
     </div>
@@ -409,6 +404,7 @@
           <tbody></tbody>
         </table>
         <p id="bigbld-wing-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <div class="help-chart" data-chart-title="Wing Algs"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">翼棱奇偶计为 1 个公式。</p>
       </details>
 
@@ -426,42 +422,47 @@
       <details>
         <summary>翼棱小循环</summary>
         <table data-stat="wing-breaks">
-          <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
+          <tr><th>小循环数</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tbody></tbody>
         </table>
+        <div class="help-chart" data-chart-title="Wing Cycle Breaks"></div>
       </details>
 
       <details>
         <summary>已还原翼棱（不含缓冲）</summary>
         <table data-stat="wing-solved">
-          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tbody></tbody>
         </table>
+        <div class="help-chart" data-chart-title="Wing Solved Non-Buffer Pieces"></div>
       </details>
 
       <details>
         <summary>翼棱浮动二循环（不含缓冲）</summary>
         <table data-stat="wing-float2">
-          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tbody></tbody>
         </table>
+        <div class="help-chart" data-chart-title="Wing Floating Plain 2-Cycles"></div>
       </details>
 
       <details>
         <summary>翼棱浮动三循环（不含缓冲）</summary>
         <table data-stat="wing-float3">
-          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tbody></tbody>
         </table>
+        <div class="help-chart" data-chart-title="Wing Floating Plain 3-Cycles"></div>
       </details>
 
       <details>
         <summary>未还原角心/棱心</summary>
         <table data-stat="wing-centers">
-          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
+          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
           <tbody></tbody>
         </table>
-        <p id="bigbld-centers-mean" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <p id="bigbld-centers-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <div class="help-chart" data-chart-title="Unsolved x/t-Centers"></div>
       </details>
     </div>
 

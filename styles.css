@@ -13,6 +13,7 @@
   --hover-color: #2c2c2c;
   --code-bg: #2d2d2d;
   --code-color: #ff6b6b;
+  --cum-color: #88cc88;
 }
 
 :root[data-theme="light"] {
@@ -28,6 +29,7 @@
   --hover-color: #f0f0f0;
   --code-bg: #f8f8f8;
   --code-color: #d32f2f;
+  --cum-color: #88cc88;
 }
 
 * {
@@ -676,7 +678,7 @@ footer {
   text-align: center;
   color: var(--text-secondary);
   font-size: 0.8rem;
-  padding: 1rem 0;
+  padding: 0.25rem 0;
   background-color: var(--bg-color);
 }
 
@@ -882,6 +884,48 @@ details[open] summary::before {
   margin: 0 10px;
 }
 
+.chart-cum-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+  overflow: visible;
+}
+
+.chart-cum-line polyline {
+  fill: none;
+  stroke: var(--cum-color);
+  stroke-width: 1.5;
+}
+
+.chart-cum-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cum-color);
+  transform: translate(-50%, 50%);
+  z-index: 4;
+  cursor: default;
+}
+
+.chart-cum-dot:hover::after {
+  content: attr(data-value) '%';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--hover-color);
+  color: var(--text-color);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  border: 1px solid var(--border-color);
+}
+
 .chart-bar:hover::after {
   content: attr(data-value) '%';
   position: absolute;
@@ -1006,7 +1050,6 @@ details[open] summary::before {
 /* Checked state: primary border and label color */
 .parity-checkbox-row.tab-style .parity-checkbox input[type="checkbox"]:checked + label {
   color: var(--primary);
-  font-weight: 600;
 }
 
 .parity-checkbox-row.tab-style .parity-checkbox:has(input[type="checkbox"]:checked) {

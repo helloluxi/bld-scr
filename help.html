@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
   <title>3BLD Scrambler — How It Works</title>
   <script src="./src/theme.js"></script>
+  <script src="./src/ui.js"></script>
   <script src="./src/cycler.js"></script>
   <script src="./src/cycler4.js"></script>
   <script src="./src/min2phase.js"></script>
@@ -204,22 +205,22 @@
       <details id="edge-algs-details">
         <summary id="edge-algs-summary">Edge Algs</summary>
         <table id="edge-algs-table"><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></table>
-        <div class="help-chart" id="edge-algs-chart"></div>
         <p id="edge-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <div class="help-chart" id="edge-algs-chart"></div>
       </details>
 
       <details id="corner-algs-details">
         <summary id="corner-algs-summary">Corner Algs</summary>
         <table id="corner-algs-table"><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></table>
-        <div class="help-chart" id="corner-algs-chart"></div>
         <p id="corner-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <div class="help-chart" id="corner-algs-chart"></div>
       </details>
 
       <details id="total-algs-details">
         <summary id="total-algs-summary">Total Algs</summary>
         <table id="total-algs-table"><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></table>
-        <div class="help-chart" id="total-algs-chart"></div>
         <p id="total-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <div class="help-chart" id="total-algs-chart"></div>
       </details>
 
       <details>
@@ -246,7 +247,7 @@
       <details>
         <summary>Edges</summary>
         <table data-stat="edge-breaks">
-          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>Breaks</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Edge Cycle Breaks"></div>
@@ -255,7 +256,7 @@
       <details>
         <summary>Corners</summary>
         <table data-stat="corner-breaks">
-          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>Breaks</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
@@ -267,7 +268,7 @@
       <details>
         <summary>Flipped Edges (buffer excluded)</summary>
         <table data-stat="edge-flipped">
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Flipped Edges"></div>
@@ -277,7 +278,7 @@
       <details>
         <summary>Twisted Corners (buffer excluded)</summary>
         <table data-stat="corner-twisted">
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
         <div class="help-chart" data-chart-title="Twisted Corners"></div>
@@ -330,23 +331,17 @@
       </details>
 
       <details>
-        <summary>Edge Buffer Index (No Parity Constraint)</summary>
-        <table data-stat="bis-no-parity">
+        <summary>Edge Buffer Index</summary>
+        <div class="parity-checkbox-row tab-style" style="margin-bottom:1rem;">
+          <div class="parity-checkbox"><input type="checkbox" id="bis-mode-all" checked><label for="bis-mode-all">All Parities</label></div>
+          <div class="parity-checkbox"><input type="checkbox" id="bis-mode-odd"><label for="bis-mode-odd">Odd Parity Only</label></div>
+        </div>
+        <table data-stat="bis">
           <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
-        <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap — No Parity Constraint" data-chart-spaced="false"></div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes cases which contains no edge cycle breaks and ends on an edge with wrong orientation, so there's no space of maneuver.</p>
-      </details>
-
-      <details>
-        <summary>Edge Buffer Index (Odd Parity Constraint)</summary>
-        <table data-stat="bis-odd">
-          <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap — Odd Parity Only" data-chart-spaced="false"></div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes cases which contains no edge cycle breaks and ends on an edge with wrong orientation, so there's no space of maneuver.</p>
+        <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap" data-chart-spaced="false"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Indices #12–#22 represent cases with no applicable position (no edge cycle breaks and ending on a wrong-orientation edge), spread evenly to make the curve continuous.</p>
       </details>
 
     </div>
@@ -407,6 +402,7 @@
           <tbody></tbody>
         </table>
         <p id="bigbld-wing-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <div class="help-chart" data-chart-title="Wing Algs"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">Wing parity counts as 1 alg. Basic floating includes floating pure 3-cycles and one pure 2-cycle for wing parity. </p>
       </details>
 
@@ -424,42 +420,47 @@
       <details>
         <summary>Wing: Cycle Breaks</summary>
         <table data-stat="wing-breaks">
-          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>Breaks</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
+        <div class="help-chart" data-chart-title="Wing Cycle Breaks"></div>
       </details>
 
       <details>
         <summary>Wing: Solved Non-Buffer Pieces</summary>
         <table data-stat="wing-solved">
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
+        <div class="help-chart" data-chart-title="Wing Solved Non-Buffer Pieces"></div>
       </details>
 
       <details>
         <summary>Wing: Floating Plain 2-Cycles</summary>
         <table data-stat="wing-float2">
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
+        <div class="help-chart" data-chart-title="Wing Floating Plain 2-Cycles"></div>
       </details>
 
       <details>
         <summary>Wing: Floating Plain 3-Cycles</summary>
         <table data-stat="wing-float3">
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
+        <div class="help-chart" data-chart-title="Wing Floating Plain 3-Cycles"></div>
       </details>
 
       <details>
         <summary>Unsolved x/t-Centers</summary>
         <table data-stat="wing-centers">
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
-        <p id="bigbld-centers-mean" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <p id="bigbld-centers-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <div class="help-chart" data-chart-title="Unsolved x/t-Centers"></div>
       </details>
     </div>
 

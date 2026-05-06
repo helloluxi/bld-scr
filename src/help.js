@@ -40,25 +40,6 @@ const t = {
   execution: isZh ? '执行' : 'Execution',
 };
 
-function edgeSkillLabel(s) {
-  if (s.basicEdge) return t.basic;
-  if (s.naiveEdge) return t.naiveFloat3;
-  if (s.fullEdge) return t.fullFloat;
-  return t.basic;
-}
-function cornerSkillLabel(s) {
-  if (s.basicCorner) return t.basic;
-  if (s.naiveCorner) return t.naiveFloat3;
-  if (s.fullCorner) return t.fullFloat;
-  return t.basic;
-}
-function totalSkillLabel(s) {
-  const e = edgeSkillLabel(s), c = cornerSkillLabel(s);
-  const parityLabel = s.basicParity ? '' : s.fullParity ? ` + ${t.fullFloatParity}` : '';
-  const base = e === c ? e : `${e} + ${c}`;
-  return base + parityLabel;
-}
-
 function getHelpSkills() {
   return {
     naiveEdge:   document.getElementById('h-skill-naive-edge').checked,
@@ -113,8 +94,35 @@ function renderChart(mount, rows, title) {
     rows.map(r => r.label),
     rows.map(r => r.probability),
     title,
-    { spaced: rows.length <= 5 }
+    { spaced: rows.length <= 5, cumulative: rows.map(r => r.cumulative) }
   );
+}
+
+function fmtStats(mean, std) {
+  return `${t.mean}: ${mean.toFixed(2)}, ${t.std}: ${std.toFixed(2)}`;
+}
+
+function setStatsAfterTable(stat, mean, std) {
+  const table = document.querySelector(`[data-stat="${stat}"]`);
+  if (!table) return;
+  let p = table.parentElement.querySelector(`[data-stats-for="${stat}"]`);
+  if (!p) {
+    p = document.createElement('p');
+    p.className = 'chart-stats';
+    p.style.fontSize = '0.85rem';
+    p.style.color = 'var(--text-secondary)';
+    p.dataset.statsFor = stat;
+    table.insertAdjacentElement('afterend', p);
+  }
+  p.textContent = fmtStats(mean, std);
+}
+
+function meanStdFromPairs(pairs) {
+  let tot = 0, sx = 0, sxx = 0;
+  for (const [k, v] of pairs) { tot += v; sx += k * v; sxx += k * k * v; }
+  if (tot === 0) return { mean: 0, std: 0 };
+  const mean = sx / tot;
+  return { mean, std: Math.sqrt(Math.max(0, sxx / tot - mean * mean)) };
 }
 
 function lastTbody(stat) {
@@ -141,18 +149,32 @@ function populateStaticTables() {
   }
 
   function probRows(rows, total) {
-    return rows.map(([k, v]) =>
-      `<tr><td>${k}</td><td>${Math.round(v)}</td><td>${(v / total).toFixed(4)}</td></tr>`
-    ).join('');
+    let cum = 0;
+    return rows.map(([k, v]) => {
+      cum += v;
+      return `<tr><td>${k}</td><td>${Math.round(v)}</td><td>${(v / total).toFixed(4)}</td><td>${(cum / total).toFixed(4)}</td></tr>`;
+    }).join('');
+  }
+
+  function statsFromTally(rows, total) {
+    return meanStdFromPairs(rows.map(([k, v]) => [k, v / total]));
   }
 
   // Cycle Breaks
-  fillTbody('edge-breaks',   probRows(tally(allE, c => c.breaks), eT));
-  fillTbody('corner-breaks', probRows(tally(allC, c => c.breaks), cT));
+  const edgeBreaks = tally(allE, c => c.breaks);
+  const cornerBreaks = tally(allC, c => c.breaks);
+  fillTbody('edge-breaks',   probRows(edgeBreaks, eT));
+  fillTbody('corner-breaks', probRows(cornerBreaks, cT));
+  { const s = statsFromTally(edgeBreaks, eT);   setStatsAfterTable('edge-breaks',   s.mean, s.std); }
+  { const s = statsFromTally(cornerBreaks, cT); setStatsAfterTable('corner-breaks', s.mean, s.std); }
 
   // Flip / Twist
-  fillTbody('edge-flipped',   probRows(tally(allE, c => c.open1), eT));
-  fillTbody('corner-twisted', probRows(tally(allC, c => c.open1), cT));
+  const edgeFlipped = tally(allE, c => c.open1);
+  const cornerTwisted = tally(allC, c => c.open1);
+  fillTbody('edge-flipped',   probRows(edgeFlipped, eT));
+  fillTbody('corner-twisted', probRows(cornerTwisted, cT));
+  { const s = statsFromTally(edgeFlipped, eT);    setStatsAfterTable('edge-flipped',   s.mean, s.std); }
+  { const s = statsFromTally(cornerTwisted, cT);  setStatsAfterTable('corner-twisted', s.mean, s.std); }
 
   // Multi-flip / 3-twist invocation probability
   let fourFlip = 0, threeTwist = 0;
@@ -177,7 +199,7 @@ function populateStaticTables() {
     `<tr><td>T2C</td><td>${t2c.toLocaleString()}</td><td>${(t2c / cT).toFixed(4)}</td></tr>`
   );
 
-  // Fixed Break-In Swap
+  // Cascading Pseudo Swap
   populateBreakInSwap();
 
   // Order distribution
@@ -185,9 +207,8 @@ function populateStaticTables() {
 }
 
 function populateBreakInSwap() {
-  const noP  = lastTbody('bis-no-parity');
-  const oddP = lastTbody('bis-odd');
-  if (!noP && !oddP) return;
+  const tbody = lastTbody('bis');
+  if (!tbody) return;
 
   function falling(x, k) { let r = 1; for (let i = 0; i < k; i++) r *= (x - i); return r; }
 
@@ -213,18 +234,58 @@ function populateBreakInSwap() {
   cycler.evenEdges.forEach(cc => process(cc, false));
   cycler.oddEdges .forEach(cc => process(cc, true));
 
+  // Spread arr[0] (no applicable target) evenly across synthetic indices #12..#22
+  // so the cumulative curve continues smoothly to 1.
+  function expand(arr) {
+    const out = new Array(23).fill(0);
+    for (let k = 1; k <= 11; k++) out[k] = arr[k];
+    const each = arr[0] / 11;
+    for (let k = 12; k <= 22; k++) out[k] = each;
+    return out;
+  }
+
   function render(arr) {
     const tot = arr.reduce((s, v) => s + v, 0);
-    let html = '', cum = 0;
-    for (let k = 1; k <= 11; k++) {
+    const labels = [];
+    const values = [];
+    const cumulative = [];
+    let cum = 0;
+    let html = '';
+    for (let k = 1; k <= 22; k++) {
       cum += arr[k];
-      html += `<tr><td>#${k}</td><td>${Math.round(arr[k])}</td><td>${(arr[k] / tot).toFixed(4)}</td><td>${(cum / tot).toFixed(4)}</td></tr>`;
+      const p = arr[k] / tot;
+      labels.push(`#${k}`);
+      values.push(p);
+      cumulative.push(cum / tot);
+      html += `<tr><td>#${k}</td><td>${Math.round(arr[k])}</td><td>${p.toFixed(4)}</td><td>${(cum / tot).toFixed(4)}</td></tr>`;
     }
-    html += `<tr><td>—</td><td>${Math.round(arr[0])}</td><td>${(arr[0] / tot).toFixed(4)}</td><td>1.0000</td></tr>`;
-    return html;
+    return { html, labels, values, cumulative };
   }
-  if (noP)  noP .innerHTML = render(res);
-  if (oddP) oddP.innerHTML = render(resOdd);
+
+  function update() {
+    const oddOnly = document.getElementById('bis-mode-odd')?.checked;
+    const arr = expand(oddOnly ? resOdd : res);
+    const { html, labels, values, cumulative } = render(arr);
+    tbody.innerHTML = html;
+
+    const pairs = [];
+    for (let k = 1; k <= 22; k++) pairs.push([k, arr[k]]);
+    const s = meanStdFromPairs(pairs);
+    setStatsAfterTable('bis', s.mean, s.std);
+
+    const table = document.querySelector('[data-stat="bis"]');
+    const chart = table && table.parentElement.querySelector('.help-chart');
+    if (chart) {
+      chartUtils.renderChartInMount(chart, labels, values, chart.dataset.chartTitle || '', {
+        spaced: chart.dataset.chartSpaced !== 'false' && labels.length <= 5,
+        cumulative,
+      });
+    }
+  }
+
+  const modeRow = document.getElementById('bis-mode-all').closest('.parity-checkbox-row');
+  uiUtils.wireExclusiveGroup(modeRow, update);
+  update();
 }
 
 function populateOrderTable() {
@@ -254,9 +315,6 @@ function populateOrderTable() {
 
 function updateAlgsSection() {
   const skills = getHelpSkills();
-  const eLabel = edgeSkillLabel(skills);
-  const cLabel = cornerSkillLabel(skills);
-  const tLabel = totalSkillLabel(skills);
   const eT = 980995276800, cT = 88179840;
 
   // Edge
@@ -265,7 +323,7 @@ function updateAlgsSection() {
   const es = meanStd(edgeRows);
   renderTable(document.getElementById('edge-algs-table'), edgeRows);
   renderChart(document.getElementById('edge-algs-chart'), edgeRows, '');
-  document.getElementById('edge-algs-stats').textContent = `${t.edge}${t.mean} (${eLabel.toLowerCase()}): ${es.mean.toFixed(2)}, ${t.std}: ${es.std.toFixed(2)}`;
+  document.getElementById('edge-algs-stats').textContent = fmtStats(es.mean, es.std);
 
   // Corner
   const cornerDist = tallyByAlg([...cycler.evenCorners, ...cycler.oddCorners], cornerAlgH, skills);
@@ -273,7 +331,7 @@ function updateAlgsSection() {
   const cs = meanStd(cornerRows);
   renderTable(document.getElementById('corner-algs-table'), cornerRows);
   renderChart(document.getElementById('corner-algs-chart'), cornerRows, '');
-  document.getElementById('corner-algs-stats').textContent = `${t.corner}${t.mean} (${cLabel.toLowerCase()}): ${cs.mean.toFixed(2)}, ${t.std}: ${cs.std.toFixed(2)}`;
+  document.getElementById('corner-algs-stats').textContent = fmtStats(cs.mean, cs.std);
 
   // Total (convolve edge+corner with parity matching)
   const edgeByParity = [new Map(), new Map()];
@@ -304,7 +362,7 @@ function updateAlgsSection() {
   const ts = meanStd(totalRows);
   renderTable(document.getElementById('total-algs-table'), totalRows);
   renderChart(document.getElementById('total-algs-chart'), totalRows, '');
-  document.getElementById('total-algs-stats').textContent = `${t.total}${t.mean} (${tLabel.toLowerCase()}): ${ts.mean.toFixed(2)}, ${t.std}: ${ts.std.toFixed(2)}`;
+  document.getElementById('total-algs-stats').textContent = fmtStats(ts.mean, ts.std);
 }
 
 function populateBigBldTables() {
@@ -326,12 +384,29 @@ function populateBigBldTables() {
     return [...m].sort((a, b) => a[0] - b[0]);
   }
 
-  function fillBigBld(stat, rows, fmtLabel) {
+  function fillBigBld(stat, rows) {
     const tbody = lastTbody(stat);
     if (!tbody) return;
-    tbody.innerHTML = rows.map(([k, v]) =>
-      `<tr><td>${fmtLabel ? fmtLabel(k) : k}</td><td>${v}</td><td>${(Number(v) / wingTotalNum).toFixed(4)}</td></tr>`
-    ).join('');
+    const probPairs = rows.map(([k, v]) => [k, Number(v) / wingTotalNum]);
+    let cum = 0;
+    tbody.innerHTML = rows.map(([k, v], i) => {
+      cum += probPairs[i][1];
+      return `<tr><td>${k}</td><td>${v}</td><td>${probPairs[i][1].toFixed(4)}</td><td>${cum.toFixed(4)}</td></tr>`;
+    }).join('');
+    const s = meanStdFromPairs(probPairs);
+    setStatsAfterTable(stat, s.mean, s.std);
+    const table = document.querySelector(`[data-stat="${stat}"]`);
+    const chart = table && table.parentElement.querySelector('.help-chart');
+    if (chart) {
+      const labels = probPairs.map(([k]) => k);
+      const values = probPairs.map(([, p]) => p);
+      let acc = 0;
+      const cumulative = values.map(v => acc += v);
+      chartUtils.renderChartInMount(chart, labels, values, chart.dataset.chartTitle || '', {
+        spaced: labels.length <= 5,
+        cumulative,
+      });
+    }
   }
 
   fillBigBld('wing-breaks', tallyBigInt(w => w.breaks));
@@ -343,14 +418,27 @@ function populateBigBldTables() {
   const centerTotal = centerData.reduce((s, [, c]) => s + c, 0);
   const centerTbody = lastTbody('wing-centers');
   if (centerTbody) {
-    let meanC = 0;
+    let cum = 0;
     centerTbody.innerHTML = centerData.map(([u, c]) => {
       const p = c / centerTotal;
-      meanC += u * p;
-      return `<tr><td>${u}</td><td>${c}</td><td>${p.toFixed(4)}</td></tr>`;
+      cum += p;
+      return `<tr><td>${u}</td><td>${c}</td><td>${p.toFixed(4)}</td><td>${cum.toFixed(4)}</td></tr>`;
     }).join('');
-    const meanEl = document.getElementById('bigbld-centers-mean');
-    if (meanEl) meanEl.textContent = `Mean: ${Math.round(meanC)}`;
+    const probPairs = centerData.map(([u, c]) => [u, c / centerTotal]);
+    const s = meanStdFromPairs(probPairs);
+    const statsEl = document.getElementById('bigbld-centers-stats');
+    if (statsEl) statsEl.textContent = fmtStats(s.mean, s.std);
+    const chart = centerTbody.closest('details').querySelector('.help-chart');
+    if (chart) {
+      const labels = probPairs.map(([u]) => u);
+      const values = probPairs.map(([, p]) => p);
+      let acc = 0;
+      const cumulative = values.map(v => acc += v);
+      chartUtils.renderChartInMount(chart, labels, values, chart.dataset.chartTitle || '', {
+        spaced: labels.length <= 5,
+        cumulative,
+      });
+    }
   }
 
   updateWingAlgsTable();
@@ -367,10 +455,8 @@ function updateWingAlgsTable() {
 
   const skill = document.getElementById('bigbld-skill-full').checked ? 'full'
     : document.getElementById('bigbld-skill-naive').checked ? 'naive' : 'basic';
-  const evenChecked = document.getElementById('bigbld-parity-even').checked;
-  const oddChecked = document.getElementById('bigbld-parity-odd').checked;
-  const bothChecked = document.getElementById('bigbld-parity-both').checked;
-  const parity = evenChecked && !oddChecked ? 'even' : oddChecked && !evenChecked ? 'odd' : 'total';
+  const parity = document.getElementById('bigbld-parity-even').checked ? 'even'
+    : document.getElementById('bigbld-parity-odd').checked ? 'odd' : 'total';
 
   const getAlg = w => skill === 'full' ? Math.ceil(w.algFF)
     : skill === 'naive' ? w.algF3
@@ -392,18 +478,31 @@ function updateWingAlgsTable() {
 
   const tbody = lastTbody('wing-algs');
   if (!tbody) return;
+  const labels = [];
+  const values = [];
+  const cumArr = [];
   let cum = 0;
   tbody.innerHTML = sorted.map(([k, v]) => {
     const p = Number(v) / totalNum;
     cum += p;
+    labels.push(k);
+    values.push(p);
+    cumArr.push(cum);
     return `<tr><td>${k}</td><td>${v}</td><td>${p.toFixed(4)}</td><td>${cum.toFixed(4)}</td></tr>`;
   }).join('');
 
-  let mean = 0, variance = 0;
-  for (const [k, v] of sorted) { const p = Number(v) / totalNum; mean += k * p; }
-  for (const [k, v] of sorted) { const p = Number(v) / totalNum; variance += Math.pow(k - mean, 2) * p; }
+  const s = meanStdFromPairs(sorted.map(([k, v]) => [k, Number(v) / totalNum]));
   const statsEl = document.getElementById('bigbld-wing-algs-stats');
-  if (statsEl) statsEl.textContent = `${t.mean}: ${mean.toFixed(2)}, ${t.std}: ${Math.sqrt(variance).toFixed(2)}`;
+  if (statsEl) statsEl.textContent = fmtStats(s.mean, s.std);
+
+  const table = document.querySelector('[data-stat="wing-algs"]');
+  const chart = table && table.parentElement.querySelector('.help-chart');
+  if (chart) {
+    chartUtils.renderChartInMount(chart, labels, values, chart.dataset.chartTitle || '', {
+      spaced: labels.length <= 5,
+      cumulative: cumArr,
+    });
+  }
 }
 
 // Letter scheme presets
@@ -530,22 +629,9 @@ document.addEventListener('DOMContentLoaded', () => {
     errEl.textContent = `${t.parityError}: ${test.errors} ${isZh ? '处' : ''}${t.reductionLogic}${isZh ? '错误。' : ' errors.'}`;
   }
 
-  // Wire up 3BLD skill checkboxes (row-exclusive)
-  document.querySelectorAll('#algs-card .skill-checkboxes input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', () => {
-      // Row-exclusive behavior: only one checked per row
-      if (cb.checked) {
-        cb.closest('.parity-checkbox-row').querySelectorAll('input[type="checkbox"]').forEach(o => { if (o !== cb) o.checked = false; });
-      } else {
-        // Ensure at least one is always checked (re-check Basic if nothing is)
-        const row = cb.closest('.parity-checkbox-row');
-        const anyChecked = row.querySelector('input[type="checkbox"]:checked');
-        if (!anyChecked) {
-          const basicCb = row.querySelector('input[type="checkbox"][id*="-basic"]');
-          if (basicCb) basicCb.checked = true;
-        }
-      }
-      // When Full Floating Parity is checked, auto-check full floating for edge/corner and uncheck others
+  // Wire up 3BLD skill rows (row-exclusive)
+  document.querySelectorAll('#algs-card .skill-checkboxes .parity-checkbox-row').forEach(row => {
+    uiUtils.wireExclusiveGroup(row, cb => {
       if (cb.id === 'h-skill-fullfloat-parity' && cb.checked) {
         document.getElementById('h-skill-fullfloat-edge').checked = true;
         document.getElementById('h-skill-naive-edge').checked = false;
@@ -554,7 +640,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('h-skill-naive-corner').checked = false;
         document.getElementById('h-skill-basic-corner').checked = false;
       }
-      // Uncheck Full Floating Parity if either edge or corner is not full floating
       const pCb = document.getElementById('h-skill-fullfloat-parity');
       if (pCb.checked && (!document.getElementById('h-skill-fullfloat-edge').checked || !document.getElementById('h-skill-fullfloat-corner').checked))
         pCb.checked = false;
@@ -571,49 +656,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // Populate Big BLD tables from cycler4.js
   tBigBld = populateBigBldTables();
 
-  // Wire up Big BLD skill checkboxes
-  document.querySelectorAll('#bigbld .skill-checkboxes input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', () => {
-      // Skill row: exclusive (always one checked)
-      if (cb.id.includes('skill')) {
-        if (cb.checked) {
-          cb.closest('.parity-checkbox-row').querySelectorAll('input[type="checkbox"]').forEach(o => { if (o !== cb) o.checked = false; });
-        } else {
-          // Ensure at least one is always checked
-          const row = cb.closest('.parity-checkbox-row');
-          const anyChecked = row.querySelector('input[type="checkbox"]:checked');
-          if (!anyChecked) {
-            const basicCb = row.querySelector('input[type="checkbox"][id*="basic"]');
-            if (basicCb) basicCb.checked = true;
-          }
-        }
-      }
-      // Parity row: non-exclusive, "Both" option available
-      // When "Both" is checked, uncheck individual parities
-      if (cb.id === 'bigbld-parity-both' && cb.checked) {
-        document.getElementById('bigbld-parity-even').checked = false;
-        document.getElementById('bigbld-parity-odd').checked = false;
-      }
-      // When individual parity is checked, uncheck "Both"
-      if ((cb.id === 'bigbld-parity-even' || cb.id === 'bigbld-parity-odd') && cb.checked) {
-        document.getElementById('bigbld-parity-both').checked = false;
-      }
-      updateWingAlgsTable();
-    });
+  // Wire up Big BLD skill + parity rows (row-exclusive)
+  document.querySelectorAll('#bigbld .skill-checkboxes .parity-checkbox-row').forEach(row => {
+    uiUtils.wireExclusiveGroup(row, () => updateWingAlgsTable());
   });
 
-  // Static charts (non-algs)
+  // Static charts (non-algs). Skip mounts already rendered (Big BLD, etc.) and dynamic algs charts.
   document.querySelectorAll('.help-chart').forEach(mount => {
-    if (mount.id) return; // skip dynamic charts
-    const table = mount.previousElementSibling;
-    if (!table || table.tagName !== 'TABLE') return;
+    if (mount.id) return;
+    if (mount.querySelector('.chart-wrapper')) return;
+    const table = mount.parentElement.querySelector('table');
+    if (!table) return;
     const rows = chartUtils.parseProbabilityTable(table);
+    const dataRows = Array.from(table.querySelectorAll('tr')).slice(1).filter(r => r.querySelectorAll('td').length > 0);
+    const hasCumCol = dataRows[0] && dataRows[0].querySelectorAll('td').length >= 4;
+    let cumulative;
+    if (hasCumCol) {
+      cumulative = dataRows.map(r => parseFloat(r.querySelectorAll('td')[3].textContent.replace(/,/g, '')));
+    } else {
+      let acc = 0;
+      cumulative = rows.map(r => acc += r.value);
+    }
     chartUtils.renderChartInMount(
       mount,
       rows.map(row => row.label),
       rows.map(row => row.value),
       mount.dataset.chartTitle || '',
-      { spaced: mount.dataset.chartSpaced !== 'false' && rows.length <= 5 }
+      { spaced: mount.dataset.chartSpaced !== 'false' && rows.length <= 5, cumulative }
     );
   });
 
@@ -797,7 +866,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedFull = totalsByName[t.basic] - totalsByName[t.fullFloat];
     const savedParity = totalsByName[t.fullFloat] - totalsByName[t.fullFloatParity];
     document.getElementById('saved-algs-quip').textContent = isZh
-      ? `你真的会想背 2768 个全浮动 3-style 公式，只为了平均每把少 ${savedFull.toFixed(2)} 个公式；再多背 11088 个全浮动奇偶公式，也只再平均每把少 ${savedParity.toFixed(2)} 个公式吗？这些都只是理论上界，还没考虑人类实际能力。人生苦短，别背了～`
+      ? `你真的会想背 2768 个全浮动三循环公式，只为了平均每把少 ${savedFull.toFixed(2)} 个公式；再多背 11088 个全浮动奇偶公式，也只再平均每把少 ${savedParity.toFixed(2)} 个公式吗？这些都只是理论上界，还没考虑人类实际能力。人生苦短，别背了～`
       : `Bruh, would you really want to learn 2,768 full-floating 3-style algs just to save ${savedFull.toFixed(2)} algs per scramble on average, and another 11,088 full-floating parity algs just to save ${savedParity.toFixed(2)} more algs per scramble? These are only theoretical upper bounds, without accounting for human-level practicality. Life is short, be happy :)`;
 
     // Saved-alg distribution per skill level (vs Basic)

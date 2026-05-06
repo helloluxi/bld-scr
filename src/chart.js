@@ -17,13 +17,15 @@ window.chartUtils = (() => {
 
     const numericValues = values.map(value => Number(value) || 0);
     const chartLabels = labels.map(label => String(label));
+    const hasCumulative = Array.isArray(options.cumulative) && options.cumulative.length === numericValues.length;
     chart.innerHTML = '';
     gridLines.innerHTML = '';
     xAxis.innerHTML = '';
 
-    const maxVal = options.maxValue || Math.ceil(Math.max(...numericValues) * 10) / 10 || 0.1;
+    const defaultMax = hasCumulative ? 1 : (Math.ceil(Math.max(...numericValues) * 10) / 10 || 0.1);
+    const maxVal = options.maxValue || defaultMax;
     const gridCount = options.gridCount || 5;
-    const gridDigits = options.gridDigits ?? 2;
+    const gridDigits = options.gridDigits ?? (hasCumulative ? 1 : 2);
     const spaced = options.spaced ?? chartLabels.length <= 5;
     const tooltipScale = options.tooltipScale ?? 100;
     const tooltipDigits = options.tooltipDigits ?? 2;
@@ -46,6 +48,34 @@ window.chartUtils = (() => {
       bar.setAttribute('data-value', ((options.tooltipValues?.[index] ?? value) * tooltipScale).toFixed(tooltipDigits));
       chart.appendChild(bar);
     });
+
+    if (hasCumulative) {
+      const ns = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('class', 'chart-cum-line');
+      svg.setAttribute('viewBox', '0 0 100 100');
+      svg.setAttribute('preserveAspectRatio', 'none');
+      const N = numericValues.length;
+      const points = options.cumulative.map((c, i) => {
+        const x = ((i + 0.5) / N) * 100;
+        const y = (1 - c) * 100;
+        return `${x.toFixed(3)},${y.toFixed(3)}`;
+      }).join(' ');
+      const polyline = document.createElementNS(ns, 'polyline');
+      polyline.setAttribute('points', points);
+      polyline.setAttribute('vector-effect', 'non-scaling-stroke');
+      svg.appendChild(polyline);
+      chart.appendChild(svg);
+
+      options.cumulative.forEach((c, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'chart-cum-dot';
+        dot.style.left = (((i + 0.5) / N) * 100) + '%';
+        dot.style.bottom = (c * 100) + '%';
+        dot.setAttribute('data-value', (c * tooltipScale).toFixed(tooltipDigits));
+        chart.appendChild(dot);
+      });
+    }
 
     chartLabels.forEach(label => {
       const lbl = document.createElement('div');

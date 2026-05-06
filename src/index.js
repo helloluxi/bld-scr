@@ -92,21 +92,8 @@ function loadSkills() {
   } catch {}
 }
 
-document.querySelectorAll('.skill-checkboxes input[type="checkbox"]').forEach(cb => {
-  cb.addEventListener('change', () => {
-    // Row-exclusive behavior: only one checked per row
-    if (cb.checked) {
-      cb.closest('.parity-checkbox-row').querySelectorAll('input[type="checkbox"]').forEach(o => { if (o !== cb) o.checked = false; });
-    } else {
-      // Ensure at least one is always checked (re-check Basic if nothing is)
-      const row = cb.closest('.parity-checkbox-row');
-      const anyChecked = row.querySelector('input[type="checkbox"]:checked');
-      if (!anyChecked) {
-        const basicCb = row.querySelector('input[type="checkbox"][id*="-basic"]');
-        if (basicCb) basicCb.checked = true;
-      }
-    }
-    // When Full Floating Parity is checked, auto-check full floating for edge/corner and uncheck others
+document.querySelectorAll('.skill-checkboxes .parity-checkbox-row').forEach(row => {
+  uiUtils.wireExclusiveGroup(row, cb => {
     if (cb.id === 'skill-fullfloat-parity' && cb.checked) {
       document.getElementById('skill-fullfloat-edge').checked = true;
       document.getElementById('skill-naive-edge').checked = false;
@@ -115,7 +102,6 @@ document.querySelectorAll('.skill-checkboxes input[type="checkbox"]').forEach(cb
       document.getElementById('skill-naive-corner').checked = false;
       document.getElementById('skill-basic-corner').checked = false;
     }
-    // Uncheck Full Floating Parity if either edge or corner is not full floating
     const pCb = document.getElementById('skill-fullfloat-parity');
     if (pCb.checked && (!document.getElementById('skill-fullfloat-edge').checked || !document.getElementById('skill-fullfloat-corner').checked))
       pCb.checked = false;

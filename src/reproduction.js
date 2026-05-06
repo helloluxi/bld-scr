@@ -44,7 +44,7 @@ show("Twisted Corners", tally(allC, c => c.open1), cT);
 show("Float 3-Cycle Edges", tally(allE, c => c.closed3), eT);
 show("Float 3-Cycle Corners", tally(allC, c => c.closed3), cT);
 
-// Fixed Break-In Swap (edge buffer index distribution)
+// Cascading Pseudo Swap (edge buffer index distribution)
 function falling(x, k) {
   let r = 1;
   for (let i = 0; i < k; i++) r *= (x - i);
@@ -86,8 +86,8 @@ function showBIS(name, arr) {
   console.log(`—\t${Math.round(arr[0])}\t${(arr[0] / t).toFixed(4)}\t1.0000`);
 }
 
-showBIS("Fixed Break-In Swap — No Parity Constraint", bisAll);
-showBIS("Fixed Break-In Swap — Odd Parity Only",      bisOdd);
+showBIS("Cascading Pseudo Swap — No Parity Constraint", bisAll);
+showBIS("Cascading Pseudo Swap — Odd Parity Only",      bisOdd);
 
 // LTCT & T2C
 const oddC = cycler.oddCorners;
