@@ -243,10 +243,10 @@
 
     </div>
 
-    <div class="card" id="edge-stats">
-      <h2>棱块统计</h2>
+    <div class="card" id="cycle-breaks">
+      <h2>小循环</h2>
       <details>
-        <summary>小循环</summary>
+        <summary>棱块</summary>
         <table data-stat="edge-breaks">
           <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
           <tbody></tbody>
@@ -255,6 +255,18 @@
       </details>
 
       <details>
+        <summary>角块</summary>
+        <table data-stat="corner-breaks">
+          <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
+          <tbody></tbody>
+        </table>
+        <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
+      </details>
+    </div>
+
+    <div class="card" id="flip-twist">
+      <h2>翻色</h2>
+      <details>
         <summary>翻棱数（不含缓冲）</summary>
         <table data-stat="edge-flipped">
           <tr><th>数量</th><th>计数</th><th>概率</th></tr>
@@ -262,27 +274,6 @@
         </table>
         <div class="help-chart" data-chart-title="Flipped Edges"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">由朝向对称性可知，原地还原棱块数（不含缓冲）服从同一分布。</p>
-      </details>
-
-      <details>
-        <summary>浮动纯三循环（不含缓冲）</summary>
-        <table data-stat="edge-float3">
-          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart" data-chart-title="Float 3-Cycles in Edges"></div>
-      </details>
-    </div>
-
-    <div class="card" id="corner-stats">
-      <h2>角块统计</h2>
-      <details>
-        <summary>小循环</summary>
-        <table data-stat="corner-breaks">
-          <tr><th>小循环数</th><th>计数</th><th>概率</th></tr>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
       </details>
 
       <details>
@@ -295,12 +286,12 @@
       </details>
 
       <details>
-        <summary>浮动纯三循环（不含缓冲）</summary>
-        <table data-stat="corner-float3">
-          <tr><th>数量</th><th>计数</th><th>概率</th></tr>
+        <summary>4-翻棱 / 3-翻角概率</summary>
+        <p>触发 4-翻棱或 3-翻角公式的概率。4-翻棱：<code>open1 ≥ 3</code>。3-翻角：<code>cwTwist ≥ 3</code>、<code>ccwTwist ≥ 3</code>、<code>cwTwist == 2 &amp;&amp; ccwTwist == 0</code>，或 <code>ccwTwist == 2 &amp;&amp; cwTwist == 0</code>。</p>
+        <table data-stat="multi-flip-twist">
+          <tr><th>类型</th><th>计数</th><th>概率</th></tr>
           <tbody></tbody>
         </table>
-        <div class="help-chart" data-chart-title="Float 3-Cycles in Corners"></div>
       </details>
     </div>
 

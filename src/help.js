@@ -154,9 +154,17 @@ function populateStaticTables() {
   fillTbody('edge-flipped',   probRows(tally(allE, c => c.open1), eT));
   fillTbody('corner-twisted', probRows(tally(allC, c => c.open1), cT));
 
-  // Float 3-Cycles
-  fillTbody('edge-float3',   probRows(tally(allE, c => c.closed3), eT));
-  fillTbody('corner-float3', probRows(tally(allC, c => c.closed3), cT));
+  // Multi-flip / 3-twist invocation probability
+  let fourFlip = 0, threeTwist = 0;
+  for (const cc of allE) if (cc.open1 >= 3) fourFlip += cc.count;
+  for (const cc of allC) {
+    const cw = cc.cwTwist, ccw = cc.ccwTwist;
+    if (cw >= 3 || ccw >= 3 || (cw === 2 && ccw === 0) || (ccw === 2 && cw === 0)) threeTwist += cc.count;
+  }
+  fillTbody('multi-flip-twist',
+    `<tr><td>${isZh ? '4-翻棱' : 'Edge 4-flip'}</td><td>${fourFlip.toLocaleString()}</td><td>${(fourFlip / eT).toFixed(4)}</td></tr>` +
+    `<tr><td>${isZh ? '3-翻角' : 'Corner 3-twist'}</td><td>${threeTwist.toLocaleString()}</td><td>${(threeTwist / cT).toFixed(4)}</td></tr>`
+  );
 
   // LTCT / T2C (odd parity, with at least one open1 / open2 secondary cycle)
   let ltct = 0, t2c = 0;

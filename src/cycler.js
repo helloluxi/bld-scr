@@ -91,6 +91,8 @@ const cycler = (() => {
             this.breaks = otherCycles.filter(cycle => cycle.perm > 1).length;
             this.closed1 = closed1;
             this.open1 = open1;
+            this.cwTwist = twist1Count;
+            this.ccwTwist = twist2Count;
             this.closed2 = closed2;
             this.open2 = open2;
             this.closed3 = closed3;

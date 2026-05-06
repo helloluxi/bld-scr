@@ -52,9 +52,30 @@
       <p>A 3BLD solution decomposes the 12 edges and 8 corners into independent permutation–orientation structures. This tool exhaustively enumerates every <em>cycle configuration</em> and precomputes how many distinct scrambles realise it, giving exact probabilities for any filter.</p>
 
       <h2>Cycle Configuration</h2>
-      <p>A <em>cycle configuration</em> is described by the buffer cycle $(p_0, o_0)$ and a list of secondary cycle types $(p_j, o_j)*r_j$, where $p_j$ is the cycle length, $o_j$ the net orientation, and $r_j$ the number of cycles of that type.</p>
+      <p>A <em>cycle configuration</em> is described by the buffer cycle $(p_0, o_0)$ and a list of non-buffer cycle types $(p_j, o_j)*r_j$, where $p_j$ is the cycle length, $o_j$ the net orientation, and $r_j$ the number of cycles of that type.</p>
 
       <p>Here $o$ is the <em>net orientation</em> of a cycle: $o = \bigl(\sum_{\text{cycle}} o_i\bigr) \bmod O$, where $O=2$ for edges and $O=3$ for corners. Orientation values: $0$ = correct, $1$ = flipped (edges) or CW-twisted (corners), $2$ = CCW-twisted (corners). A 3-cycle with $o=0$ is orientation-clean and can be solved by a single 3-style alg. The global constraint $\sum_{\text{all}} o_i \equiv 0\pmod{O}$ always holds.</p>
+
+      <details>
+        <summary>Field names</summary>
+        <p>Each enumerated configuration is exposed as an object whose fields are referenced throughout this page. <em>Non-buffer cycles</em> means all cycles except the buffer cycle.</p>
+        <table>
+          <thead><tr><th>Field</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td><code>parity</code></td><td>0 (even) or 1 (odd)</td></tr>
+            <tr><td><code>breaks</code></td><td>number of non-buffer cycles with $p > 1$</td></tr>
+            <tr><td><code>closedN</code> ($N=1..5$)</td><td>number of non-buffer cycles of type $(N, 0)$</td></tr>
+            <tr><td><code>openN</code> ($N=1..5$)</td><td>number of non-buffer cycles of type $(N, o)$ with $o \neq 0$</td></tr>
+            <tr><td><code>cwTwist</code></td><td>number of non-buffer cycles of type $(1, 1)$ — flipped edges or CW-twisted corners</td></tr>
+            <tr><td><code>ccwTwist</code></td><td>number of non-buffer cycles of type $(1, 2)$ — CCW-twisted corners (always 0 for edges)</td></tr>
+            <tr><td><code>alg</code></td><td>alg count under Basic 3-style</td></tr>
+            <tr><td><code>algs</code></td><td>alg count under Floating plain 3-cycles only</td></tr>
+            <tr><td><code>algFullFloat</code></td><td>alg count under Full Floating</td></tr>
+            <tr><td><code>algFullParity</code></td><td>alg count under Full Floating Parity</td></tr>
+            <tr><td><code>count</code></td><td>number of distinct scrambles realising this configuration</td></tr>
+          </tbody>
+        </table>
+      </details>
 
       <h2>Counting Scrambles per Configuration</h2>
       $$\operatorname{count} = \frac{(P-1)!\cdot O^{P-1-\sum_j r_j}}{\displaystyle\prod_j p_j^{r_j} \cdot r_j!}$$
@@ -100,7 +121,7 @@
 
       <p><strong>Skill levels (single-buffer 3-style):</strong></p>
       <ul>
-        <li><strong>Basic 3-style</strong> — every secondary cycle is solved buffer-anchored; no floating algs. Orientation is handled separately as flip/twist algs.</li>
+        <li><strong>Basic 3-style</strong> — every non-buffer cycle is solved buffer-anchored; no floating algs. Orientation is handled separately as flip/twist algs.</li>
         <li><strong>Floating plain 3-cycles only</strong> — additionally allowed to cycle three non-buffer pieces with one alg, but only when the cycle is orientation-clean ($o=0$).</li>
         <li><strong>Full Floating</strong> — arbitrary floating 3-cycles, including ones that absorb flips/twists (Phase 1–3 reduction below).</li>
       </ul>
@@ -220,10 +241,10 @@
 
     </div>
 
-    <div class="card" id="edge-stats">
-      <h2>Edge Statistics</h2>
+    <div class="card" id="cycle-breaks">
+      <h2>Cycle Breaks</h2>
       <details>
-        <summary>Cycle Breaks</summary>
+        <summary>Edges</summary>
         <table data-stat="edge-breaks">
           <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
           <tbody></tbody>
@@ -232,6 +253,18 @@
       </details>
 
       <details>
+        <summary>Corners</summary>
+        <table data-stat="corner-breaks">
+          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
+          <tbody></tbody>
+        </table>
+        <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
+      </details>
+    </div>
+
+    <div class="card" id="flip-twist">
+      <h2>Flip / Twist</h2>
+      <details>
         <summary>Flipped Edges (buffer excluded)</summary>
         <table data-stat="edge-flipped">
           <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
@@ -239,27 +272,6 @@
         </table>
         <div class="help-chart" data-chart-title="Flipped Edges"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">Solved-in-place edges (buffer excluded) follow the same distribution by orientation symmetry.</p>
-      </details>
-
-      <details>
-        <summary>Float 3-Cycles (buffer excluded)</summary>
-        <table data-stat="edge-float3">
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart" data-chart-title="Float 3-Cycles in Edges"></div>
-      </details>
-    </div>
-
-    <div class="card" id="corner-stats">
-      <h2>Corner Statistics</h2>
-      <details>
-        <summary>Cycle Breaks</summary>
-        <table data-stat="corner-breaks">
-          <tr><th>Breaks</th><th>Count</th><th>Probability</th></tr>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
       </details>
 
       <details>
@@ -272,12 +284,12 @@
       </details>
 
       <details>
-        <summary>Float 3-Cycles (buffer excluded)</summary>
-        <table data-stat="corner-float3">
-          <tr><th>Number</th><th>Count</th><th>Probability</th></tr>
+        <summary>4-flip / 3-twist Probability</summary>
+        <p>Probability that a scramble's non-buffer cycles invoke a 4-flip or 3-twist alg. Edge 4-flip: <code>open1 ≥ 3</code>. Corner 3-twist: <code>cwTwist ≥ 3</code>, <code>ccwTwist ≥ 3</code>, <code>cwTwist == 2 &amp;&amp; ccwTwist == 0</code>, or <code>ccwTwist == 2 &amp;&amp; cwTwist == 0</code>.</p>
+        <table data-stat="multi-flip-twist">
+          <tr><th>Type</th><th>Count</th><th>Probability</th></tr>
           <tbody></tbody>
         </table>
-        <div class="help-chart" data-chart-title="Float 3-Cycles in Corners"></div>
       </details>
     </div>
 
@@ -306,7 +318,7 @@
 
         <p>These two sets are in bijection: swapping the physical UF and X pieces maps each applicable case to the corresponding not-applicable case and vice versa. This gives a clean 50% probability that the first preferred position (index #1) is applicable, regardless of parity. The remaining position at the end of the buffer cycle ($p_0 > 1$) can have either orientation with equal probability, so it contributes half to each side.</p>
 
-        <p>Formally, for a cycle configuration with buffer cycle length $p_0$ and $f$ solved-in-place edges among secondary cycles:</p>
+        <p>Formally, for a cycle configuration with buffer cycle length $p_0$ and $f$ solved-in-place edges among non-buffer cycles:</p>
         <ul>
           <li>$a = 11 - h - n$: fully applicable positions (not in buffer cycle, not solved)</li>
           <li>$h = \mathbf{1}_{p_0 > 1}$: the last position in the buffer cycle — applicable iff its orientation is correct (probability $\frac{1}{2}$)</li>
@@ -346,7 +358,7 @@
         <summary>Results</summary>
         <p><strong>LTCT</strong> (Last Target Corner Twist) combines solving the final corner target with twisting two misoriented corners into a single algorithm, saving one twist alg. It requires odd parity and at least one twisted non-buffer corner (<code>open1&gt;=1</code>).</p>
 
-        <p><strong>T2C</strong> (Twisted 2 Corners) solves the final corner target when the buffer corner is twisted and two remaining corners are swapped, combining the swap and buffer untwist into one algorithm. It requires odd parity and at least one misoriented secondary 2-cycle (<code>open2&gt;=1</code>).</p>
+        <p><strong>T2C</strong> (Twisted 2 Corners) solves the final corner target when the buffer corner is twisted and two remaining corners are swapped, combining the swap and buffer untwist into one algorithm. It requires odd parity and at least one misoriented non-buffer 2-cycle (<code>open2&gt;=1</code>).</p>
 
         <p><strong>Note</strong>: In practice, most BLDers specialize in LTCT or T2C algorithms for a fixed edge pair (e.g., UF–UR), so the actual applicable cases are even fewer—roughly half of those shown above when using cascading pseudo/weak swap.</p>
         
