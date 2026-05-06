@@ -883,9 +883,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const savedFull = totalsByName[t.basic] - totalsByName[t.fullFloat];
     const savedParity = totalsByName[t.fullFloat] - totalsByName[t.fullFloatParity];
-    document.getElementById('saved-algs-quip').textContent = isZh
-      ? `你真的会想背 2768 个全浮动三循环公式，只为了平均每把少 ${savedFull.toFixed(2)} 个公式；再多背 11088 个全浮动奇偶公式，也只再平均每把少 ${savedParity.toFixed(2)} 个公式吗？这些都只是理论上界，还没考虑人类实际能力。人生苦短，别背了～`
-      : `Bruh, would you really want to learn 2,768 full-floating 3-style algs just to save ${savedFull.toFixed(2)} algs per scramble on average, and another 11,088 full-floating parity algs just to save ${savedParity.toFixed(2)} more algs per scramble? These are only theoretical upper bounds, without accounting for human-level practicality. Life is short, be happy :)`;
+    document.getElementById('saved-full-num').textContent = savedFull.toFixed(2);
+    document.getElementById('saved-parity-num').textContent = savedParity.toFixed(2);
 
     // Saved-alg distribution per skill level (vs Basic)
     const distLevels = [
