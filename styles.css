@@ -13,7 +13,7 @@
   --hover-color: #2c2c2c;
   --code-bg: #2d2d2d;
   --code-color: #ff6b6b;
-  --cum-color: #88cc88;
+  --secondary: #88cc88;
 }
 
 :root[data-theme="light"] {
@@ -29,7 +29,7 @@
   --hover-color: #f0f0f0;
   --code-bg: #f8f8f8;
   --code-color: #d32f2f;
-  --cum-color: #88cc88;
+  --secondary: #88cc88;
 }
 
 * {
@@ -788,7 +788,7 @@ tbody tr:hover td {
 }
 
 .card table td:nth-child(odd):not(:first-child) {
-  color: #88cc88;
+  color: var(--secondary);
 }
 
 .card table.prose td:nth-child(even),
@@ -871,7 +871,7 @@ details[open] summary::before {
 }
 
 .chart-bar {
-  background: var(--primary);
+  background: var(--secondary);
   flex: 1;
   transition: height 0.3s;
   border-radius: 4px 4px 0 0;
@@ -896,7 +896,7 @@ details[open] summary::before {
 
 .chart-cum-line polyline {
   fill: none;
-  stroke: var(--cum-color);
+  stroke: var(--primary);
   stroke-width: 1.5;
 }
 
@@ -905,7 +905,7 @@ details[open] summary::before {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--cum-color);
+  background: var(--primary);
   transform: translate(-50%, 50%);
   z-index: 4;
   cursor: default;

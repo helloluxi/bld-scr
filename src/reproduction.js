@@ -40,54 +40,106 @@ show("Corner Cycle Breaks", tally(allC, c => c.breaks), cT);
 show("Flipped Edges", tally(allE, c => c.open1), eT);
 show("Twisted Corners", tally(allC, c => c.open1), cT);
 
-// Float 3-Cycles
-show("Float 3-Cycle Edges", tally(allE, c => c.closed3), eT);
-show("Float 3-Cycle Corners", tally(allC, c => c.closed3), cT);
+// 4-flip / 3-twist Probability
+let fourFlip = 0, threeTwist = 0;
+for (const cc of allE) if (cc.open1 >= 3) fourFlip += cc.count;
+for (const cc of allC) {
+  const cw = cc.cwTwist, ccw = cc.ccwTwist;
+  if (cw >= 3 || ccw >= 3 || (cw === 2 && ccw === 0) || (ccw === 2 && cw === 0)) threeTwist += cc.count;
+}
+console.log(`\n=== 4-flip / 3-twist Probability ===`);
+console.log(`Edge 4-flip\t${fourFlip}\t${(fourFlip/eT).toFixed(4)}`);
+console.log(`Corner 3-twist\t${threeTwist}\t${(threeTwist/cT).toFixed(4)}`);
 
-// Cascading Pseudo Swap (edge buffer index distribution)
+// Edge / Corner / Total Algs (Basic 3-style — other skill levels derive from cc.algFullFloat etc.)
+show("Edge Algs (Basic)",   tally(allE, c => c.alg), eT);
+show("Corner Algs (Basic)", tally(allC, c => c.alg), cT);
+
+// Saved-alg means by skill level
+const skillLevels = [
+  { name: 'Basic 3-style',           e: cc => cc.alg,                c: cc => cc.alg },
+  { name: 'Floating plain 3-cycles', e: cc => cc.alg - cc.closed3,   c: cc => cc.alg - cc.closed3 },
+  { name: 'Full Floating',           e: cc => cc.algFullFloat,       c: cc => cc.algFullFloat },
+  { name: 'Full Floating Parity',    e: cc => cc.algFullParity,      c: cc => cc.algFullParity },
+];
+
+function avg(configs, fn, total) {
+  let s = 0;
+  for (const cc of configs) s += fn(cc) * cc.count;
+  return s / total;
+}
+
+function totalAvg(eFn, cFn) {
+  const eByP = [new Map(), new Map()], cByP = [new Map(), new Map()];
+  for (const cc of allE) { const k = eFn(cc); eByP[cc.parity].set(k, (eByP[cc.parity].get(k) || 0) + cc.count); }
+  for (const cc of allC) { const k = cFn(cc); cByP[cc.parity].set(k, (cByP[cc.parity].get(k) || 0) + cc.count); }
+  let w = 0, ws = 0;
+  for (let p = 0; p <= 1; p++) {
+    let eS = 0, cS = 0;
+    for (const v of eByP[p].values()) eS += v;
+    for (const v of cByP[p].values()) cS += v;
+    w += eS * cS;
+    for (const [ek, ev] of eByP[p]) for (const [ck, cv] of cByP[p]) ws += (ek + ck) * ev * cv;
+  }
+  return ws / w;
+}
+
+console.log('\n=== Saved-alg Means by Skill Level ===');
+console.log('Skill\tEdge\tCorner\tTotal');
+for (const lv of skillLevels) {
+  const eM = avg(allE, lv.e, eT), cM = avg(allC, lv.c, cT), tM = totalAvg(lv.e, lv.c);
+  console.log(`${lv.name}\t${eM.toFixed(2)}\t${cM.toFixed(2)}\t${tM.toFixed(2)}`);
+}
+
+// Cascading Pseudo Swap (buffer index distribution)
 function falling(x, k) {
   let r = 1;
   for (let i = 0; i < k; i++) r *= (x - i);
   return r;
 }
 
-const bisAll = new Array(12).fill(0), bisOdd = new Array(12).fill(0);
-
-function bisProcess(cc, isOdd) {
-  const p0 = cc.cycles[0].perm, f1 = cc.closed1;
-  const h = (p0 > 1) ? 1 : 0;
-  const n0 = Math.max(0, p0 - 2) + f1, a0 = 11 - h - n0;
-  const vcs = h === 0
-    ? [[cc.count, a0, 11 - a0]]
-    : [[cc.count / 2, a0 + 1, 11 - a0 - 1],
-       [cc.count / 2, a0,     11 - a0]];
-  for (const [w, a, n] of vcs) {
-    if (a === 0) { bisAll[0] += w; if (isOdd) bisOdd[0] += w; continue; }
-    for (let k = 1; k <= 11; k++) {
-      if (k - 1 > n) break;
-      const c = w * a * falling(n, k - 1) / falling(11, k);
-      bisAll[k] += c;
-      if (isOdd) bisOdd[k] += c;
+function computeCPS(even, odd, P, hNum, hDen) {
+  const all = new Array(P + 1).fill(0), oddArr = new Array(P + 1).fill(0);
+  function process(cc, isOdd) {
+    const p0 = cc.cycles[0].perm, f1 = cc.closed1;
+    const h = (p0 > 1) ? 1 : 0;
+    const n0 = Math.max(0, p0 - 2) + f1, a0 = P - h - n0;
+    const vcs = h === 0
+      ? [[cc.count, a0, P - a0]]
+      : [[cc.count * hNum / hDen,         a0 + 1, P - a0 - 1],
+         [cc.count * (hDen - hNum) / hDen, a0,     P - a0]];
+    for (const [w, a, n] of vcs) {
+      if (a === 0) { all[0] += w; if (isOdd) oddArr[0] += w; continue; }
+      for (let k = 1; k <= P; k++) {
+        if (k - 1 > n) break;
+        const c = w * a * falling(n, k - 1) / falling(P, k);
+        all[k] += c;
+        if (isOdd) oddArr[k] += c;
+      }
     }
   }
+  even.forEach(cc => process(cc, false));
+  odd .forEach(cc => process(cc, true));
+  return { all, odd: oddArr };
 }
 
-cycler.evenEdges.forEach(cc => bisProcess(cc, false));
-cycler.oddEdges .forEach(cc => bisProcess(cc, true));
-
-function showBIS(name, arr) {
+function showCPS(name, arr, P) {
   console.log(`\n=== ${name} ===`);
   const t = arr.reduce((s, v) => s + v, 0);
   let cum = 0;
-  for (let k = 1; k <= 11; k++) {
+  for (let k = 1; k <= P; k++) {
     cum += arr[k];
     console.log(`#${k}\t${Math.round(arr[k])}\t${(arr[k] / t).toFixed(4)}\t${(cum / t).toFixed(4)}`);
   }
   console.log(`—\t${Math.round(arr[0])}\t${(arr[0] / t).toFixed(4)}\t1.0000`);
 }
 
-showBIS("Cascading Pseudo Swap — No Parity Constraint", bisAll);
-showBIS("Cascading Pseudo Swap — Odd Parity Only",      bisOdd);
+const edgeCPS   = computeCPS(cycler.evenEdges,   cycler.oddEdges,   11, 1, 2);
+const cornerCPS = computeCPS(cycler.evenCorners, cycler.oddCorners,  7, 1, 3);
+showCPS("Cascading Pseudo Swap (Edges) — No Parity Constraint", edgeCPS.all,   11);
+showCPS("Cascading Pseudo Swap (Edges) — Odd Parity Only",      edgeCPS.odd,   11);
+showCPS("Cascading Pseudo Swap (Corners) — No Parity Constraint", cornerCPS.all, 7);
+showCPS("Cascading Pseudo Swap (Corners) — Odd Parity Only",      cornerCPS.odd, 7);
 
 // LTCT & T2C
 const oddC = cycler.oddCorners;
@@ -169,6 +221,21 @@ show4('Wing Cycle Breaks',       tally4(c => c.breaks),  WT);
 show4('Solved Wings',            tally4(c => c.closed1), WT);
 show4('Float 2-Cycles in Wings', tally4(c => c.closed2), WT);
 show4('Float 3-Cycles in Wings', tally4(c => c.closed3), WT);
+
+// Wing alg means by skill level
+const wingTotalNum = Number(WT);
+const wingLevels = [
+  { name: 'Basic',          fn: w => w.alg },
+  { name: 'Basic floating', fn: w => w.algF3 },
+  { name: 'Full Floating',  fn: w => w.algFF },
+];
+console.log('\n=== Wing Alg Means by Skill Level ===');
+console.log('Skill\tMean');
+for (const lv of wingLevels) {
+  let s = 0;
+  for (const w of cycler4.wings) s += lv.fn(w) * Number(w.count);
+  console.log(`${lv.name}\t${(s / wingTotalNum).toFixed(2)}`);
+}
 
 const cd = cycler4.centers();
 const ctTotal = cd.reduce((s, [, v]) => s + v, 0);

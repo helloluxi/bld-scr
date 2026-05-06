@@ -207,51 +207,74 @@ function populateStaticTables() {
 }
 
 function populateBreakInSwap() {
-  const tbody = lastTbody('bis');
+  buildBreakInSwap({
+    statKey: 'cps',
+    modePrefix: 'cps',
+    even: cycler.evenEdges,
+    odd: cycler.oddEdges,
+    pieceCount: 11,
+    visIndices: 22,
+    hApplicableNum: 1,
+    hApplicableDen: 2,
+  });
+  buildBreakInSwap({
+    statKey: 'cps-corner',
+    modePrefix: 'cps-corner',
+    even: cycler.evenCorners,
+    odd: cycler.oddCorners,
+    pieceCount: 7,
+    visIndices: 21,
+    hApplicableNum: 1,
+    hApplicableDen: 3,
+  });
+}
+
+function buildBreakInSwap(opts) {
+  const { statKey, modePrefix, even, odd, pieceCount: P, visIndices: V,
+          hApplicableNum: hNum, hApplicableDen: hDen } = opts;
+  const tbody = lastTbody(statKey);
   if (!tbody) return;
 
   function falling(x, k) { let r = 1; for (let i = 0; i < k; i++) r *= (x - i); return r; }
 
-  const res = new Array(12).fill(0), resOdd = new Array(12).fill(0);
+  const res = new Array(P + 1).fill(0), resOdd = new Array(P + 1).fill(0);
   function process(cc, isOdd) {
     const p0 = cc.cycles[0].perm, f1 = cc.closed1;
     const h = (p0 > 1) ? 1 : 0;
-    const n0 = Math.max(0, p0 - 2) + f1, a0 = 11 - h - n0;
+    const n0 = Math.max(0, p0 - 2) + f1, a0 = P - h - n0;
     const vcs = h === 0
-      ? [[cc.count, a0, 11 - a0]]
-      : [[cc.count / 2, a0 + 1, 11 - a0 - 1],
-         [cc.count / 2, a0,     11 - a0]];
+      ? [[cc.count, a0, P - a0]]
+      : [[cc.count * hNum / hDen,         a0 + 1, P - a0 - 1],
+         [cc.count * (hDen - hNum) / hDen, a0,     P - a0]];
     for (const [w, a, n] of vcs) {
       if (a === 0) { res[0] += w; if (isOdd) resOdd[0] += w; continue; }
-      for (let k = 1; k <= 11; k++) {
+      for (let k = 1; k <= P; k++) {
         if (k - 1 > n) break;
-        const c = w * a * falling(n, k - 1) / falling(11, k);
+        const c = w * a * falling(n, k - 1) / falling(P, k);
         res[k] += c;
         if (isOdd) resOdd[k] += c;
       }
     }
   }
-  cycler.evenEdges.forEach(cc => process(cc, false));
-  cycler.oddEdges .forEach(cc => process(cc, true));
+  even.forEach(cc => process(cc, false));
+  odd .forEach(cc => process(cc, true));
 
-  // Spread arr[0] (no applicable target) evenly across synthetic indices #12..#22
+  // Spread arr[0] (no applicable target) evenly across synthetic indices P+1..V
   // so the cumulative curve continues smoothly to 1.
+  const spreadCount = V - P;
   function expand(arr) {
-    const out = new Array(23).fill(0);
-    for (let k = 1; k <= 11; k++) out[k] = arr[k];
-    const each = arr[0] / 11;
-    for (let k = 12; k <= 22; k++) out[k] = each;
+    const out = new Array(V + 1).fill(0);
+    for (let k = 1; k <= P; k++) out[k] = arr[k];
+    const each = arr[0] / spreadCount;
+    for (let k = P + 1; k <= V; k++) out[k] = each;
     return out;
   }
 
   function render(arr) {
     const tot = arr.reduce((s, v) => s + v, 0);
-    const labels = [];
-    const values = [];
-    const cumulative = [];
-    let cum = 0;
-    let html = '';
-    for (let k = 1; k <= 22; k++) {
+    const labels = [], values = [], cumulative = [];
+    let cum = 0, html = '';
+    for (let k = 1; k <= V; k++) {
       cum += arr[k];
       const p = arr[k] / tot;
       labels.push(`#${k}`);
@@ -263,17 +286,12 @@ function populateBreakInSwap() {
   }
 
   function update() {
-    const oddOnly = document.getElementById('bis-mode-odd')?.checked;
+    const oddOnly = document.getElementById(`${modePrefix}-mode-odd`)?.checked;
     const arr = expand(oddOnly ? resOdd : res);
     const { html, labels, values, cumulative } = render(arr);
     tbody.innerHTML = html;
 
-    const pairs = [];
-    for (let k = 1; k <= 22; k++) pairs.push([k, arr[k]]);
-    const s = meanStdFromPairs(pairs);
-    setStatsAfterTable('bis', s.mean, s.std);
-
-    const table = document.querySelector('[data-stat="bis"]');
+    const table = document.querySelector(`[data-stat="${statKey}"]`);
     const chart = table && table.parentElement.querySelector('.help-chart');
     if (chart) {
       chartUtils.renderChartInMount(chart, labels, values, chart.dataset.chartTitle || '', {
@@ -283,7 +301,7 @@ function populateBreakInSwap() {
     }
   }
 
-  const modeRow = document.getElementById('bis-mode-all').closest('.parity-checkbox-row');
+  const modeRow = document.getElementById(`${modePrefix}-mode-all`).closest('.parity-checkbox-row');
   uiUtils.wireExclusiveGroup(modeRow, update);
   update();
 }
