@@ -1070,3 +1070,7 @@ details[open] summary::before {
   margin-bottom: 0.4rem;
 }
 
+@media (max-width: 600px) {
+  .card table { display: block; overflow-x: auto; max-width: 100%; }
+}
+
