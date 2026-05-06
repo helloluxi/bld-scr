@@ -38,13 +38,14 @@
         <a href="#algs-card">3BLD Algs</a> ·
         <a href="#edge-stats">Edge Stats</a> ·
         <a href="#corner-stats">Corner Stats</a> ·
-        <a href="#bis">Fixed Break-In Swap</a> ·
+        <a href="#bis">Cascading Pseudo/Weak Swap</a> ·
         <a href="#ltct-t2c-card">LTCT &amp; T2C</a> ·
         <a href="#order-card">Group Order</a> ·
         <a href="#bigbld">Big BLD</a> ·
         <a href="#repro">Reproduction</a>
       </p>
       <p id="all-timing" style="margin-top: 1rem;">All tables generated in runtime. 3BLD: <code id="timing-3bld">--</code>. Big BLD: <code id="timing-bigbld">--</code>.</p>
+      <p style="margin-top: 1rem;"><strong>Warning:</strong> these numbers have not been cross-verified yet and may contain errors — please <a href="https://github.com/helloluxi/bld-scr/issues" target="_blank">open a GitHub issue</a> if anything looks off.</p>
     </div>
 
     <div class="card" id="overview">
@@ -97,7 +98,14 @@
       <div id="algs-error" style="display:none;background:var(--error-bg,#fdd);color:var(--error-fg,#900);padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;"></div>
       <p>Exact scramble counts for 3BLD with buffers UF (edges, $P=12$, $O=2$) and UFR (corners, $P=8$, $O=3$), over all $980{,}995{,}276{,}800$ edge states and $88{,}179{,}840$ corner states. Select a skill set to see the corresponding alg count distribution.</p>
 
-      <p style="font-size:0.85rem; color:var(--text-secondary);">All 3BLD statistics on this page are generated at runtime from exhaustive cycle-configuration enumeration — no data is stored as static tables.</p>
+      <p><strong>Skill levels (single-buffer 3-style):</strong></p>
+      <ul>
+        <li><strong>Basic 3-style</strong> — every secondary cycle is solved buffer-anchored; no floating algs. Orientation is handled separately as flip/twist algs.</li>
+        <li><strong>Floating plain 3-cycles only</strong> — additionally allowed to cycle three non-buffer pieces with one alg, but only when the cycle is orientation-clean ($o=0$).</li>
+        <li><strong>Full Floating</strong> — arbitrary floating 3-cycles, including ones that absorb flips/twists (Phase 1–3 reduction below).</li>
+      </ul>
+
+      <p style="font-size:0.85rem; color:var(--text-secondary);"><strong>Comparison with Forsthofer &amp; Hiesl (<a href="https://www.speedcubing.pl/content/3bld-statistics.pdf" target="_blank">2021</a>).</strong> This page assumes full parity on single buffer, which gives less algo count in all categories compared to their results with fixed-pair weak swap. Their parity convention "UR–UF pseudo swap" is the length-1 special case of the <a href="#bis">cascading pseudo/weak swap</a> (row #1). For BLDers mastering only a fixed edge pair, roughly additional 0.5 algs are expected. But the reality is quite nuanced, since if UF-UR pair is mastered, UF-LU or UF-RB pair is basically mastered for free since they are just one S-slice setup away.</p>
 
       <details>
         <summary>Full Floating Reduction Logic (Long Boring Text Alert)</summary>
@@ -152,22 +160,22 @@
       <div class="skill-checkboxes" style="margin-bottom:1rem;">
         <div class="setting-line"><span>Edge</span>
           <div class="parity-checkbox-row tab-style">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-edge" checked><label for="h-skill-basic-edge">Basic</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">Float plain 3-cycle only</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-edge"><label for="h-skill-fullfloat-edge">Full floating</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-edge" checked><label for="h-skill-basic-edge">Basic 3-style</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">Floating plain 3-cycles only</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-edge"><label for="h-skill-fullfloat-edge">Full Floating</label></div>
           </div>
         </div>
         <div class="setting-line"><span>Corner</span>
           <div class="parity-checkbox-row tab-style">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-corner" checked><label for="h-skill-basic-corner">Basic</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">Float plain 3-cycle only</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-corner"><label for="h-skill-fullfloat-corner">Full floating</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-corner" checked><label for="h-skill-basic-corner">Basic 3-style</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">Floating plain 3-cycles only</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-corner"><label for="h-skill-fullfloat-corner">Full Floating</label></div>
           </div>
         </div>
         <div class="setting-line"><span>Parity</span>
           <div class="parity-checkbox-row tab-style">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-parity" checked><label for="h-skill-basic-parity">Basic</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-parity"><label for="h-skill-fullfloat-parity">Full floating parity</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-parity" checked><label for="h-skill-basic-parity">Basic 3-style</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-parity"><label for="h-skill-fullfloat-parity">Full Floating Parity</label></div>
           </div>
         </div>
       </div>
@@ -274,11 +282,13 @@
     </div>
 
     <div class="card" id="bis">
-      <h2>Fixed Break-In Swap</h2>
+      <h2>Cascading Pseudo/Weak Swap</h2>
 
       <details>
         <summary>Intro</summary>
-        <p>When a 3BLD scramble has <strong>odd parity</strong>, the solver must incorporate a 2-swap (parity algorithm) into their execution. The <em>fixed break-in swap</em> technique resolves parity by designating a fixed preference order among the 11 non-buffer edge positions (e.g., UR first, then UB, UL, …). During memo, the solver checks each preferred position in order until one is <strong>applicable</strong> — meaning it can serve as the parity-swap target with the buffer.</p>
+        <p>When a 3BLD scramble has <strong>odd parity</strong>, the solver must incorporate a 2-swap (parity algorithm) into their execution. The <em>cascading pseudo/weak swap</em> technique resolves parity by designating a fixed preference order among the 11 non-buffer edge positions (e.g., UR first, then UB, UL, …). During memo, the solver checks each preferred position in order until one is <strong>applicable</strong> — meaning it can serve as the parity-swap target with the buffer.</p>
+
+        <p style="font-size:0.85rem; color:var(--text-secondary);">"Pseudo swap" and "weak swap" are interchangeable BLD terms for a memo-time deferred swap; Forsthofer &amp; Hiesl (<a href="https://www.speedcubing.pl/content/3bld-statistics.pdf" target="_blank">2021</a>) use the "UR–UF pseudo swap", which is the length-1 special case of the cascading version below (preference list = {UR}).</p>
 
         <p>For buffer UF, a position X is applicable as a swap target if any of these hold:</p>
         <ul>
@@ -313,7 +323,7 @@
           <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
-        <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — No Parity Constraint" data-chart-spaced="false"></div>
+        <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap — No Parity Constraint" data-chart-spaced="false"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes cases which contains no edge cycle breaks and ends on an edge with wrong orientation, so there's no space of maneuver.</p>
       </details>
 
@@ -323,7 +333,7 @@
           <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
           <tbody></tbody>
         </table>
-        <div class="help-chart dense" data-chart-title="Fixed Break-In Swap — Odd Parity Only" data-chart-spaced="false"></div>
+        <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap — Odd Parity Only" data-chart-spaced="false"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">— denotes cases which contains no edge cycle breaks and ends on an edge with wrong orientation, so there's no space of maneuver.</p>
       </details>
 
@@ -338,7 +348,7 @@
 
         <p><strong>T2C</strong> (Twisted 2 Corners) solves the final corner target when the buffer corner is twisted and two remaining corners are swapped, combining the swap and buffer untwist into one algorithm. It requires odd parity and at least one misoriented secondary 2-cycle (<code>open2&gt;=1</code>).</p>
 
-        <p><strong>Note</strong>: In practice, most BLDers specialize in LTCT or T2C algorithms for a fixed edge pair (e.g., UF–UR), so the actual applicable cases are even fewer—roughly half of those shown above when using fixed break-in swap.</p>
+        <p><strong>Note</strong>: In practice, most BLDers specialize in LTCT or T2C algorithms for a fixed edge pair (e.g., UF–UR), so the actual applicable cases are even fewer—roughly half of those shown above when using cascading pseudo/weak swap.</p>
         
         <table data-stat="ltct-t2c">
           <tr><th>Technique</th><th>Count</th><th>Probability</th></tr>
@@ -369,7 +379,7 @@
             <div class="parity-checkbox-row tab-style">
               <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-basic" checked><label for="bigbld-skill-basic">Basic</label></div>
               <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-naive"><label for="bigbld-skill-naive">Basic floating</label></div>
-              <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-full"><label for="bigbld-skill-full">Full floating</label></div>
+              <div class="parity-checkbox"><input type="checkbox" id="bigbld-skill-full"><label for="bigbld-skill-full">Full Floating</label></div>
             </div>
           </div>
           <div class="setting-line"><span>Parity</span>

@@ -46,6 +46,7 @@
         <a href="#repro">复现</a>
       </p>
       <p id="all-timing" style="margin-top: 1rem;">所有表格均为运行时生成。3BLD: <code id="timing-3bld">--</code>。Big BLD: <code id="timing-bigbld">--</code>。</p>
+      <p style="margin-top: 1rem;"><strong>警告：</strong>本页数据尚未经过交叉验证，可能存在错误，如发现异常欢迎在 <a href="https://github.com/helloluxi/bld-scr/issues" target="_blank">GitHub 提交 issue</a>。</p>
     </div>
 
     <div class="card" id="overview">
@@ -120,7 +121,14 @@
       <div id="algs-error" style="display:none;background:var(--error-bg,#fdd);color:var(--error-fg,#900);padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;"></div>
       <p>在缓冲位 UF（棱，$P=12$, $O=2$）与 UFR（角，$P=8$, $O=3$）下，对全部 $980{,}995{,}276{,}800$ 种棱状态与 $88{,}179{,}840$ 种角状态给出精确打乱计数。选择技巧组合可查看对应的公式计数分布。</p>
 
-      <p style="font-size:0.85rem; color:var(--text-secondary);">本页所有三盲统计数据均在运行时由穷举循环配置生成，而非存储为静态表格。</p>
+      <p><strong>技巧等级（单缓冲 3-style）：</strong></p>
+      <ul>
+        <li><strong>基础</strong> —— 所有小循环均锚定缓冲；不使用浮动公式；朝向单独以翻棱/翻角公式处理。</li>
+        <li><strong>仅浮动纯三循环</strong> —— 额外允许用一个公式循环三个非缓冲块，但仅当循环朝向干净（$o=0$）时。</li>
+        <li><strong>全浮动</strong> —— 任意浮动三循环，包括吸收翻棱/翻角的情形（下方阶段 1–3 归约）。</li>
+      </ul>
+
+      <p style="font-size:0.85rem; color:var(--text-secondary);"><strong>与 Forsthofer &amp; Hiesl (<a href="https://www.speedcubing.pl/content/3bld-statistics.pdf" target="_blank">2021</a>) 的对照。</strong>本页假设单缓冲完全处理奇偶，因此各类别下的公式数都低于他们采用固定对 weak swap 的结果。他们的奇偶约定「UR–UF pseudo swap」即<a href="#bis">固定借位法</a>在优先列表长度为 1 时的特例（对应第 1 行）。对只掌握固定一对棱的盲拧选手，预计大约会多 0.5 个公式。但实情颇为微妙：掌握 UF-UR 对之后，UF-LU 或 UF-RB 对基本算是免费掌握，因为它们只差一次 S 层 setup。</p>
 
       <details>
         <summary>全浮动归约逻辑（又臭又长警告）</summary>
@@ -303,6 +311,8 @@
         <summary>简介</summary>
         <p>当三盲打乱为<strong>奇偶为奇</strong>时，执行中必须并入一个 2-swap（奇偶算法）。<em>固定借位法</em>通过预先设定 11 个非缓冲棱位的固定优先顺序（例如先 UR，再 UB、UL……）来处理奇偶。记忆时按顺序检查这些位置，直到找到一个<strong>可用</strong>位置作为与缓冲交换的目标。</p>
 
+        <p style="font-size:0.85rem; color:var(--text-secondary);">在 BLD 术语中「pseudo swap」与「weak swap」可互换使用，均指记忆时延迟执行的 2-swap；Forsthofer &amp; Hiesl (<a href="https://www.speedcubing.pl/content/3bld-statistics.pdf" target="_blank">2021</a>) 使用的「UR–UF pseudo swap」即本页固定借位法在优先列表 = {UR} 的长度-1 特例。</p>
+
         <p>对缓冲 UF，位置 X 在满足以下任一条件时可作为交换目标：</p>
         <ul>
           <li>UF 块在 X 上：跳过该字母，留到末尾奇偶交换处理。</li>
@@ -362,7 +372,7 @@
         <p><strong>T2C</strong>（Twisted 2 Corners）用于缓冲角已翻且另外两角互换时，把交换与缓冲解翻合并为一个公式来处理最后角目标。要求奇偶为奇，且至少存在一个错朝向小循环 2-cycle（<code>open2&gt;=1</code>）。</p>
 
         <p><strong>注</strong>：实际中多数 BLD 选手只专精固定棱对（如 UF-UR）下的 LTCT 或 T2C，因此真正可用的情况会更少；在固定借位法下，通常约为上表的一半。</p>
-        
+
         <table data-stat="ltct-t2c">
           <tr><th>技巧</th><th>计数</th><th>概率</th></tr>
           <tbody></tbody>

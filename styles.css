@@ -823,8 +823,12 @@ details summary::-webkit-details-marker {
 }
 
 details summary::before {
-  content: '\25B6';
-  font-size: 0.65rem;
+  content: '';
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid currentColor;
   transition: transform 0.2s;
   flex-shrink: 0;
 }

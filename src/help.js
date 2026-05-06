@@ -22,9 +22,9 @@ const t = {
   cumulative: isZh ? '累积' : 'Cumulative',
   mean: isZh ? '均值' : 'Mean',
   std: isZh ? '标准差' : 'Std',
-  basic: isZh ? '基础' : 'Basic',
+  basic: isZh ? '基础' : 'Basic 3-style',
   advanced: isZh ? '进阶' : 'Advanced',
-  naiveFloat3: isZh ? '仅浮动纯三循环' : 'Float plain 3-cycle only',
+  naiveFloat3: isZh ? '仅浮动纯三循环' : 'Floating plain 3-cycles only',
   fullFloat: isZh ? '全浮动' : 'Full Floating',
   fullFloatParity: isZh ? '全浮动奇偶' : 'Full Floating Parity',
   parityEven: isZh ? '偶' : 'even',
@@ -743,7 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const levels = [
       { name: t.basic, e: cc => cc.alg, c: cc => cc.alg },
-      { name: isZh ? '仅浮动纯三循环' : 'Float plain 3-cycle only', e: cc => cc.alg - cc.closed3, c: cc => cc.alg - cc.closed3 },
+      { name: t.naiveFloat3, e: cc => cc.alg - cc.closed3, c: cc => cc.alg - cc.closed3 },
       { name: t.fullFloat, e: cc => cc.algFullFloat, c: cc => cc.algFullFloat },
       { name: t.fullFloatParity, e: cc => cc.algFullParity, c: cc => cc.algFullParity },
     ];
@@ -794,7 +794,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Saved-alg distribution per skill level (vs Basic)
     const distLevels = [
-      { name: isZh ? '仅浮动纯三循环' : 'Float plain 3-cycle only', e: cc => cc.closed3,            c: cc => cc.closed3 },
+      { name: t.naiveFloat3,     e: cc => cc.closed3,            c: cc => cc.closed3 },
       { name: t.fullFloat,       e: cc => cc.alg - cc.algFullFloat,  c: cc => cc.alg - cc.algFullFloat },
       { name: t.fullFloatParity, e: cc => cc.alg - cc.algFullParity, c: cc => cc.alg - cc.algFullParity },
     ];
