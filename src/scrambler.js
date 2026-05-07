@@ -18,20 +18,24 @@ const scrambler = (() => {
         return c >= 'A' && c <= 'Z';
     }
 
+    const SOLVED_CUBE = 'uuuuuuuuurrrrrrrrrfffffffffdddddddddlllllllllbbbbbbbbb';
+
+    function applyBldLetter(cube, c) {
+        if (isUpperCase(c)) {
+            let i = edgeCode.indexOf(c);
+            swap(cube, edgeIdxOnCube[0], edgeIdxOnCube[i]);
+            swap(cube, edgeIdxOnCube[1], edgeIdxOnCube[i^1]);
+        } else {
+            let i = cornerCode.indexOf(c);
+            swap(cube, cornerIdxOnCube[0], cornerIdxOnCube[i]);
+            swap(cube, cornerIdxOnCube[1], cornerIdxOnCube[((i/3)|0)*3+(i+1)%3]);
+            swap(cube, cornerIdxOnCube[2], cornerIdxOnCube[((i/3)|0)*3+(i+2)%3]);
+        }
+    }
+
     function genCube(bfCode){
-        let cube = 'uuuuuuuuurrrrrrrrrfffffffffdddddddddlllllllllbbbbbbbbb'.split('');
-        bfCode.split('').reverse().forEach(c => {
-            if (isUpperCase(c)) {
-                let i = edgeCode.indexOf(c);
-                swap(cube, edgeIdxOnCube[0], edgeIdxOnCube[i]);
-                swap(cube, edgeIdxOnCube[1], edgeIdxOnCube[i^1]);
-            } else {
-                let i = cornerCode.indexOf(c);
-                swap(cube, cornerIdxOnCube[0], cornerIdxOnCube[i]);
-                swap(cube, cornerIdxOnCube[1], cornerIdxOnCube[((i/3)|0)*3+(i+1)%3]);
-                swap(cube, cornerIdxOnCube[2], cornerIdxOnCube[((i/3)|0)*3+(i+2)%3]);
-            }
-        });
+        let cube = SOLVED_CUBE.split('');
+        bfCode.split('').reverse().forEach(c => applyBldLetter(cube, c));
         return cube.join('');
     }
 
@@ -121,6 +125,7 @@ const scrambler = (() => {
         let code = [], remain = Array.from({length: p-1}, (_, i) => i + 1);
         for (let ccIdx = 0; ccIdx < whichCC.length; ccIdx++) {
             const cycle = whichCC[ccIdx];
+            if (cycle.perm === 1 && cycle.ori === 0) continue;
             let head = 0;
             if (ccIdx != 0) {
                 const headIdx = Math.random() * remain.length | 0;
@@ -156,29 +161,47 @@ const scrambler = (() => {
         return scr.length === 0 ? 'Seriously? You are not even trying.' : scr;
     }
 
-    function getScrambleAndCode() {
+    function getScrambleAndCode(opts) {
         // Initialize CDFs if empty (use all configs)
         if (!evenEdgeCDF || evenEdgeCDF.length === 0) {
             getProbabilityFromBoolFunction(x => true, x => true);
         }
 
-        const parity = Math.random() < oddProb ? 1 : 0;
-        const edgeCDF = parity == 0 ? evenEdgeCDF : oddEdgeCDF, cornerCDF = parity == 0 ? evenCornerCDF : oddCornerCDF;
-        const edgeRand = Math.random() * edgeCDF[edgeCDF.length - 1], cornerRand = Math.random() * cornerCDF[cornerCDF.length - 1];
-        let edgeIdx = 0, cornerIdx = 0;
-        while (edgeIdx < edgeCDF.length && edgeCDF[edgeIdx] < edgeRand) edgeIdx++;
+        const edgeFilter = opts && opts.edgeFilter;
+        let parity, eCC;
+        if (edgeFilter) {
+            // Pool even+odd, filter, count-weighted pick. Forces a single parity if filter does.
+            const pool = [];
+            let total = 0;
+            for (const c of cycler.evenEdges) if (edgeFilter(c)) { total += c.count; pool.push({ c, p: 0, cum: total }); }
+            for (const c of cycler.oddEdges)  if (edgeFilter(c)) { total += c.count; pool.push({ c, p: 1, cum: total }); }
+            const r = Math.random() * total;
+            let i = 0;
+            while (i < pool.length && pool[i].cum < r) i++;
+            eCC = pool[i].c;
+            parity = pool[i].p;
+        } else {
+            parity = Math.random() < oddProb ? 1 : 0;
+            const edgeCDF = parity == 0 ? evenEdgeCDF : oddEdgeCDF;
+            const edgeRand = Math.random() * edgeCDF[edgeCDF.length - 1];
+            let edgeIdx = 0;
+            while (edgeIdx < edgeCDF.length && edgeCDF[edgeIdx] < edgeRand) edgeIdx++;
+            eCC = parity == 0 ? cycler.evenEdges[edgeIdx] : cycler.oddEdges[edgeIdx];
+        }
+        const cornerCDF = parity == 0 ? evenCornerCDF : oddCornerCDF;
+        const cornerRand = Math.random() * cornerCDF[cornerCDF.length - 1];
+        let cornerIdx = 0;
         while (cornerIdx < cornerCDF.length && cornerCDF[cornerIdx] < cornerRand) cornerIdx++;
-        const edgeCycles = parity == 0 ? cycler.evenEdges[edgeIdx].cycles : cycler.oddEdges[edgeIdx].cycles;
-        const cornerCycles = parity == 0 ? cycler.evenCorners[cornerIdx].cycles : cycler.oddCorners[cornerIdx].cycles;
-        const edgeCodeStr = genCode(edgeCycles, edgeCode, 12, 2);
-        const cornerCodeStr = genCode(cornerCycles, cornerCode, 8, 3);
+        const cCC = parity == 0 ? cycler.evenCorners[cornerIdx] : cycler.oddCorners[cornerIdx];
+        const edgeCodeStr = genCode(eCC.cycles, edgeCode, 12, 2);
+        const cornerCodeStr = genCode(cCC.cycles, cornerCode, 8, 3);
         const scr = min2phase.scramble(genCube(edgeCodeStr + cornerCodeStr));
         return {
             scramble: scr.length === 0 ? 'Seriously? You are not even trying.' : scr,
             edgeCode: edgeCodeStr,
             cornerCode: cornerCodeStr,
-            edgeCC: parity == 0 ? cycler.evenEdges[edgeIdx] : cycler.oddEdges[edgeIdx],
-            cornerCC: parity == 0 ? cycler.evenCorners[cornerIdx] : cycler.oddCorners[cornerIdx]
+            edgeCC: eCC,
+            cornerCC: cCC
         };
     }
 
@@ -188,5 +211,8 @@ const scrambler = (() => {
         getProbabilityFromTextFilter,
         getScramble,
         getScrambleAndCode,
+        genCube,
+        applyBldLetter,
+        SOLVED_CUBE,
     };
 })();

@@ -19,8 +19,6 @@
     onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]})"></script>
   <style>
     .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.25rem 0; }
-    /* Unified data-table styling: all cells past the label column are monospace
-       for tidy numeric alignment. Tables with class="prose" opt out. */
     .card table td + td,
     .card table th + th { font-family: 'Consolas', monospace; }
     .card table.prose td,
@@ -37,16 +35,16 @@
       <p style="margin:0;">Jump to:
         <a href="#overview">Overview</a> ·
         <a href="#algs-card">3BLD Algs</a> ·
+        <a href="#cps">Cascading Pseudo/Weak Swap</a> ·
         <a href="#edge-stats">Edge Stats</a> ·
         <a href="#corner-stats">Corner Stats</a> ·
-        <a href="#cps">Cascading Pseudo/Weak Swap</a> ·
         <a href="#ltct-t2c-card">LTCT &amp; T2C</a> ·
         <a href="#order-card">Group Order</a> ·
         <a href="#bigbld">Big BLD</a> ·
         <a href="#repro">Reproduction</a>
       </p>
       <p id="all-timing" style="margin-top: 1rem;">All tables generated in runtime. 3BLD: <code id="timing-3bld">--</code>. Big BLD: <code id="timing-bigbld">--</code>.</p>
-      <p style="margin-top: 1rem;"><strong>Warning:</strong> these numbers have not been cross-verified yet and may contain errors — please <a href="https://github.com/helloluxi/bld-scr/issues" target="_blank">open a GitHub issue</a> if anything looks off.</p>
+      <p style="margin-top: 1rem;"><strong>Warning:</strong> these numbers have not been cross-verified yet and may contain errors — please <a href="https://github.com/helloluxi/bld-scr/issues" target="_blank">open a GitHub issue</a> if anything looks off. <em>Full floating examples</em> and <em>CPS examples</em> are working in progress and bugs are expected, so please check back later for updates.</p>
     </div>
 
     <div class="card" id="overview">
@@ -69,8 +67,8 @@
             <tr><td><code>openN</code> ($N=1..5$)</td><td>number of non-buffer cycles of type $(N, o)$ with $o \neq 0$</td></tr>
             <tr><td><code>cwTwist</code></td><td>number of non-buffer corner cycles of type $(1, 1)$ — CW-twisted-in-place corners (corner-only; always 0 for edges)</td></tr>
             <tr><td><code>ccwTwist</code></td><td>number of non-buffer corner cycles of type $(1, 2)$ — CCW-twisted-in-place corners (corner-only; always 0 for edges)</td></tr>
-            <tr><td><code>alg</code></td><td>alg count under Basic 3-style</td></tr>
-            <tr><td><code>algs</code></td><td>alg count under Floating plain 3-cycles only</td></tr>
+            <tr><td><code>alg</code></td><td>alg count under Basic</td></tr>
+            <tr><td><code>algs</code></td><td>alg count under Floating plain 3-cycles</td></tr>
             <tr><td><code>algFullFloat</code></td><td>alg count under Full Floating</td></tr>
             <tr><td><code>algFullParity</code></td><td>alg count under Full Floating Parity</td></tr>
             <tr><td><code>count</code></td><td>number of distinct scrambles realising this configuration</td></tr>
@@ -88,25 +86,23 @@
       <p>To generate a scramble: if both parities are enabled, pick a pool in proportion to its total weight (so the joint distribution still matches the unfiltered scramble distribution); sample a configuration from that pool's CDF; instantiate a random permutation and orientation assignment matching the configuration; solve the resulting cube state with <a href="https://github.com/cs0x7f/min2phase.js" target="_blank">min2phase.js</a>.</p>
 
       <h2>Random Worked Example</h2>
-      <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">Roll another</button>
+      <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">Roll</button>
       <div id="worked-example-output">
         <p><code id="we-scramble"></code></p>
         <div class="memo-container" style="margin: 1rem 0;">
           <div class="memo-section" style="margin-bottom: 1.5rem;">
             <h3 style="margin-top: 0;">Edges: <span id="we-edge-config"></span></h3>
             <div style="font-family: 'Consolas', monospace; line-height: 1.8;">
-              <div>Raw Memo: <span id="we-edge-raw"></span></div>
-              <div>Execution (Basic 3-style): <span id="we-edge-basic"></span></div>
-              <div>Execution (Advanced): <span id="we-edge-advanced"></span></div>
+              <div>Raw: <span id="we-edge-raw"></span></div>
+              <div>Execution (Basic): <span id="we-edge-basic"></span></div>
               <div>Execution (Full Floating): <span id="we-edge-full"></span></div>
             </div>
           </div>
           <div class="memo-section" style="margin-bottom: 1.5rem;">
             <h3 style="margin-top: 0;">Corners: <span id="we-corner-config"></span></h3>
             <div style="font-family: 'Consolas', monospace; line-height: 1.8;">
-              <div>Raw Memo: <span id="we-corner-raw"></span></div>
-              <div>Execution (Basic 3-style): <span id="we-corner-basic"></span></div>
-              <div>Execution (Advanced): <span id="we-corner-advanced"></span></div>
+              <div>Raw: <span id="we-corner-raw"></span></div>
+              <div>Execution (Basic): <span id="we-corner-basic"></span></div>
               <div>Execution (Full Floating): <span id="we-corner-full"></span></div>
             </div>
           </div>
@@ -131,14 +127,14 @@
         </div>
         <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
       </details>
-        <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.5rem;">Full Floating notation: <code>(X:)YZ</code> is one floating alg with anchor <code>X</code> cycling pieces <code>Y</code> and <code>Z</code>. Pairing is greedy and may be sub-optimal in rare configurations. The execution shown is just trying to match the alg count and does NOT stand for recommended actual solutions.</p>
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.5rem;">Full Floating notation: <code>(X:)YZ</code> is one floating alg with floating buffer <code>X</code> cycling pieces <code>Y</code> and <code>Z</code>. Pairing is greedy and may be sub-optimal in rare configurations. The execution shown is just trying to match the alg count and does NOT stand for recommended solutions.</p>
         <table class="worked-example-table" data-parity-even="even" data-parity-odd="odd">
           <tr><th></th><th>Edges</th><th>Corners</th></tr>
           <tr><td>Parity</td><td id="we-edge-parity"></td><td id="we-corner-parity"></td></tr>
           <tr><td>Breaks</td><td id="we-edge-breaks"></td><td id="we-corner-breaks"></td></tr>
           <tr><td>Flip / Twist</td><td id="we-edge-flip"></td><td id="we-corner-flip"></td></tr>
-          <tr><td>Algs (Basic 3-style)</td><td id="we-edge-alg-basic"></td><td id="we-corner-alg-basic"></td></tr>
-          <tr><td>Algs (Floating plain 3-cycles only)</td><td id="we-edge-alg-naive"></td><td id="we-corner-alg-naive"></td></tr>
+          <tr><td>Algs (Basic)</td><td id="we-edge-alg-basic"></td><td id="we-corner-alg-basic"></td></tr>
+          <tr><td>Algs (Floating plain 3-cycles)</td><td id="we-edge-alg-naive"></td><td id="we-corner-alg-naive"></td></tr>
           <tr><td>Algs (Full Floating)</td><td id="we-edge-alg-fullfloat"></td><td id="we-corner-alg-fullfloat"></td></tr>
           <tr><td>Algs (Full Floating Parity)</td><td id="we-edge-alg-fullparity"></td><td id="we-corner-alg-fullparity"></td></tr>
           <tr><td>Count</td><td id="we-edge-count"></td><td id="we-corner-count"></td></tr>
@@ -155,8 +151,8 @@
 
       <p><strong>Skill levels (single-buffer 3-style):</strong></p>
       <ul>
-        <li><strong>Basic 3-style</strong> — every non-buffer cycle is solved buffer-anchored; no floating algs. Orientation is handled separately as flip/twist algs.</li>
-        <li><strong>Floating plain 3-cycles only</strong> — additionally allowed to cycle three non-buffer pieces with one alg, but only when the cycle is orientation-clean ($o=0$).</li>
+        <li><strong>Basic</strong> — every non-buffer cycle is solved with fixed buffer (default UF); no floating algs. Orientation is handled separately as flip/twist algs.</li>
+        <li><strong>Floating plain 3-cycles</strong> — additionally allowed to cycle three non-buffer pieces with one alg, but only when the cycle is orientation-clean ($o=0$).</li>
         <li><strong>Full Floating</strong> — arbitrary floating 3-cycles, including ones that absorb flips/twists (Phase 1–3 reduction below).</li>
       </ul>
 
@@ -215,21 +211,21 @@
       <div class="skill-checkboxes" style="margin-bottom:1rem;">
         <div class="setting-line"><span>Edge</span>
           <div class="parity-checkbox-row tab-style">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-edge" checked><label for="h-skill-basic-edge">Basic 3-style</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">Floating plain 3-cycles only</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-edge" checked><label for="h-skill-basic-edge">Basic</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-edge"><label for="h-skill-naive-edge">Floating plain 3-cycles</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-edge"><label for="h-skill-fullfloat-edge">Full Floating</label></div>
           </div>
         </div>
         <div class="setting-line"><span>Corner</span>
           <div class="parity-checkbox-row tab-style">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-corner" checked><label for="h-skill-basic-corner">Basic 3-style</label></div>
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">Floating plain 3-cycles only</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-corner" checked><label for="h-skill-basic-corner">Basic</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-naive-corner"><label for="h-skill-naive-corner">Floating plain 3-cycles</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-corner"><label for="h-skill-fullfloat-corner">Full Floating</label></div>
           </div>
         </div>
         <div class="setting-line"><span>Parity</span>
           <div class="parity-checkbox-row tab-style">
-            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-parity" checked><label for="h-skill-basic-parity">Basic 3-style</label></div>
+            <div class="parity-checkbox"><input type="checkbox" id="h-skill-basic-parity" checked><label for="h-skill-basic-parity">Basic</label></div>
             <div class="parity-checkbox"><input type="checkbox" id="h-skill-fullfloat-parity"><label for="h-skill-fullfloat-parity">Full Floating Parity</label></div>
           </div>
         </div>
@@ -271,8 +267,8 @@
         <table id="saved-algs-table">
           <thead><tr><th>Skill Level</th><th>Edge mean</th><th>Saved</th><th>Corner mean</th><th>Saved</th><th>Total mean</th><th>Saved</th></tr></thead>
           <tbody>
-            <tr data-skill="basic"><td>Basic 3-style</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
-            <tr data-skill="naive"><td>Floating plain 3-cycles only</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
+            <tr data-skill="basic"><td>Basic</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
+            <tr data-skill="naive"><td>Floating plain 3-cycles</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
             <tr data-skill="fullfloat"><td>Full Floating</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
             <tr data-skill="fullparity"><td>Full Floating Parity</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
           </tbody>
@@ -282,19 +278,114 @@
         <p style="margin-top:1rem;">Distribution of algs saved per scramble by skill level (vs. Basic):</p>
         <h4>Edge</h4>
         <table id="saved-algs-edge-dist-table">
-          <thead><tr><th>Saved</th><th>Floating plain 3-cycles only</th><th>Full Floating</th><th>Full Floating Parity</th></tr></thead>
+          <thead><tr><th>Saved</th><th>Floating plain 3-cycles</th><th>Full Floating</th><th>Full Floating Parity</th></tr></thead>
           <tbody></tbody>
         </table>
         <h4>Corner</h4>
         <table id="saved-algs-corner-dist-table">
-          <thead><tr><th>Saved</th><th>Floating plain 3-cycles only</th><th>Full Floating</th><th>Full Floating Parity</th></tr></thead>
+          <thead><tr><th>Saved</th><th>Floating plain 3-cycles</th><th>Full Floating</th><th>Full Floating Parity</th></tr></thead>
           <tbody></tbody>
         </table>
         <h4>Total</h4>
         <table id="saved-algs-total-dist-table">
-          <thead><tr><th>Saved</th><th>Floating plain 3-cycles only</th><th>Full Floating</th><th>Full Floating Parity</th></tr></thead>
+          <thead><tr><th>Saved</th><th>Floating plain 3-cycles</th><th>Full Floating</th><th>Full Floating Parity</th></tr></thead>
           <tbody></tbody>
         </table>
+      </details>
+
+    </div>
+
+    <div class="card" id="cps">
+      <h2>Cascading Pseudo/Weak Swap (CPS)</h2>
+
+      <details id="cps-example-details">
+        <summary>Intro</summary>
+        <p>On <strong>odd-parity</strong> scrambles the solver has to fold a 2-swap (parity alg) into the execution. <em>Cascading Pseudo/Weak Swap</em> avoids learning every possible parity pair: pick a fixed preference order over the 11 non-buffer edge positions, then during memo scan that list and use the first <strong>applicable</strong> one as the parity target. The smaller the slot index, the more likely the parity case lands inside the small set of pairs you've actually mastered.</p>
+
+        <p>It never hurts to run the same routine on <strong>even-parity</strong> scrambles — the alg count is unchanged. (Unlike a fixed weak swap, which can <em>add</em> an alg when applied unconditionally.) Another small win: the chosen letter is deferred to the final parity swap, so once you've spotted which slot CPS will pick you can drop that letter from the running memo — a small but real saving over fixed weak swap, where you'd say UR's letter regardless.</p>
+
+        <p style="margin-top:0.75rem;">Hard-coded preference order: <code id="cps-pref-order" style="font-size:0.95em;">AGEDPITXKQYN</code></p>
+
+        <p><strong>MWP</strong> = <em>Mid-Way Parity</em>: when a pref letter shows up at an even index inside the buffer cycle (with matching orientation), tag <em>that</em> letter as the parity swap in-place instead of deferring to the end.</p>
+
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Edge flip insertion is commonly integrated with CPS to fold a flipped non-buffer edge into the parity swap, but isn't shown in this demo yet.</p>
+
+        <button id="cps-reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin:0.75rem 0 1rem;">Roll</button>
+
+        <div id="cps-example-output" style="font-family: 'Consolas', monospace; line-height: 1.8;">
+          <div>Scramble:&nbsp;&nbsp;&nbsp;&nbsp;<code id="cps-eg-scramble"></code></div>
+          <div>Edge config:&nbsp;<code id="cps-eg-config"></code></div>
+          <div>Raw:&nbsp;<span id="cps-eg-raw"></span></div>
+          <div style="margin-top:0.5rem;">Execution (basic):&nbsp;<span id="cps-eg-basic"></span></div>
+          <div>Execution (CPS&nbsp;<span id="cps-eg-cps-slot"></span>):&nbsp;<span id="cps-eg-cps"></span></div>
+          <div>Execution (CPS+MWP&nbsp;<span id="cps-eg-mwp-slot"></span>):&nbsp;<span id="cps-eg-mwp"></span></div>
+        </div>
+
+        <p style="font-size:0.85rem; color:var(--text-secondary);">This card doesn't fold in <em>floating</em> reductions yet. Combining floating with CPS gets pretty intricate, and so far not many solvers have interests. Anyway let's leave space for arts in 3BLD :)</p>
+
+        <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
+      </details>
+
+      <details>
+        <summary>Theory (Long Boring Text Alert)</summary>
+        <p>When a 3BLD scramble has <strong>odd parity</strong>, the solver must incorporate a 2-swap (parity algorithm) into their execution. The <em>cascading pseudo/weak swap</em> technique resolves parity by designating a fixed preference order among the 11 non-buffer edge positions (e.g., UR first, then UB, UL, …). During memo, the solver checks each preferred position in order until one is <strong>applicable</strong> — meaning it can serve as the parity-swap target with the buffer.</p>
+
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Forsthofer &amp; Hiesl (<a href="https://www.speedcubing.pl/content/3bld-statistics.pdf" target="_blank">2021</a>) use the "UR–UF pseudo swap", which is the length-1 special case of the cascading version below (preference list = {UR}).</p>
+
+        <p>For buffer UF, a position X is applicable as a swap target if any of these hold:</p>
+        <ul>
+          <li>The UF piece is sitting at X — skip the letter and leave it for the parity swap at the end.</li>
+          <li>X is not in the buffer cycle — start a new cycle ending at X, leaving the swap at the end.</li>
+          <li>The X piece is flipped in place — solve it as two letters (e.g., RU then UR), executing RU in cycle and leaving UR at the end.</li>
+        </ul>
+
+        <p>Conversely, X is <strong>not applicable</strong> if:</p>
+        <ul>
+          <li>X is already correctly solved — there is no need to swap it.</li>
+          <li>X is in the middle of the buffer cycle — it cannot be extracted without disrupting tracing.</li>
+          <li>The UF piece is sitting at $\overline{\mathrm{X}}$ (the flipped sticker of X) — this forces a letter into the buffer cycle that cannot be deferred.</li>
+        </ul>
+
+        <p>These two sets are in bijection: swapping the physical UF and X pieces maps each applicable case to the corresponding not-applicable case and vice versa. This gives a clean 50% probability that the first preferred position (index #1) is applicable, regardless of parity. The remaining position at the end of the buffer cycle ($p_0 > 1$) can have either orientation with equal probability, so it contributes half to each side.</p>
+
+        <p>Formally, for a cycle configuration with buffer cycle length $p_0$ and $f$ solved-in-place edges among non-buffer cycles:</p>
+        <ul>
+          <li>$a = 11 - h - n$: fully applicable positions (not in buffer cycle, not solved)</li>
+          <li>$h = \mathbf{1}_{p_0 > 1}$: the last position in the buffer cycle — applicable iff its orientation is correct (probability $\frac{1}{2}$)</li>
+          <li>$n = \max(0,\, p_0 - 2) + f$: never-applicable positions (mid-buffer-cycle + solved)</li>
+        </ul>
+        <p>After the coin flip on $h$, we have $a'$ applicable and $n' = 11 - a'$ not-applicable positions uniformly distributed among the 11 preference slots. The probability that the first applicable slot is at index $k$ is:</p>
+        $$P(k \mid a', n') \;=\; \frac{a' \cdot n'^{\underline{k-1}}}{11^{\underline{k}}}$$
+        <p>where $x^{\underline{m}} = x(x-1)\cdots(x-m+1)$ is the falling factorial. The — row collects configurations where $a' = 0$ (no applicable target exists).</p>
+      </details>
+
+      <details>
+        <summary>Edge Buffer Index</summary>
+        <div class="parity-checkbox-row tab-style" style="margin-bottom:1rem;">
+          <div class="parity-checkbox"><input type="checkbox" id="cps-mode-all" checked><label for="cps-mode-all">All Parities</label></div>
+          <div class="parity-checkbox"><input type="checkbox" id="cps-mode-odd"><label for="cps-mode-odd">Odd Parity Only</label></div>
+        </div>
+        <table data-stat="cps">
+          <thead><tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap (Edges)" data-chart-spaced="false"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Indices #12–#22 represent cases with no applicable position (no edge cycle breaks and ending on a wrong-orientation edge), spread evenly to make the curve continuous.</p>
+      </details>
+
+      <details>
+        <summary>Corner Buffer Index</summary>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Same algorithm with corner buffer UFR over 7 non-buffer corner positions. The end-of-buffer-cycle position is applicable with probability $\tfrac{1}{3}$ (instead of $\tfrac{1}{2}$ for edges) since corners have three orientations.</p>
+        <div class="parity-checkbox-row tab-style" style="margin-bottom:1rem;">
+          <div class="parity-checkbox"><input type="checkbox" id="cps-corner-mode-all" checked><label for="cps-corner-mode-all">All Parities</label></div>
+          <div class="parity-checkbox"><input type="checkbox" id="cps-corner-mode-odd"><label for="cps-corner-mode-odd">Odd Parity Only</label></div>
+        </div>
+        <table data-stat="cps-corner">
+          <thead><tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap (Corners)" data-chart-spaced="false"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary);">Indices #8–#21 represent cases with no applicable position, spread evenly across 14 buckets to make the curve continuous.</p>
       </details>
 
     </div>
@@ -356,73 +447,6 @@
           </tbody>
         </table>
       </details>
-    </div>
-
-    <div class="card" id="cps">
-      <h2>Cascading Pseudo/Weak Swap (CPS)</h2>
-
-      <details>
-        <summary>Intro</summary>
-        <p>When a 3BLD scramble has <strong>odd parity</strong>, the solver must incorporate a 2-swap (parity algorithm) into their execution. The <em>cascading pseudo/weak swap</em> technique resolves parity by designating a fixed preference order among the 11 non-buffer edge positions (e.g., UR first, then UB, UL, …). During memo, the solver checks each preferred position in order until one is <strong>applicable</strong> — meaning it can serve as the parity-swap target with the buffer.</p>
-
-        <p style="font-size:0.85rem; color:var(--text-secondary);">"Pseudo swap" and "weak swap" are interchangeable BLD terms for a memo-time deferred swap; Forsthofer &amp; Hiesl (<a href="https://www.speedcubing.pl/content/3bld-statistics.pdf" target="_blank">2021</a>) use the "UR–UF pseudo swap", which is the length-1 special case of the cascading version below (preference list = {UR}).</p>
-
-        <p>For buffer UF, a position X is applicable as a swap target if any of these hold:</p>
-        <ul>
-          <li>The UF piece is sitting at X — skip the letter and leave it for the parity swap at the end.</li>
-          <li>X is not in the buffer cycle — start a new cycle ending at X, leaving the swap at the end.</li>
-          <li>The X piece is flipped in place — solve it as two letters (e.g., RU then UR), executing RU in cycle and leaving UR at the end.</li>
-        </ul>
-
-        <p>Conversely, X is <strong>not applicable</strong> if:</p>
-        <ul>
-          <li>X is already correctly solved — there is no need to swap it.</li>
-          <li>X is in the middle of the buffer cycle — it cannot be extracted without disrupting tracing.</li>
-          <li>The UF piece is sitting at $\overline{\mathrm{X}}$ (the flipped sticker of X) — this forces a letter into the buffer cycle that cannot be deferred.</li>
-        </ul>
-
-        <p>These two sets are in bijection: swapping the physical UF and X pieces maps each applicable case to the corresponding not-applicable case and vice versa. This gives a clean 50% probability that the first preferred position (index #1) is applicable, regardless of parity. The remaining position at the end of the buffer cycle ($p_0 > 1$) can have either orientation with equal probability, so it contributes half to each side.</p>
-
-        <p>Formally, for a cycle configuration with buffer cycle length $p_0$ and $f$ solved-in-place edges among non-buffer cycles:</p>
-        <ul>
-          <li>$a = 11 - h - n$: fully applicable positions (not in buffer cycle, not solved)</li>
-          <li>$h = \mathbf{1}_{p_0 > 1}$: the last position in the buffer cycle — applicable iff its orientation is correct (probability $\frac{1}{2}$)</li>
-          <li>$n = \max(0,\, p_0 - 2) + f$: never-applicable positions (mid-buffer-cycle + solved)</li>
-        </ul>
-        <p>After the coin flip on $h$, we have $a'$ applicable and $n' = 11 - a'$ not-applicable positions uniformly distributed among the 11 preference slots. The probability that the first applicable slot is at index $k$ is:</p>
-        $$P(k \mid a', n') \;=\; \frac{a' \cdot n'^{\underline{k-1}}}{11^{\underline{k}}}$$
-        <p>where $x^{\underline{m}} = x(x-1)\cdots(x-m+1)$ is the falling factorial. The — row collects configurations where $a' = 0$ (no applicable target exists).</p>
-      </details>
-
-      <details>
-        <summary>Edge Buffer Index</summary>
-        <div class="parity-checkbox-row tab-style" style="margin-bottom:1rem;">
-          <div class="parity-checkbox"><input type="checkbox" id="cps-mode-all" checked><label for="cps-mode-all">All Parities</label></div>
-          <div class="parity-checkbox"><input type="checkbox" id="cps-mode-odd"><label for="cps-mode-odd">Odd Parity Only</label></div>
-        </div>
-        <table data-stat="cps">
-          <thead><tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap (Edges)" data-chart-spaced="false"></div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">Indices #12–#22 represent cases with no applicable position (no edge cycle breaks and ending on a wrong-orientation edge), spread evenly to make the curve continuous.</p>
-      </details>
-
-      <details>
-        <summary>Corner Buffer Index</summary>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">Same algorithm with corner buffer UFR over 7 non-buffer corner positions. The end-of-buffer-cycle position is applicable with probability $\tfrac{1}{3}$ (instead of $\tfrac{1}{2}$ for edges) since corners have three orientations.</p>
-        <div class="parity-checkbox-row tab-style" style="margin-bottom:1rem;">
-          <div class="parity-checkbox"><input type="checkbox" id="cps-corner-mode-all" checked><label for="cps-corner-mode-all">All Parities</label></div>
-          <div class="parity-checkbox"><input type="checkbox" id="cps-corner-mode-odd"><label for="cps-corner-mode-odd">Odd Parity Only</label></div>
-        </div>
-        <table data-stat="cps-corner">
-          <thead><tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap (Corners)" data-chart-spaced="false"></div>
-        <p style="font-size:0.85rem; color:var(--text-secondary);">Indices #8–#21 represent cases with no applicable position, spread evenly across 14 buckets to make the curve continuous.</p>
-      </details>
-
     </div>
 
     <div class="card" id="ltct-t2c-card">
@@ -567,7 +591,7 @@ node src/reproduction.js</code></pre>
     </div>
 
     <footer>
-      &copy; 2025-<span id="year"></span> Xi Lu | GPL-3.0 License | <a href="index.html">Back to Scrambler</a> | <a href="https://github.com/helloluxi/bld-scr" target="_blank" underline>GitHub</a> | <a href="#" id="theme-toggle" underline>Dark Theme</a>
+      &copy; 2025-<span id="year"></span> Xi Lu | GPL-3.0 License | <a href="index.html">Back to Scrambler</a> | <a href="https://github.com/helloluxi/bld-scr" target="_blank" underline>GitHub</a> | <a href="help.cn.html">To Chinese Page</a> | <a href="#" id="theme-toggle" underline>Dark Theme</a>
     </footer>
   </div>
   <script src="./src/chart.js"></script>

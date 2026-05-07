@@ -185,7 +185,7 @@ function populateStaticTables() {
 }
 
 function populateBreakInSwap() {
-  buildBreakInSwap({
+  buildCps({
     statKey: 'cps',
     modePrefix: 'cps',
     even: cycler.evenEdges,
@@ -195,7 +195,7 @@ function populateBreakInSwap() {
     hApplicableNum: 1,
     hApplicableDen: 2,
   });
-  buildBreakInSwap({
+  buildCps({
     statKey: 'cps-corner',
     modePrefix: 'cps-corner',
     even: cycler.evenCorners,
@@ -207,7 +207,7 @@ function populateBreakInSwap() {
   });
 }
 
-function buildBreakInSwap(opts) {
+function buildCps(opts) {
   const { statKey, modePrefix, even, odd, pieceCount: P, visIndices: V,
           hApplicableNum: hNum, hApplicableDen: hDen } = opts;
   const tbody = lastTbody(statKey);
@@ -216,6 +216,13 @@ function buildBreakInSwap(opts) {
   function falling(x, k) { let r = 1; for (let i = 0; i < k; i++) r *= (x - i); return r; }
 
   const res = new Array(P + 1).fill(0), resOdd = new Array(P + 1).fill(0);
+  function spread(arr, w, a, n) {
+    if (a === 0) { arr[0] += w; return; }
+    for (let k = 1; k <= P; k++) {
+      if (k - 1 > n) break;
+      arr[k] += w * a * falling(n, k - 1) / falling(P, k);
+    }
+  }
   function process(cc, isOdd) {
     const p0 = cc.cycles[0].perm, f1 = cc.closed1;
     const h = (p0 > 1) ? 1 : 0;
@@ -225,14 +232,10 @@ function buildBreakInSwap(opts) {
       : [[cc.count * hNum / hDen,         a0 + 1, P - a0 - 1],
          [cc.count * (hDen - hNum) / hDen, a0,     P - a0]];
     for (const [w, a, n] of vcs) {
-      if (a === 0) { res[0] += w; if (isOdd) resOdd[0] += w; continue; }
-      for (let k = 1; k <= P; k++) {
-        if (k - 1 > n) break;
-        const c = w * a * falling(n, k - 1) / falling(P, k);
-        res[k] += c;
-        if (isOdd) resOdd[k] += c;
-      }
+      spread(res, w, a, n);
+      if (isOdd) spread(resOdd, w, a, n);
     }
+
   }
   even.forEach(cc => process(cc, false));
   odd .forEach(cc => process(cc, true));
@@ -553,6 +556,7 @@ function _applyLetterPreset(name) {
   validateSchemeInputs();
   persistLetterScheme();
   if (typeof window._rollExample === 'function') window._rollExample();
+  if (typeof window._updateCpsPrefOrder === 'function') window._updateCpsPrefOrder();
 }
 
 function validateSchemeInputs() {
@@ -703,6 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
         validateSchemeInputs();
         persistLetterScheme();
         rollExample();
+        if (typeof window._updateCpsPrefOrder === 'function') window._updateCpsPrefOrder();
       }, 0);
     });
     input.addEventListener('focus', () => updateInputHint(input, positions));
@@ -751,18 +756,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const translatedEdge = Example.translateCodeStr(edgeCodeStr, Example.DEFAULT_EDGE_CODE, scheme.edge);
       const translatedCorner = Example.translateCodeStr(cornerCodeStr, Example.DEFAULT_CORNER_CODE, scheme.corner);
       Example.setLetterScheme(scheme.edge, scheme.corner);
-      const memo = Example.generateFullMemoFromCode(translatedEdge, translatedCorner, eCC, cCC);
+      const oriPreservedEdge = Example.generateOriPreservingEdgeCodeStr(eCC, translatedEdge);
+      const memo = Example.generateFullMemoFromCode(oriPreservedEdge, translatedCorner, eCC, cCC);
 
       setText('we-edge-config',  fmtConfig(eCC));
       setHtml('we-edge-raw',      memo.edges.rawMemo);
       setHtml('we-edge-basic',    memo.edges.basicExec);
-      setHtml('we-edge-advanced', memo.edges.advancedExec);
       setHtml('we-edge-full',     memo.edges.floatingExec);
 
       setText('we-corner-config',  fmtConfig(cCC));
       setHtml('we-corner-raw',      memo.corners.rawMemo);
       setHtml('we-corner-basic',    memo.corners.basicExec);
-      setHtml('we-corner-advanced', memo.corners.advancedExec);
       setHtml('we-corner-full',     memo.corners.floatingExec);
     }
 
@@ -790,6 +794,70 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('reroll-btn').addEventListener('click', rollExample);
   window._rollExample = rollExample;  // expose for applyLetterPreset
   rollExample();
+
+  // CPS demo runs in default Chichu scheme so EDGE_PREF_LETTERS' physical-piece
+  // mapping is the one the algorithm was designed against. The pref-order line
+  // is shown translated into the user's active scheme for readability.
+  const CPS_PREF_LETTERS = 'AGEDPITXKNQY';
+  const CPS_NO_SLOT_LABEL = '#12~22';
+
+  function updateCpsPrefOrder() {
+    const el = document.getElementById('cps-pref-order');
+    if (!el || !window.Example) return;
+    const scheme = getActiveScheme();
+    el.textContent = Example.translateCodeStr(CPS_PREF_LETTERS, Example.DEFAULT_EDGE_CODE, scheme.edge);
+  }
+
+  function rollCpsExample() {
+    if (!window.Example || typeof Example.readEdge !== 'function') return;
+    if (typeof scrambler.getScrambleAndCode !== 'function') return;
+    if (!document.getElementById('cps-example-output')) return;
+
+    const { scramble, edgeCode: edgeCodeStr, cornerCode: cornerCodeStr, edgeCC: eCC }
+      = scrambler.getScrambleAndCode({ edgeFilter: c => c.parity === 1 && c.open1 <= 1 });
+
+    Example.setLetterScheme(Example.DEFAULT_EDGE_CODE, Example.DEFAULT_CORNER_CODE);
+    const cubeState = Example.generateCubeState(edgeCodeStr, cornerCodeStr);
+    const edge = Example.readEdge(cubeState, true);
+    const scheme = getActiveScheme();
+    Example.setLetterScheme(scheme.edge, scheme.corner);
+
+    const buf = eCC.cycles[0];
+    const groups = [];
+    for (const c of eCC.cycles.slice(1)) {
+      const key = `(${c.perm},${c.ori})`;
+      const last = groups[groups.length - 1];
+      if (last && last.key === key) last.n++;
+      else groups.push({ key, n: 1 });
+    }
+    const secondary = groups.map(g => g.n > 1 ? g.key + '*' + g.n : g.key).join(' + ');
+    const configStr = secondary ? `(${buf.perm},${buf.ori}) + ${secondary}` : `(${buf.perm},${buf.ori})`;
+
+    const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+    const slotLabel = idx => `<code>${idx >= 1 ? '#' + idx : CPS_NO_SLOT_LABEL}</code>`;
+    set('cps-eg-scramble', scramble);
+    set('cps-eg-config', configStr);
+    set('cps-eg-raw', edge.memo);
+    set('cps-eg-basic', edge.execBasic);
+    set('cps-eg-cps-slot', slotLabel(edge.slotCps));
+    set('cps-eg-cps', edge.execCps);
+    set('cps-eg-mwp-slot', slotLabel(edge.slotMwp));
+    set('cps-eg-mwp', edge.execCpsMwp);
+  }
+
+  updateCpsPrefOrder();
+  window._updateCpsPrefOrder = updateCpsPrefOrder;
+  const cpsBtn = document.getElementById('cps-reroll-btn');
+  if (cpsBtn) cpsBtn.addEventListener('click', rollCpsExample);
+  const cpsDetails = document.getElementById('cps-example-details');
+  if (cpsDetails) {
+    cpsDetails.addEventListener('toggle', () => {
+      if (cpsDetails.open && !cpsDetails.dataset.rolled) {
+        cpsDetails.dataset.rolled = '1';
+        rollCpsExample();
+      }
+    });
+  }
 
   // Saved-alg statistics
   (function() {

@@ -134,17 +134,24 @@ const cycler = (() => {
                 const mp = Math.min(r20, r21); algFullFloat += mp * 2; r20 -= mp; r21 -= mp; r11 += mp;
                 // Count flip
                 algFullFloat += Math.ceil(r11 / 4);
-                // Finalize
+                // Finalize. algFullParity discounts the leftover (2,0) only when
+                // odd parity actually offers a slot to absorb it; for even
+                // parity the leftover stays in the basic stream as a full pair.
                 this.algFullFloat = (2 * algFullFloat + 3 * (r20 + r21) + (p0 - 1)) / 2;
-                this.algFullParity = (2 * algFullFloat + r20 + 3 * r21 + (p0 - 1)) / 2;
+                this.algFullParity = this.parity === 1
+                  ? (2 * algFullFloat + r20 + 3 * r21 + (p0 - 1)) / 2
+                  : this.algFullFloat;
             } else {
+                // Phase-2 corner mergers leave each head piece needing an
+                // ori-restoration twist (since emitPair drops both heads' ori
+                // closures). Each pair contributes two r-units (one per head).
                 // Reduce (2, 0)*2 -> solved
                 algFullFloat += r20 >> 1 << 1; r20 %= 2;
-                // Reduce (2, 1) + (2, 2) -> solved
-                const mp = Math.min(r21, r22); algFullFloat += mp * 2; r21 -= mp; r22 -= mp;
-                // Reduce (2, 1 or 2)*2 -> twisted (2 or 1)
-                algFullFloat += r21 >> 1 << 1; r12+=r21>>1; r21 %= 2;
-                algFullFloat += r22 >> 1 << 1; r12+=r22>>1; r22 %= 2;
+                // Reduce (2, 1) + (2, 2) -> twisted (1) + twisted (2)
+                const mp = Math.min(r21, r22); algFullFloat += mp * 2; r21 -= mp; r22 -= mp; r11 += mp; r12 += mp;
+                // Reduce (2, 1 or 2)*2 -> twisted twice
+                const p21 = r21 >> 1; algFullFloat += p21 << 1; r11 += p21 * 2; r21 %= 2;
+                const p22 = r22 >> 1; algFullFloat += p22 << 1; r12 += p22 * 2; r22 %= 2;
                 // Reduce (2, 0) + (2, 1 or 2) -> twisted (1 or 2)
                 const mp1 = Math.min(r20, r21); algFullFloat += mp1 * 2; r20 -= mp1; r21 -= mp1; r11 += mp1;
                 const mp2 = Math.min(r20, r22); algFullFloat += mp2 * 2; r20 -= mp2; r22 -= mp2; r12 += mp2;
@@ -152,9 +159,12 @@ const cycler = (() => {
                 algFullFloat += Math.floor(r11 / 3); r11 %= 3;
                 algFullFloat += Math.floor(r12 / 3); r12 %= 3;
                 algFullFloat += Math.ceil((r11 + r12) / 3);
-                // Finalize
+                // Finalize. See O==2 branch above for parity-conditional
+                // discount on r20.
                 this.algFullFloat = (2 * algFullFloat + 3 * (r20 + r21 + r22) + (p0 - 1)) / 2;
-                this.algFullParity = (2 * algFullFloat + r20 + 3 * (r21 + r22) + (p0 - 1)) / 2;
+                this.algFullParity = this.parity === 1
+                  ? (2 * algFullFloat + r20 + 3 * (r21 + r22) + (p0 - 1)) / 2
+                  : this.algFullFloat;
             }
         }
     }
