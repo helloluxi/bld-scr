@@ -88,6 +88,29 @@
       <p>To generate a scramble: if both parities are enabled, pick a pool in proportion to its total weight (so the joint distribution still matches the unfiltered scramble distribution); sample a configuration from that pool's CDF; instantiate a random permutation and orientation assignment matching the configuration; solve the resulting cube state with <a href="https://github.com/cs0x7f/min2phase.js" target="_blank">min2phase.js</a>.</p>
 
       <h2>Random Worked Example</h2>
+      <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">Roll another</button>
+      <div id="worked-example-output">
+        <p><code id="we-scramble"></code></p>
+        <div class="memo-container" style="margin: 1rem 0;">
+          <div class="memo-section" style="margin-bottom: 1.5rem;">
+            <h3 style="margin-top: 0;">Edges: <span id="we-edge-config"></span></h3>
+            <div style="font-family: 'Consolas', monospace; line-height: 1.8;">
+              <div>Raw Memo: <span id="we-edge-raw"></span></div>
+              <div>Execution (Basic 3-style): <span id="we-edge-basic"></span></div>
+              <div>Execution (Advanced): <span id="we-edge-advanced"></span></div>
+              <div>Execution (Full Floating): <span id="we-edge-full"></span></div>
+            </div>
+          </div>
+          <div class="memo-section" style="margin-bottom: 1.5rem;">
+            <h3 style="margin-top: 0;">Corners: <span id="we-corner-config"></span></h3>
+            <div style="font-family: 'Consolas', monospace; line-height: 1.8;">
+              <div>Raw Memo: <span id="we-corner-raw"></span></div>
+              <div>Execution (Basic 3-style): <span id="we-corner-basic"></span></div>
+              <div>Execution (Advanced): <span id="we-corner-advanced"></span></div>
+              <div>Execution (Full Floating): <span id="we-corner-full"></span></div>
+            </div>
+          </div>
+        </div>
       <details id="letter-scheme-details" style="margin-bottom:1rem;">
         <summary>Letter Scheme</summary>
         <div style="display:flex; align-items:center; gap:0.4rem; margin:0.75rem 0 0.5rem; flex-wrap:wrap;">
@@ -108,16 +131,26 @@
         </div>
         <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
       </details>
-      <p>Each example shows the scramble, the memo notation (buffer letters omitted, cycles separated by space, flips/twists shown with +/-), and detailed statistics.</p>
-      <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">Roll another</button>
-      <div id="worked-example-output"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.5rem;">Full Floating notation: <code>(X:)YZ</code> is one floating alg with anchor <code>X</code> cycling pieces <code>Y</code> and <code>Z</code>. Pairing is greedy and may be sub-optimal in rare configurations. The execution shown is just trying to match the alg count and does NOT stand for recommended actual solutions.</p>
+        <table class="worked-example-table" data-parity-even="even" data-parity-odd="odd">
+          <tr><th></th><th>Edges</th><th>Corners</th></tr>
+          <tr><td>Parity</td><td id="we-edge-parity"></td><td id="we-corner-parity"></td></tr>
+          <tr><td>Breaks</td><td id="we-edge-breaks"></td><td id="we-corner-breaks"></td></tr>
+          <tr><td>Flip / Twist</td><td id="we-edge-flip"></td><td id="we-corner-flip"></td></tr>
+          <tr><td>Algs (Basic 3-style)</td><td id="we-edge-alg-basic"></td><td id="we-corner-alg-basic"></td></tr>
+          <tr><td>Algs (Floating plain 3-cycles only)</td><td id="we-edge-alg-naive"></td><td id="we-corner-alg-naive"></td></tr>
+          <tr><td>Algs (Full Floating)</td><td id="we-edge-alg-fullfloat"></td><td id="we-corner-alg-fullfloat"></td></tr>
+          <tr><td>Algs (Full Floating Parity)</td><td id="we-edge-alg-fullparity"></td><td id="we-corner-alg-fullparity"></td></tr>
+          <tr><td>Count</td><td id="we-edge-count"></td><td id="we-corner-count"></td></tr>
+        </table>
+      </div>
       <p id="worked-example-bug" style="font-size:0.85rem; color:var(--text-secondary);">If anything doesn't add up, please report the issue on GitHub.</p>
       <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; Collapse</a>
     </div>
 
     <div class="card" id="algs-card">
       <h2>3BLD Algs</h2>
-      <div id="algs-error" style="display:none;background:var(--error-bg,#fdd);color:var(--error-fg,#900);padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;"></div>
+      <div id="algs-error" style="display:none;background:var(--error-bg,#fdd);color:var(--error-fg,#900);padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;">Parity check failed: <span id="algs-error-count">0</span> reduction logic errors.</div>
       <p>Exact scramble counts for 3BLD with buffers UF (edges, $P=12$, $O=2$) and UFR (corners, $P=8$, $O=3$), over all $980{,}995{,}276{,}800$ edge states and $88{,}179{,}840$ corner states. Select a skill set to see the corresponding alg count distribution.</p>
 
       <p><strong>Skill levels (single-buffer 3-style):</strong></p>
@@ -204,22 +237,31 @@
 
       <details id="edge-algs-details">
         <summary id="edge-algs-summary">Edge Algs</summary>
-        <table id="edge-algs-table"><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></table>
-        <p id="edge-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <table id="edge-algs-table">
+          <thead><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p id="edge-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" id="edge-algs-chart"></div>
       </details>
 
       <details id="corner-algs-details">
         <summary id="corner-algs-summary">Corner Algs</summary>
-        <table id="corner-algs-table"><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></table>
-        <p id="corner-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <table id="corner-algs-table">
+          <thead><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p id="corner-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" id="corner-algs-chart"></div>
       </details>
 
       <details id="total-algs-details">
         <summary id="total-algs-summary">Total Algs</summary>
-        <table id="total-algs-table"><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></table>
-        <p id="total-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <table id="total-algs-table">
+          <thead><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p id="total-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" id="total-algs-chart"></div>
       </details>
 
@@ -228,17 +270,31 @@
         <p>Mean alg counts by skill level, computed over all valid scramble states:</p>
         <table id="saved-algs-table">
           <thead><tr><th>Skill Level</th><th>Edge mean</th><th>Saved</th><th>Corner mean</th><th>Saved</th><th>Total mean</th><th>Saved</th></tr></thead>
-          <tbody></tbody>
+          <tbody>
+            <tr data-skill="basic"><td>Basic 3-style</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
+            <tr data-skill="naive"><td>Floating plain 3-cycles only</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
+            <tr data-skill="fullfloat"><td>Full Floating</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
+            <tr data-skill="fullparity"><td>Full Floating Parity</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
+          </tbody>
         </table>
         <p id="saved-algs-quip" style="margin-top:1rem;font-style:italic;color:gray;">Bruh, would you really want to learn 2,768 full-floating 3-style algs just to save <span id="saved-full-num"></span> algs per scramble on average, and another 11,088 full-floating parity algs just to save <span id="saved-parity-num"></span> more algs per scramble? These are only theoretical upper bounds, without accounting for human-level practicality. Life is short, be happy :)</p>
         <p style="margin-top:0.75rem;font-size:0.75rem;color:var(--text-secondary);">To be clear, I am not discouraging floating and I like to improvise floating all the time. I am highlighting the cost-benefit tradeoff. With limited time and energy, more algs mean less mastery per case and more mental overhead.</p>
         <p style="margin-top:1rem;">Distribution of algs saved per scramble by skill level (vs. Basic):</p>
         <h4>Edge</h4>
-        <table id="saved-algs-edge-dist-table"></table>
+        <table id="saved-algs-edge-dist-table">
+          <thead><tr><th>Saved</th><th>Floating plain 3-cycles only</th><th>Full Floating</th><th>Full Floating Parity</th></tr></thead>
+          <tbody></tbody>
+        </table>
         <h4>Corner</h4>
-        <table id="saved-algs-corner-dist-table"></table>
+        <table id="saved-algs-corner-dist-table">
+          <thead><tr><th>Saved</th><th>Floating plain 3-cycles only</th><th>Full Floating</th><th>Full Floating Parity</th></tr></thead>
+          <tbody></tbody>
+        </table>
         <h4>Total</h4>
-        <table id="saved-algs-total-dist-table"></table>
+        <table id="saved-algs-total-dist-table">
+          <thead><tr><th>Saved</th><th>Floating plain 3-cycles only</th><th>Full Floating</th><th>Full Floating Parity</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </details>
 
     </div>
@@ -248,18 +304,20 @@
       <details>
         <summary>Edges</summary>
         <table data-stat="edge-breaks">
-          <tr><th>Breaks</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Breaks</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="edge-breaks" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" data-chart-title="Edge Cycle Breaks"></div>
       </details>
 
       <details>
         <summary>Corners</summary>
         <table data-stat="corner-breaks">
-          <tr><th>Breaks</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Breaks</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="corner-breaks" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
       </details>
     </div>
@@ -269,9 +327,10 @@
       <details>
         <summary>Flipped Edges (buffer excluded)</summary>
         <table data-stat="edge-flipped">
-          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="edge-flipped" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" data-chart-title="Flipped Edges"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">Solved-in-place edges (buffer excluded) follow the same distribution by orientation symmetry.</p>
       </details>
@@ -279,18 +338,22 @@
       <details>
         <summary>Twisted Corners (buffer excluded)</summary>
         <table data-stat="corner-twisted">
-          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="corner-twisted" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" data-chart-title="Twisted Corners"></div>
       </details>
 
       <details>
         <summary>4-flip / 3-twist Probability</summary>
-        <p>Probability that a scramble's non-buffer cycles invoke a 4-flip or 3-twist alg. Edge 4-flip: <code>open1 ≥ 3</code>. Corner 3-twist: <code>cwTwist ≥ 3</code>, <code>ccwTwist ≥ 3</code>, <code>cwTwist == 2 &amp;&amp; ccwTwist == 0</code>, or <code>ccwTwist == 2 &amp;&amp; cwTwist == 0</code>.</p>
+        <p>Probability that a scramble's non-buffer cycles invoke a 4-flip or 3-twist alg. Edge 4-flip: <code>open1>=3</code>. Corner 3-twist: <code>cwTwist>=3 || ccwTwist>=3 || cwTwist==2 &amp;&amp; ccwTwist==0 || ccwTwist==2 &amp;&amp; cwTwist==0</code>.</p>
         <table data-stat="multi-flip-twist">
-          <tr><th>Type</th><th>Count</th><th>Probability</th></tr>
-          <tbody></tbody>
+          <thead><tr><th>Type</th><th>Count</th><th>Probability</th></tr></thead>
+          <tbody>
+            <tr data-row="edge-4flip"><td>Edge 4-flip</td><td data-count></td><td data-prob></td></tr>
+            <tr data-row="corner-3twist"><td>Corner 3-twist</td><td data-count></td><td data-prob></td></tr>
+          </tbody>
         </table>
       </details>
     </div>
@@ -338,7 +401,7 @@
           <div class="parity-checkbox"><input type="checkbox" id="cps-mode-odd"><label for="cps-mode-odd">Odd Parity Only</label></div>
         </div>
         <table data-stat="cps">
-          <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
         <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap (Edges)" data-chart-spaced="false"></div>
@@ -353,7 +416,7 @@
           <div class="parity-checkbox"><input type="checkbox" id="cps-corner-mode-odd"><label for="cps-corner-mode-odd">Odd Parity Only</label></div>
         </div>
         <table data-stat="cps-corner">
-          <tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Index</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
         <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap (Corners)" data-chart-spaced="false"></div>
@@ -374,8 +437,11 @@
         <p><strong>Note</strong>: In practice, most BLDers specialize in LTCT or T2C algorithms for a fixed edge pair (e.g., UF–UR), so the actual applicable cases are even fewer—roughly half of those shown above when using cascading pseudo/weak swap.</p>
         
         <table data-stat="ltct-t2c">
-          <tr><th>Technique</th><th>Count</th><th>Probability</th></tr>
-          <tbody></tbody>
+          <thead><tr><th>Technique</th><th>Count</th><th>Probability</th></tr></thead>
+          <tbody>
+            <tr data-row="ltct"><td>LTCT</td><td data-count></td><td data-prob></td></tr>
+            <tr data-row="t2c"><td>T2C</td><td data-count></td><td data-prob></td></tr>
+          </tbody>
         </table>
       </details>
     </div>
@@ -386,7 +452,7 @@
         <summary>Results</summary>
         <p style="margin-top:0.75rem; font-size:0.9rem;">Every move sequence eventually returns the cube to its start state. The <em>order</em> is the number of repetitions required. The table shows how many distinct cube states (scrambles) have each order.</p>
         <table data-stat="order">
-          <tr><th>Order</th><th>Count</th></tr>
+          <thead><tr><th>Order</th><th>Count</th></tr></thead>
           <tbody></tbody>
         </table>
       </details>
@@ -414,10 +480,10 @@
           </div>
         </div>
         <table data-stat="wing-algs">
-          <tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Algs</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
-        <p id="bigbld-wing-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <p id="bigbld-wing-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" data-chart-title="Wing Algs"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">Wing parity counts as 1 alg. Basic floating includes floating pure 3-cycles and one pure 2-cycle for wing parity. </p>
       </details>
@@ -427,55 +493,66 @@
         <p>Mean wing alg counts by skill level, computed over all 4x4x4 wing states:</p>
         <table id="bigbld-saved-algs-table">
           <thead><tr><th>Skill Level</th><th>Mean</th><th>Saved</th></tr></thead>
-          <tbody></tbody>
+          <tbody>
+            <tr data-skill="basic"><td>Basic</td><td data-mean></td><td data-saved></td></tr>
+            <tr data-skill="naive"><td>Basic floating</td><td data-mean></td><td data-saved></td></tr>
+            <tr data-skill="full"><td>Full Floating</td><td data-mean></td><td data-saved></td></tr>
+          </tbody>
         </table>
         <p style="margin-top:1rem;">Distribution of algs saved per scramble by skill level (vs. Basic):</p>
-        <table id="bigbld-saved-algs-dist-table"></table>
+        <table id="bigbld-saved-algs-dist-table">
+          <thead><tr><th>Saved</th><th>Basic floating</th><th>Full Floating</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </details>
 
       <details>
         <summary>Wing: Cycle Breaks</summary>
         <table data-stat="wing-breaks">
-          <tr><th>Breaks</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Breaks</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="wing-breaks" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" data-chart-title="Wing Cycle Breaks"></div>
       </details>
 
       <details>
         <summary>Wing: Solved Non-Buffer Pieces</summary>
         <table data-stat="wing-solved">
-          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="wing-solved" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" data-chart-title="Wing Solved Non-Buffer Pieces"></div>
       </details>
 
       <details>
         <summary>Wing: Floating Plain 2-Cycles</summary>
         <table data-stat="wing-float2">
-          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="wing-float2" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" data-chart-title="Wing Floating Plain 2-Cycles"></div>
       </details>
 
       <details>
         <summary>Wing: Floating Plain 3-Cycles</summary>
         <table data-stat="wing-float3">
-          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="wing-float3" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" data-chart-title="Wing Floating Plain 3-Cycles"></div>
       </details>
 
       <details>
         <summary>Unsolved x/t-Centers</summary>
         <table data-stat="wing-centers">
-          <tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr>
+          <thead><tr><th>Number</th><th>Count</th><th>Probability</th><th>Cumulative</th></tr></thead>
           <tbody></tbody>
         </table>
-        <p id="bigbld-centers-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <p id="bigbld-centers-stats" style="font-size:0.85rem; color:var(--text-secondary);">Mean: <span data-mean></span>, Std: <span data-std></span></p>
         <div class="help-chart" data-chart-title="Unsolved x/t-Centers"></div>
       </details>
     </div>

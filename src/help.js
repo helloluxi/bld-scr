@@ -11,35 +11,6 @@ function cornerAlgH(cc, s) {
   return cc.alg;
 }
 
-const isZh = (document.documentElement.lang || '').toLowerCase().startsWith('zh');
-const t = {
-  edge: isZh ? '棱块' : 'Edge',
-  corner: isZh ? '角块' : 'Corner',
-  total: isZh ? '总计' : 'Total',
-  alg: isZh ? '公式' : 'Algs',
-  count: isZh ? '计数' : 'Count',
-  probability: isZh ? '概率' : 'Probability',
-  cumulative: isZh ? '累积' : 'Cumulative',
-  mean: isZh ? '均值' : 'Mean',
-  std: isZh ? '标准差' : 'Std',
-  basic: isZh ? '基础' : 'Basic 3-style',
-  advanced: isZh ? '进阶' : 'Advanced',
-  naiveFloat3: isZh ? '仅浮动纯三循环' : 'Floating plain 3-cycles only',
-  fullFloat: isZh ? '全浮动' : 'Full Floating',
-  fullFloatParity: isZh ? '全浮动奇偶' : 'Full Floating Parity',
-  parityEven: isZh ? '偶' : 'even',
-  parityOdd: isZh ? '奇' : 'odd',
-  parity: isZh ? '奇偶' : 'Parity',
-  breaks: isZh ? '小循环' : 'Breaks',
-  workedEdges: isZh ? '棱块' : 'Edges',
-  workedCorners: isZh ? '角块' : 'Corners',
-  parityError: isZh ? '奇偶检查失败' : 'Parity check failed',
-  reductionLogic: isZh ? '归约逻辑' : 'reduction logic',
-  flipTwist: isZh ? '翻色' : 'Flip / Twist',
-  rawMemo: isZh ? '原始编码' : 'Raw Memo',
-  execution: isZh ? '执行' : 'Execution',
-};
-
 function getHelpSkills() {
   return {
     naiveEdge:   document.getElementById('h-skill-naive-edge').checked,
@@ -78,12 +49,19 @@ function meanStd(rows) {
   return { mean, std: Math.sqrt(variance) };
 }
 
+function getOrCreateTbody(tableEl) {
+  let tbody = tableEl.querySelector('tbody');
+  if (!tbody) { tbody = document.createElement('tbody'); tableEl.appendChild(tbody); }
+  return tbody;
+}
+
 function renderTable(tableEl, rows) {
-  let html = `<tr><th>${t.alg}</th><th>${t.count}</th><th>${t.probability}</th><th>${t.cumulative}</th></tr>`;
+  const tbody = getOrCreateTbody(tableEl);
+  let html = '';
   for (const r of rows) {
     html += `<tr><td>${r.label}</td><td>${Math.round(r.value)}</td><td>${r.probability.toFixed(4)}</td><td>${r.cumulative.toFixed(4)}</td></tr>`;
   }
-  tableEl.innerHTML = html;
+  tbody.innerHTML = html;
 }
 
 function renderChart(mount, rows, title) {
@@ -98,23 +76,14 @@ function renderChart(mount, rows, title) {
   );
 }
 
-function fmtStats(mean, std) {
-  return `${t.mean}: ${mean.toFixed(2)}, ${t.std}: ${std.toFixed(2)}`;
+function setStats(el, mean, std) {
+  if (!el) return;
+  const m = el.querySelector('[data-mean]'); if (m) m.textContent = mean.toFixed(2);
+  const s = el.querySelector('[data-std]'); if (s) s.textContent = std.toFixed(2);
 }
 
 function setStatsAfterTable(stat, mean, std) {
-  const table = document.querySelector(`[data-stat="${stat}"]`);
-  if (!table) return;
-  let p = table.parentElement.querySelector(`[data-stats-for="${stat}"]`);
-  if (!p) {
-    p = document.createElement('p');
-    p.className = 'chart-stats';
-    p.style.fontSize = '0.85rem';
-    p.style.color = 'var(--text-secondary)';
-    p.dataset.statsFor = stat;
-    table.insertAdjacentElement('afterend', p);
-  }
-  p.textContent = fmtStats(mean, std);
+  setStats(document.querySelector(`[data-stats-for="${stat}"]`), mean, std);
 }
 
 function meanStdFromPairs(pairs) {
@@ -130,6 +99,15 @@ function lastTbody(stat) {
   if (!t) return null;
   const tbodies = t.querySelectorAll('tbody');
   return tbodies[tbodies.length - 1] || null;
+}
+
+function fillRowCell(stat, rowName, cellAttr, value) {
+  const table = document.querySelector(`[data-stat="${stat}"]`);
+  if (!table) return;
+  const row = table.querySelector(`[data-row="${rowName}"]`);
+  if (!row) return;
+  const cell = row.querySelector(`[${cellAttr}]`);
+  if (cell) cell.textContent = value;
 }
 
 function populateStaticTables() {
@@ -183,10 +161,10 @@ function populateStaticTables() {
     const cw = cc.cwTwist, ccw = cc.ccwTwist;
     if (cw >= 3 || ccw >= 3 || (cw === 2 && ccw === 0) || (ccw === 2 && cw === 0)) threeTwist += cc.count;
   }
-  fillTbody('multi-flip-twist',
-    `<tr><td>${isZh ? '4-翻棱' : 'Edge 4-flip'}</td><td>${fourFlip.toLocaleString()}</td><td>${(fourFlip / eT).toFixed(4)}</td></tr>` +
-    `<tr><td>${isZh ? '3-翻角' : 'Corner 3-twist'}</td><td>${threeTwist.toLocaleString()}</td><td>${(threeTwist / cT).toFixed(4)}</td></tr>`
-  );
+  fillRowCell('multi-flip-twist', 'edge-4flip',    'data-count', fourFlip.toLocaleString());
+  fillRowCell('multi-flip-twist', 'edge-4flip',    'data-prob',  (fourFlip / eT).toFixed(4));
+  fillRowCell('multi-flip-twist', 'corner-3twist', 'data-count', threeTwist.toLocaleString());
+  fillRowCell('multi-flip-twist', 'corner-3twist', 'data-prob',  (threeTwist / cT).toFixed(4));
 
   // LTCT / T2C (odd parity, with at least one open1 / open2 secondary cycle)
   let ltct = 0, t2c = 0;
@@ -194,10 +172,10 @@ function populateStaticTables() {
     if (cc.open1 >= 1) ltct += cc.count;
     if (cc.open2 >= 1) t2c  += cc.count;
   }
-  fillTbody('ltct-t2c',
-    `<tr><td>LTCT</td><td>${ltct.toLocaleString()}</td><td>${(ltct / cT).toFixed(4)}</td></tr>` +
-    `<tr><td>T2C</td><td>${t2c.toLocaleString()}</td><td>${(t2c / cT).toFixed(4)}</td></tr>`
-  );
+  fillRowCell('ltct-t2c', 'ltct', 'data-count', ltct.toLocaleString());
+  fillRowCell('ltct-t2c', 'ltct', 'data-prob',  (ltct / cT).toFixed(4));
+  fillRowCell('ltct-t2c', 't2c',  'data-count', t2c.toLocaleString());
+  fillRowCell('ltct-t2c', 't2c',  'data-prob',  (t2c / cT).toFixed(4));
 
   // Cascading Pseudo Swap
   populateBreakInSwap();
@@ -341,7 +319,7 @@ function updateAlgsSection() {
   const es = meanStd(edgeRows);
   renderTable(document.getElementById('edge-algs-table'), edgeRows);
   renderChart(document.getElementById('edge-algs-chart'), edgeRows, '');
-  document.getElementById('edge-algs-stats').textContent = fmtStats(es.mean, es.std);
+  setStats(document.getElementById('edge-algs-stats'), es.mean, es.std);
 
   // Corner
   const cornerDist = tallyByAlg([...cycler.evenCorners, ...cycler.oddCorners], cornerAlgH, skills);
@@ -349,7 +327,7 @@ function updateAlgsSection() {
   const cs = meanStd(cornerRows);
   renderTable(document.getElementById('corner-algs-table'), cornerRows);
   renderChart(document.getElementById('corner-algs-chart'), cornerRows, '');
-  document.getElementById('corner-algs-stats').textContent = fmtStats(cs.mean, cs.std);
+  setStats(document.getElementById('corner-algs-stats'), cs.mean, cs.std);
 
   // Total (convolve edge+corner with parity matching)
   const edgeByParity = [new Map(), new Map()];
@@ -380,7 +358,7 @@ function updateAlgsSection() {
   const ts = meanStd(totalRows);
   renderTable(document.getElementById('total-algs-table'), totalRows);
   renderChart(document.getElementById('total-algs-chart'), totalRows, '');
-  document.getElementById('total-algs-stats').textContent = fmtStats(ts.mean, ts.std);
+  setStats(document.getElementById('total-algs-stats'), ts.mean, ts.std);
 }
 
 function populateBigBldTables() {
@@ -444,8 +422,7 @@ function populateBigBldTables() {
     }).join('');
     const probPairs = centerData.map(([u, c]) => [u, c / centerTotal]);
     const s = meanStdFromPairs(probPairs);
-    const statsEl = document.getElementById('bigbld-centers-stats');
-    if (statsEl) statsEl.textContent = fmtStats(s.mean, s.std);
+    setStats(document.getElementById('bigbld-centers-stats'), s.mean, s.std);
     const chart = centerTbody.closest('details').querySelector('.help-chart');
     if (chart) {
       const labels = probPairs.map(([u]) => u);
@@ -510,8 +487,7 @@ function updateWingAlgsTable() {
   }).join('');
 
   const s = meanStdFromPairs(sorted.map(([k, v]) => [k, Number(v) / totalNum]));
-  const statsEl = document.getElementById('bigbld-wing-algs-stats');
-  if (statsEl) statsEl.textContent = fmtStats(s.mean, s.std);
+  setStats(document.getElementById('bigbld-wing-algs-stats'), s.mean, s.std);
 
   const table = document.querySelector('[data-stat="wing-algs"]');
   const chart = table && table.parentElement.querySelector('.help-chart');
@@ -644,7 +620,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (test.errors > 0) {
     const errEl = document.getElementById('algs-error');
     errEl.style.display = '';
-    errEl.textContent = `${t.parityError}: ${test.errors} ${isZh ? '处' : ''}${t.reductionLogic}${isZh ? '错误。' : ' errors.'}`;
+    const cntEl = document.getElementById('algs-error-count');
+    if (cntEl) cntEl.textContent = test.errors;
   }
 
   // Wire up 3BLD skill rows (row-exclusive)
@@ -733,10 +710,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (lsEdge) updateInputHint(lsEdge, edgePositions);
   if (lsCorner) updateInputHint(lsCorner, cornerPositions);
 
-  // Random worked example
+  // Random worked example — fills static placeholders inside #worked-example-output
   function rollExample() {
-    const out = document.getElementById('worked-example-output');
-
     function fmtHalf(v) { return Number.isInteger(v) ? String(v) : v.toFixed(1); }
 
     function fmtCycles(cycles) {
@@ -757,67 +732,59 @@ document.addEventListener('DOMContentLoaded', () => {
       return secondary ? `(${buf.perm},${buf.ori}) + ${secondary}` : `(${buf.perm},${buf.ori})`;
     }
 
-    function renderMemoSection(label, cc, memoData) {
-      const cfg = fmtConfig(cc);
-      let h = `<div class="memo-section" style="margin-bottom: 1.5rem;">`;
-      h += `<h3 style="margin-top: 0;">${label}: ${cfg}</h3>`;
-      h += `<div style="font-family: 'Consolas', monospace; line-height: 1.8;">`;
-      h += `<div>${t.rawMemo}: ${memoData.rawMemo}</div>`;
-      h += `<div>${t.execution} (${t.basic}): ${memoData.basicExec}</div>`;
-      h += `<div>${t.execution} (${t.advanced}): ${memoData.advancedExec}</div>`;
-      h += `<div>${t.execution} (${t.fullFloat}): ${memoData.floatingExec}</div>`;
-      h += `</div>`;
-      h += `</div>`;
-      return h;
+    function setText(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = value;
+    }
+    function setHtml(id, value) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = value;
     }
 
-    function renderCombinedTable(eCC, cCC) {
-      const ep = eCC.parity ? t.parityOdd : t.parityEven;
-      const cp = cCC.parity ? t.parityOdd : t.parityEven;
-      const row = (name, e, c) => `<tr><td>${name}</td><td>${e}</td><td>${c}</td></tr>`;
-      let h = '<table class="worked-example-table">';
-      h += `<tr><th></th><th>${t.workedEdges}</th><th>${t.workedCorners}</th></tr>`;
-      h += row(t.parity, ep, cp);
-      h += row(t.breaks, eCC.breaks, cCC.breaks);
-      h += row(t.flipTwist, eCC.open1, cCC.open1);
-      h += row(`${t.alg} (${t.basic})`, fmtHalf(eCC.alg), fmtHalf(cCC.alg));
-      h += row(`${t.alg} (${t.naiveFloat3})`, fmtHalf(eCC.alg - eCC.closed3), fmtHalf(cCC.alg - cCC.closed3));
-      h += row(`${t.alg} (${t.fullFloat})`, fmtHalf(eCC.algFullFloat), fmtHalf(cCC.algFullFloat));
-      h += row(`${t.alg} (${t.fullFloatParity})`, fmtHalf(eCC.algFullParity), fmtHalf(cCC.algFullParity));
-      h += row(t.count, eCC.count.toLocaleString(), cCC.count.toLocaleString());
-      h += '</table>';
-      return h;
+    if (typeof scrambler.getScrambleAndCode !== 'function') return;
+    const { scramble, edgeCode: edgeCodeStr, cornerCode: cornerCodeStr, edgeCC: eCC, cornerCC: cCC } = scrambler.getScrambleAndCode();
+
+    setText('we-scramble', scramble);
+
+    if (window.Example && typeof Example.generateFullMemoFromCode === 'function') {
+      const scheme = getActiveScheme();
+      const translatedEdge = Example.translateCodeStr(edgeCodeStr, Example.DEFAULT_EDGE_CODE, scheme.edge);
+      const translatedCorner = Example.translateCodeStr(cornerCodeStr, Example.DEFAULT_CORNER_CODE, scheme.corner);
+      Example.setLetterScheme(scheme.edge, scheme.corner);
+      const memo = Example.generateFullMemoFromCode(translatedEdge, translatedCorner, eCC, cCC);
+
+      setText('we-edge-config',  fmtConfig(eCC));
+      setHtml('we-edge-raw',      memo.edges.rawMemo);
+      setHtml('we-edge-basic',    memo.edges.basicExec);
+      setHtml('we-edge-advanced', memo.edges.advancedExec);
+      setHtml('we-edge-full',     memo.edges.floatingExec);
+
+      setText('we-corner-config',  fmtConfig(cCC));
+      setHtml('we-corner-raw',      memo.corners.rawMemo);
+      setHtml('we-corner-basic',    memo.corners.basicExec);
+      setHtml('we-corner-advanced', memo.corners.advancedExec);
+      setHtml('we-corner-full',     memo.corners.floatingExec);
     }
 
-    let h = '';
-
-    // Generate scramble and get actual code strings
-    if (typeof scrambler.getScrambleAndCode === 'function') {
-      const { scramble, edgeCode: edgeCodeStr, cornerCode: cornerCodeStr, edgeCC: eCC, cornerCC: cCC } = scrambler.getScrambleAndCode();
-
-      h += `<p><code>${scramble}</code></p>`;
-      // Generate memo notation from code strings and cycle configs
-      if (window.Example && typeof Example.generateFullMemoFromCode === 'function') {
-        // Translate codes to user's letter scheme
-        const scheme = getActiveScheme();
-        const translatedEdge = Example.translateCodeStr(edgeCodeStr, Example.DEFAULT_EDGE_CODE, scheme.edge);
-        const translatedCorner = Example.translateCodeStr(cornerCodeStr, Example.DEFAULT_CORNER_CODE, scheme.corner);
-        Example.setLetterScheme(scheme.edge, scheme.corner);
-        const memo = Example.generateFullMemoFromCode(translatedEdge, translatedCorner, eCC, cCC);
-        memo.edges.representation = translatedEdge;
-        memo.corners.representation = translatedCorner;
-        h += `<div class="memo-container" style="margin: 1rem 0;">`;
-        h += renderMemoSection(t.workedEdges, eCC, memo.edges);
-        h += renderMemoSection(t.workedCorners, cCC, memo.corners);
-        h += `</div>`;
-      }
-
-      h += renderCombinedTable(eCC, cCC);
-    } else {
-      h += '<p>Scramble generator not available.</p>';
-    }
-
-    out.innerHTML = h;
+    const tbl = document.querySelector('.worked-example-table');
+    const evenLabel = tbl ? tbl.dataset.parityEven : 'even';
+    const oddLabel  = tbl ? tbl.dataset.parityOdd  : 'odd';
+    setText('we-edge-parity',   eCC.parity ? oddLabel : evenLabel);
+    setText('we-corner-parity', cCC.parity ? oddLabel : evenLabel);
+    setText('we-edge-breaks',   eCC.breaks);
+    setText('we-corner-breaks', cCC.breaks);
+    setText('we-edge-flip',     eCC.open1);
+    setText('we-corner-flip',   cCC.open1);
+    setText('we-edge-alg-basic',      fmtHalf(eCC.alg));
+    setText('we-corner-alg-basic',    fmtHalf(cCC.alg));
+    setText('we-edge-alg-naive',      fmtHalf(eCC.alg - eCC.closed3));
+    setText('we-corner-alg-naive',    fmtHalf(cCC.alg - cCC.closed3));
+    setText('we-edge-alg-fullfloat',  fmtHalf(eCC.algFullFloat));
+    setText('we-corner-alg-fullfloat', fmtHalf(cCC.algFullFloat));
+    setText('we-edge-alg-fullparity', fmtHalf(eCC.algFullParity));
+    setText('we-corner-alg-fullparity', fmtHalf(cCC.algFullParity));
+    setText('we-edge-count',   eCC.count.toLocaleString());
+    setText('we-corner-count', cCC.count.toLocaleString());
   }
 
   document.getElementById('reroll-btn').addEventListener('click', rollExample);
@@ -837,10 +804,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const levels = [
-      { name: t.basic, e: cc => cc.alg, c: cc => cc.alg },
-      { name: t.naiveFloat3, e: cc => cc.alg - cc.closed3, c: cc => cc.alg - cc.closed3 },
-      { name: t.fullFloat, e: cc => cc.algFullFloat, c: cc => cc.algFullFloat },
-      { name: t.fullFloatParity, e: cc => cc.algFullParity, c: cc => cc.algFullParity },
+      { key: 'basic',      e: cc => cc.alg,                     c: cc => cc.alg },
+      { key: 'naive',      e: cc => cc.alg - cc.closed3,        c: cc => cc.alg - cc.closed3 },
+      { key: 'fullfloat',  e: cc => cc.algFullFloat,            c: cc => cc.algFullFloat },
+      { key: 'fullparity', e: cc => cc.algFullParity,           c: cc => cc.algFullParity },
     ];
 
     // Total by parity convolution
@@ -864,33 +831,46 @@ document.addEventListener('DOMContentLoaded', () => {
       return ws / w;
     }
 
-    const totalsByName = {};
+    const totalsByKey = {};
     const tbody = document.querySelector('#saved-algs-table tbody');
     const fmt = v => v.toFixed(2);
-    const saved = (cur, base) => (base - cur).toFixed(2);
-    
+    const savedFmt = (cur, base) => (base - cur).toFixed(2);
+
     const baseE = avg(allE, levels[0].e, eT);
     const baseC = avg(allC, levels[0].c, cT);
     const baseT = totalAvg(levels[0].e, levels[0].c);
-    
+
+    function fillSavedRow(key, eM, cM, tM) {
+      if (!tbody) return;
+      const row = tbody.querySelector(`[data-skill="${key}"]`);
+      if (!row) return;
+      const set = (attr, val) => { const c = row.querySelector(`[${attr}]`); if (c) c.textContent = val; };
+      set('data-edge-mean',    fmt(eM));
+      set('data-edge-saved',   savedFmt(eM, baseE));
+      set('data-corner-mean',  fmt(cM));
+      set('data-corner-saved', savedFmt(cM, baseC));
+      set('data-total-mean',   fmt(tM));
+      set('data-total-saved',  savedFmt(tM, baseT));
+    }
+
     for (const lv of levels) {
       const eM = avg(allE, lv.e, eT);
       const cM = avg(allC, lv.c, cT);
       const tM = totalAvg(lv.e, lv.c);
-      totalsByName[lv.name] = tM;
-      tbody.innerHTML += `<tr><td>${lv.name}</td><td>${fmt(eM)}</td><td>${saved(eM, baseE)}</td><td>${fmt(cM)}</td><td>${saved(cM, baseC)}</td><td>${fmt(tM)}</td><td>${saved(tM, baseT)}</td></tr>`;
+      totalsByKey[lv.key] = tM;
+      fillSavedRow(lv.key, eM, cM, tM);
     }
-    
-    const savedFull = totalsByName[t.basic] - totalsByName[t.fullFloat];
-    const savedParity = totalsByName[t.fullFloat] - totalsByName[t.fullFloatParity];
+
+    const savedFull = totalsByKey.basic - totalsByKey.fullfloat;
+    const savedParity = totalsByKey.fullfloat - totalsByKey.fullparity;
     document.getElementById('saved-full-num').textContent = savedFull.toFixed(2);
     document.getElementById('saved-parity-num').textContent = savedParity.toFixed(2);
 
-    // Saved-alg distribution per skill level (vs Basic)
+    // Saved-alg distribution per skill level (vs Basic). Column headers live in HTML.
     const distLevels = [
-      { name: t.naiveFloat3,     e: cc => cc.closed3,            c: cc => cc.closed3 },
-      { name: t.fullFloat,       e: cc => cc.alg - cc.algFullFloat,  c: cc => cc.alg - cc.algFullFloat },
-      { name: t.fullFloatParity, e: cc => cc.alg - cc.algFullParity, c: cc => cc.alg - cc.algFullParity },
+      { e: cc => cc.closed3,                  c: cc => cc.closed3 },
+      { e: cc => cc.alg - cc.algFullFloat,    c: cc => cc.alg - cc.algFullFloat },
+      { e: cc => cc.alg - cc.algFullParity,   c: cc => cc.alg - cc.algFullParity },
     ];
 
     function savedDist(configs, fn, total) {
@@ -904,28 +884,24 @@ document.addEventListener('DOMContentLoaded', () => {
       return out;
     }
 
+    function fillDistTbody(tableEl, html) {
+      const tb = tableEl.querySelector('tbody');
+      if (tb) tb.innerHTML = html;
+    }
+
     function renderSavedDist(tableEl, configs, pick, total) {
       const dists = distLevels.map(lv => savedDist(configs, pick(lv), total));
       const keys = new Set();
       for (const d of dists) for (const k of d.keys()) keys.add(k);
       const sorted = [...keys].sort((a, b) => a - b);
       const fmtK = k => Number.isInteger(k) ? String(k) : k.toFixed(1);
-      let html = `<thead><tr><th>${isZh ? '节省' : 'Saved'}</th>` +
-        distLevels.map(lv => `<th>${lv.name}</th>`).join('') + `</tr></thead><tbody>`;
+      let html = '';
       for (const k of sorted) {
         html += `<tr><td>${fmtK(k)}</td>` +
           dists.map(d => `<td>${(d.get(k) || 0).toFixed(4)}</td>`).join('') + `</tr>`;
       }
-      html += '</tbody>';
-      tableEl.innerHTML = html;
+      fillDistTbody(tableEl, html);
     }
-
-    const edgeDistEl = document.getElementById('saved-algs-edge-dist-table');
-    const cornerDistEl = document.getElementById('saved-algs-corner-dist-table');
-    const totalDistEl = document.getElementById('saved-algs-total-dist-table');
-    if (edgeDistEl)   renderSavedDist(edgeDistEl,   allE, lv => lv.e, eT);
-    if (cornerDistEl) renderSavedDist(cornerDistEl, allC, lv => lv.c, cT);
-    if (totalDistEl)  renderSavedTotalDist(totalDistEl);
 
     function renderSavedTotalDist(tableEl) {
       const dists = distLevels.map(lv => {
@@ -955,15 +931,20 @@ document.addEventListener('DOMContentLoaded', () => {
       for (const d of dists) for (const k of d.keys()) keys.add(k);
       const sorted = [...keys].sort((a, b) => a - b);
       const fmtK = k => Number.isInteger(k) ? String(k) : k.toFixed(1);
-      let html = `<thead><tr><th>${isZh ? '节省' : 'Saved'}</th>` +
-        distLevels.map(lv => `<th>${lv.name}</th>`).join('') + `</tr></thead><tbody>`;
+      let html = '';
       for (const k of sorted) {
         html += `<tr><td>${fmtK(k)}</td>` +
           dists.map(d => `<td>${(d.get(k) || 0).toFixed(4)}</td>`).join('') + `</tr>`;
       }
-      html += '</tbody>';
-      tableEl.innerHTML = html;
+      fillDistTbody(tableEl, html);
     }
+
+    const edgeDistEl = document.getElementById('saved-algs-edge-dist-table');
+    const cornerDistEl = document.getElementById('saved-algs-corner-dist-table');
+    const totalDistEl = document.getElementById('saved-algs-total-dist-table');
+    if (edgeDistEl)   renderSavedDist(edgeDistEl,   allE, lv => lv.e, eT);
+    if (cornerDistEl) renderSavedDist(cornerDistEl, allC, lv => lv.c, cT);
+    if (totalDistEl)  renderSavedTotalDist(totalDistEl);
 
     // Big BLD saved-alg statistics
     if (typeof cycler4 !== 'undefined') {
@@ -972,22 +953,26 @@ document.addEventListener('DOMContentLoaded', () => {
       for (const w of wings) wingTotal += w.count;
       const wingTotalNum = Number(wingTotal);
 
-      const levels = [
-        { name: t.basic, fn: w => w.alg },
-        { name: t.naiveFloat3, fn: w => w.algF3 },
-        { name: t.fullFloat, fn: w => w.algFF },
+      const bigLevels = [
+        { key: 'basic', fn: w => w.alg },
+        { key: 'naive', fn: w => w.algF3 },
+        { key: 'full',  fn: w => w.algFF },
       ];
 
       let baseMean = null;
       const bigBldTbody = document.querySelector('#bigbld-saved-algs-table tbody');
       if (bigBldTbody) {
-        for (const lv of levels) {
+        for (const lv of bigLevels) {
           let sum = 0;
           for (const w of wings) sum += lv.fn(w) * Number(w.count);
           const mean = sum / wingTotalNum;
           if (baseMean === null) baseMean = mean;
-          const saved = baseMean - mean;
-          bigBldTbody.innerHTML += `<tr><td>${lv.name}</td><td>${mean.toFixed(2)}</td><td>${saved.toFixed(2)}</td></tr>`;
+          const savedAmt = baseMean - mean;
+          const row = bigBldTbody.querySelector(`[data-skill="${lv.key}"]`);
+          if (row) {
+            const m = row.querySelector('[data-mean]');  if (m) m.textContent = mean.toFixed(2);
+            const sv = row.querySelector('[data-saved]'); if (sv) sv.textContent = savedAmt.toFixed(2);
+          }
         }
       }
 
@@ -1006,18 +991,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const bigBldDistEl = document.getElementById('bigbld-saved-algs-dist-table');
       if (bigBldDistEl) {
-        const dists = levels.slice(1).map(lv => ({ name: lv.name, dist: bigBldSavedDist(lv.fn) }));
+        const dists = bigLevels.slice(1).map(lv => bigBldSavedDist(lv.fn));
         const keys = new Set();
-        for (const d of dists) for (const k of d.dist.keys()) keys.add(k);
+        for (const d of dists) for (const k of d.keys()) keys.add(k);
         const sorted = [...keys].sort((a, b) => a - b);
-        let html = `<thead><tr><th>${isZh ? '节省' : 'Saved'}</th>` +
-          dists.map(d => `<th>${d.name}</th>`).join('') + `</tr></thead><tbody>`;
+        let html = '';
         for (const k of sorted) {
           html += `<tr><td>${k}</td>` +
-            dists.map(d => `<td>${(d.dist.get(k) || 0).toFixed(4)}</td>`).join('') + `</tr>`;
+            dists.map(d => `<td>${(d.get(k) || 0).toFixed(4)}</td>`).join('') + `</tr>`;
         }
-        html += '</tbody>';
-        bigBldDistEl.innerHTML = html;
+        fillDistTbody(bigBldDistEl, html);
       }
     }
 

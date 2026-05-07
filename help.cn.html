@@ -91,6 +91,29 @@
       <p>生成打乱时：若两种奇偶都开启，则按总权重比例先选池（保证联合分布仍与未筛选分布一致）；再从该池的 CDF 中抽取一个配置；随后随机实例化与该配置匹配的置换与朝向赋值；最后用 <a href="https://github.com/cs0x7f/min2phase.js" target="_blank">min2phase.js</a> 还原得到打乱。</p>
 
       <h2>随机示例</h2>
+      <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">再抽一个</button>
+      <div id="worked-example-output">
+        <p><code id="we-scramble"></code></p>
+        <div class="memo-container" style="margin: 1rem 0;">
+          <div class="memo-section" style="margin-bottom: 1.5rem;">
+            <h3 style="margin-top: 0;">棱块：<span id="we-edge-config"></span></h3>
+            <div style="font-family: 'Consolas', monospace; line-height: 1.8;">
+              <div>原始编码：<span id="we-edge-raw"></span></div>
+              <div>执行（基础）：<span id="we-edge-basic"></span></div>
+              <div>执行（进阶）：<span id="we-edge-advanced"></span></div>
+              <div>执行（全浮动）：<span id="we-edge-full"></span></div>
+            </div>
+          </div>
+          <div class="memo-section" style="margin-bottom: 1.5rem;">
+            <h3 style="margin-top: 0;">角块：<span id="we-corner-config"></span></h3>
+            <div style="font-family: 'Consolas', monospace; line-height: 1.8;">
+              <div>原始编码：<span id="we-corner-raw"></span></div>
+              <div>执行（基础）：<span id="we-corner-basic"></span></div>
+              <div>执行（进阶）：<span id="we-corner-advanced"></span></div>
+              <div>执行（全浮动）：<span id="we-corner-full"></span></div>
+            </div>
+          </div>
+        </div>
       <details id="letter-scheme-details" style="margin-bottom:1rem;">
         <summary>编码方案</summary>
         <div style="display:flex; align-items:center; gap:0.4rem; margin:0.75rem 0 0.5rem; flex-wrap:wrap;">
@@ -111,15 +134,26 @@
         </div>
         <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; 收起</a>
       </details>
-      <button id="reroll-btn" class="button" style="width:auto;padding:0.5rem 1.25rem;margin-bottom:1rem;">再抽一个</button>
-      <div id="worked-example-output"></div>
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.5rem;">全浮动记号：<code>(X:)YZ</code> 表示一个以 <code>X</code> 为锚点、循环 <code>Y</code> 和 <code>Z</code> 两块的浮动公式。配对采用贪心策略，在极少配置下可能并非最优。该执行仅以匹配公式数为目标，不等于推荐的实际解法。</p>
+        <table class="worked-example-table" data-parity-even="偶" data-parity-odd="奇">
+          <tr><th></th><th>棱块</th><th>角块</th></tr>
+          <tr><td>奇偶</td><td id="we-edge-parity"></td><td id="we-corner-parity"></td></tr>
+          <tr><td>小循环</td><td id="we-edge-breaks"></td><td id="we-corner-breaks"></td></tr>
+          <tr><td>翻色</td><td id="we-edge-flip"></td><td id="we-corner-flip"></td></tr>
+          <tr><td>公式（基础）</td><td id="we-edge-alg-basic"></td><td id="we-corner-alg-basic"></td></tr>
+          <tr><td>公式（仅浮动纯三循环）</td><td id="we-edge-alg-naive"></td><td id="we-corner-alg-naive"></td></tr>
+          <tr><td>公式（全浮动）</td><td id="we-edge-alg-fullfloat"></td><td id="we-corner-alg-fullfloat"></td></tr>
+          <tr><td>公式（全浮动奇偶）</td><td id="we-edge-alg-fullparity"></td><td id="we-corner-alg-fullparity"></td></tr>
+          <tr><td>计数</td><td id="we-edge-count"></td><td id="we-corner-count"></td></tr>
+        </table>
+      </div>
       <p id="worked-example-bug" style="font-size:0.85rem; color:var(--text-secondary); display:none;">如果有任何地方对不上，请于GitHub反馈 issue。</p>
       <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">&#9650; 收起</a>
     </div>
 
     <div class="card" id="algs-card">
       <h2>三盲公式统计</h2>
-      <div id="algs-error" style="display:none;background:var(--error-bg,#fdd);color:var(--error-fg,#900);padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;"></div>
+      <div id="algs-error" style="display:none;background:var(--error-bg,#fdd);color:var(--error-fg,#900);padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;">奇偶检查失败：<span id="algs-error-count">0</span> 处归约逻辑错误。</div>
       <p>在缓冲位 UF（棱，$P=12$, $O=2$）与 UFR（角，$P=8$, $O=3$）下，对全部 $980{,}995{,}276{,}800$ 种棱状态与 $88{,}179{,}840$ 种角状态给出精确打乱计数。选择技巧组合可查看对应的公式计数分布。</p>
 
       <p><strong>技巧等级（单缓冲 3-style）：</strong></p>
@@ -206,22 +240,31 @@
 
       <details id="edge-algs-details">
         <summary id="edge-algs-summary">棱块公式</summary>
-        <table id="edge-algs-table"><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></table>
-        <p id="edge-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <table id="edge-algs-table">
+          <thead><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p id="edge-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" id="edge-algs-chart"></div>
       </details>
 
       <details id="corner-algs-details">
         <summary id="corner-algs-summary">角块公式</summary>
-        <table id="corner-algs-table"><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></table>
-        <p id="corner-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <table id="corner-algs-table">
+          <thead><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p id="corner-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" id="corner-algs-chart"></div>
       </details>
 
       <details id="total-algs-details">
         <summary id="total-algs-summary">总公式</summary>
-        <table id="total-algs-table"><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></table>
-        <p id="total-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <table id="total-algs-table">
+          <thead><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p id="total-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" id="total-algs-chart"></div>
       </details>
 
@@ -230,17 +273,31 @@
         <p>按技巧等级统计的平均公式数（在所有有效打乱状态上计算）：</p>
         <table id="saved-algs-table">
           <thead><tr><th>技巧等级</th><th>棱块均值</th><th>节省</th><th>角块均值</th><th>节省</th><th>总均值</th><th>节省</th></tr></thead>
-          <tbody></tbody>
+          <tbody>
+            <tr data-skill="basic"><td>基础</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
+            <tr data-skill="naive"><td>仅浮动纯三循环</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
+            <tr data-skill="fullfloat"><td>全浮动</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
+            <tr data-skill="fullparity"><td>全浮动奇偶</td><td data-edge-mean></td><td data-edge-saved></td><td data-corner-mean></td><td data-corner-saved></td><td data-total-mean></td><td data-total-saved></td></tr>
+          </tbody>
         </table>
         <p id="saved-algs-quip" style="margin-top:1rem;font-style:italic;color:gray;">你真的会想背 2768 个全浮动三循环公式，只为了平均每把少 <span id="saved-full-num"></span> 个公式；再多背 11088 个全浮动奇偶公式，也只再平均每把少 <span id="saved-parity-num"></span> 个公式吗？这些都只是理论上界，还没考虑人类实际能力。人生苦短，别背了～</p>
         <p style="margin-top:0.75rem;font-size:0.75rem;color:var(--text-secondary);">当然我没有劝退浮动，我自己就喜欢不用新公式即兴浮动，只是想说背那么多新公式要考虑代价。</p>
         <p style="margin-top:1rem;">每把节省公式数的分布（相对基础）：</p>
         <h4>棱块</h4>
-        <table id="saved-algs-edge-dist-table"></table>
+        <table id="saved-algs-edge-dist-table">
+          <thead><tr><th>节省</th><th>仅浮动纯三循环</th><th>全浮动</th><th>全浮动奇偶</th></tr></thead>
+          <tbody></tbody>
+        </table>
         <h4>角块</h4>
-        <table id="saved-algs-corner-dist-table"></table>
+        <table id="saved-algs-corner-dist-table">
+          <thead><tr><th>节省</th><th>仅浮动纯三循环</th><th>全浮动</th><th>全浮动奇偶</th></tr></thead>
+          <tbody></tbody>
+        </table>
         <h4>总计</h4>
-        <table id="saved-algs-total-dist-table"></table>
+        <table id="saved-algs-total-dist-table">
+          <thead><tr><th>节省</th><th>仅浮动纯三循环</th><th>全浮动</th><th>全浮动奇偶</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </details>
 
     </div>
@@ -250,18 +307,20 @@
       <details>
         <summary>棱块</summary>
         <table data-stat="edge-breaks">
-          <tr><th>小循环数</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>小循环数</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="edge-breaks" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" data-chart-title="Edge Cycle Breaks"></div>
       </details>
 
       <details>
         <summary>角块</summary>
         <table data-stat="corner-breaks">
-          <tr><th>小循环数</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>小循环数</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="corner-breaks" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" data-chart-title="Corner Cycle Breaks"></div>
       </details>
     </div>
@@ -271,9 +330,10 @@
       <details>
         <summary>翻棱数（不含缓冲）</summary>
         <table data-stat="edge-flipped">
-          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="edge-flipped" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" data-chart-title="Flipped Edges"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">由朝向对称性可知，原地还原棱块数（不含缓冲）服从同一分布。</p>
       </details>
@@ -281,18 +341,22 @@
       <details>
         <summary>翻角数（不含缓冲）</summary>
         <table data-stat="corner-twisted">
-          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="corner-twisted" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" data-chart-title="Twisted Corners"></div>
       </details>
 
       <details>
         <summary>4-翻棱 / 3-翻角概率</summary>
-        <p>触发 4-翻棱或 3-翻角公式的概率。4-翻棱：<code>open1 ≥ 3</code>。3-翻角：<code>cwTwist ≥ 3</code>、<code>ccwTwist ≥ 3</code>、<code>cwTwist == 2 &amp;&amp; ccwTwist == 0</code>，或 <code>ccwTwist == 2 &amp;&amp; cwTwist == 0</code>。</p>
+        <p>触发 4-翻棱或 3-翻角公式的概率。4-翻棱：<code>open1>=3</code>。3-翻角：<code><code>cwTwist>=3 || ccwTwist>=3 || cwTwist==2 &amp;&amp; ccwTwist==0 || ccwTwist==2 &amp;&amp; cwTwist==0</code>.</p></code>。</p>
         <table data-stat="multi-flip-twist">
-          <tr><th>类型</th><th>计数</th><th>概率</th></tr>
-          <tbody></tbody>
+          <thead><tr><th>类型</th><th>计数</th><th>概率</th></tr></thead>
+          <tbody>
+            <tr data-row="edge-4flip"><td>4-翻棱</td><td data-count></td><td data-prob></td></tr>
+            <tr data-row="corner-3twist"><td>3-翻角</td><td data-count></td><td data-prob></td></tr>
+          </tbody>
         </table>
       </details>
     </div>
@@ -340,7 +404,7 @@
           <div class="parity-checkbox"><input type="checkbox" id="cps-mode-odd"><label for="cps-mode-odd">仅奇偶为奇</label></div>
         </div>
         <table data-stat="cps">
-          <tr><th>索引</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>索引</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
         <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap (Edges)" data-chart-spaced="false"></div>
@@ -355,7 +419,7 @@
           <div class="parity-checkbox"><input type="checkbox" id="cps-corner-mode-odd"><label for="cps-corner-mode-odd">仅奇偶为奇</label></div>
         </div>
         <table data-stat="cps-corner">
-          <tr><th>索引</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>索引</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
         <div class="help-chart dense" data-chart-title="Cascading Pseudo/Weak Swap (Corners)" data-chart-spaced="false"></div>
@@ -376,8 +440,11 @@
         <p><strong>注</strong>：实际中多数 BLD 选手只专精固定棱对（如 UF-UR）下的 LTCT 或 T2C，因此真正可用的情况会更少；在固定借位法下，通常约为上表的一半。</p>
 
         <table data-stat="ltct-t2c">
-          <tr><th>技巧</th><th>计数</th><th>概率</th></tr>
-          <tbody></tbody>
+          <thead><tr><th>技巧</th><th>计数</th><th>概率</th></tr></thead>
+          <tbody>
+            <tr data-row="ltct"><td>LTCT</td><td data-count></td><td data-prob></td></tr>
+            <tr data-row="t2c"><td>T2C</td><td data-count></td><td data-prob></td></tr>
+          </tbody>
         </table>
       </details>
     </div>
@@ -388,7 +455,7 @@
         <summary>结果</summary>
         <p style="margin-top:0.75rem; font-size:0.9rem;">任意操作序列重复足够多次后都将回到初始状态。其<em>阶</em>即所需重复次数。下表给出每个阶对应的不同魔方状态（打乱）数量。</p>
         <table data-stat="order">
-          <tr><th>阶</th><th>计数</th></tr>
+          <thead><tr><th>阶</th><th>计数</th></tr></thead>
           <tbody></tbody>
         </table>
       </details>
@@ -416,10 +483,10 @@
           </div>
         </div>
         <table data-stat="wing-algs">
-          <tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>公式</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
-        <p id="bigbld-wing-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <p id="bigbld-wing-algs-stats" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" data-chart-title="Wing Algs"></div>
         <p style="font-size:0.85rem; color:var(--text-secondary);">翼棱奇偶计为 1 个公式。</p>
       </details>
@@ -429,55 +496,66 @@
         <p>按技巧等级统计的平均翼棱公式数（在所有 4x4x4 翼棱状态上计算）：</p>
         <table id="bigbld-saved-algs-table">
           <thead><tr><th>技巧等级</th><th>均值</th><th>节省</th></tr></thead>
-          <tbody></tbody>
+          <tbody>
+            <tr data-skill="basic"><td>基础</td><td data-mean></td><td data-saved></td></tr>
+            <tr data-skill="naive"><td>仅浮动纯三循环</td><td data-mean></td><td data-saved></td></tr>
+            <tr data-skill="full"><td>全浮动</td><td data-mean></td><td data-saved></td></tr>
+          </tbody>
         </table>
         <p style="margin-top:1rem;">每把节省公式数的分布（相对基础）：</p>
-        <table id="bigbld-saved-algs-dist-table"></table>
+        <table id="bigbld-saved-algs-dist-table">
+          <thead><tr><th>节省</th><th>仅浮动纯三循环</th><th>全浮动</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </details>
 
       <details>
         <summary>翼棱小循环</summary>
         <table data-stat="wing-breaks">
-          <tr><th>小循环数</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>小循环数</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="wing-breaks" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" data-chart-title="Wing Cycle Breaks"></div>
       </details>
 
       <details>
         <summary>已还原翼棱（不含缓冲）</summary>
         <table data-stat="wing-solved">
-          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="wing-solved" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" data-chart-title="Wing Solved Non-Buffer Pieces"></div>
       </details>
 
       <details>
         <summary>翼棱浮动二循环（不含缓冲）</summary>
         <table data-stat="wing-float2">
-          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="wing-float2" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" data-chart-title="Wing Floating Plain 2-Cycles"></div>
       </details>
 
       <details>
         <summary>翼棱浮动三循环（不含缓冲）</summary>
         <table data-stat="wing-float3">
-          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
+        <p class="chart-stats" data-stats-for="wing-float3" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" data-chart-title="Wing Floating Plain 3-Cycles"></div>
       </details>
 
       <details>
         <summary>未还原角心/棱心</summary>
         <table data-stat="wing-centers">
-          <tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr>
+          <thead><tr><th>数量</th><th>计数</th><th>概率</th><th>累积</th></tr></thead>
           <tbody></tbody>
         </table>
-        <p id="bigbld-centers-stats" style="font-size:0.85rem; color:var(--text-secondary);"></p>
+        <p id="bigbld-centers-stats" style="font-size:0.85rem; color:var(--text-secondary);">均值：<span data-mean></span>，标准差：<span data-std></span></p>
         <div class="help-chart" data-chart-title="Unsolved x/t-Centers"></div>
       </details>
     </div>

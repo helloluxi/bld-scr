@@ -36,7 +36,7 @@ Every cycle configuration of 12 edges and 8 corners is enumerated up front, with
 
 ## Related
 
-[LuTimer](https://helloluxi.github.io/ufufr) — a more serious BLD training timer by the same author.
+[BLD Doctor](https://helloluxi.github.io/ufufr) — a more serious BLD training timer by the same author.
 
 ## Credits
 
