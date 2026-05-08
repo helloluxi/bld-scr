@@ -633,7 +633,7 @@ function generateFullMemoFromCode(edgeCodeStr, cornerCodeStr, edgeCC, cornerCC) 
 // ============================================================================
 function generateFloatingExec(codeStr, cc, isEdge, basicExec) {
   // Skip reduction entirely if it wouldn't save any algs — display matches Basic.
-  if (cc.algFullParity === cc.alg) return basicExec;
+  if (cc.algFFP === cc.alg) return basicExec;
 
   const cycles = cc.cycles;
   const parity = cc.parity;

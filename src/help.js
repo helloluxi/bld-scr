@@ -1,12 +1,12 @@
 function edgeAlgH(cc, s) {
-  if (s.fullParity) return cc.algFullParity;
-  if (s.fullEdge) return cc.algFullFloat;
+  if (s.fullParity) return cc.algFFP;
+  if (s.fullEdge) return cc.algFF;
   if (s.naiveEdge) return cc.alg - cc.closed3;
   return cc.alg;
 }
 function cornerAlgH(cc, s) {
-  if (s.fullParity) return cc.algFullParity;
-  if (s.fullCorner) return cc.algFullFloat;
+  if (s.fullParity) return cc.algFFP;
+  if (s.fullCorner) return cc.algFF;
   if (s.naiveCorner) return cc.alg - cc.closed3;
   return cc.alg;
 }
@@ -783,10 +783,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setText('we-corner-alg-basic',    fmtHalf(cCC.alg));
     setText('we-edge-alg-naive',      fmtHalf(eCC.alg - eCC.closed3));
     setText('we-corner-alg-naive',    fmtHalf(cCC.alg - cCC.closed3));
-    setText('we-edge-alg-fullfloat',  fmtHalf(eCC.algFullFloat));
-    setText('we-corner-alg-fullfloat', fmtHalf(cCC.algFullFloat));
-    setText('we-edge-alg-fullparity', fmtHalf(eCC.algFullParity));
-    setText('we-corner-alg-fullparity', fmtHalf(cCC.algFullParity));
+    setText('we-edge-alg-fullfloat',  fmtHalf(eCC.algFF));
+    setText('we-corner-alg-fullfloat', fmtHalf(cCC.algFF));
+    setText('we-edge-alg-fullparity', fmtHalf(eCC.algFFP));
+    setText('we-corner-alg-fullparity', fmtHalf(cCC.algFFP));
     setText('we-edge-count',   eCC.count.toLocaleString());
     setText('we-corner-count', cCC.count.toLocaleString());
   }
@@ -874,8 +874,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const levels = [
       { key: 'basic',      e: cc => cc.alg,                     c: cc => cc.alg },
       { key: 'naive',      e: cc => cc.alg - cc.closed3,        c: cc => cc.alg - cc.closed3 },
-      { key: 'fullfloat',  e: cc => cc.algFullFloat,            c: cc => cc.algFullFloat },
-      { key: 'fullparity', e: cc => cc.algFullParity,           c: cc => cc.algFullParity },
+      { key: 'fullfloat',  e: cc => cc.algFF,            c: cc => cc.algFF },
+      { key: 'fullparity', e: cc => cc.algFFP,           c: cc => cc.algFFP },
     ];
 
     // Total by parity convolution
@@ -937,8 +937,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Saved-alg distribution per skill level (vs Basic). Column headers live in HTML.
     const distLevels = [
       { e: cc => cc.closed3,                  c: cc => cc.closed3 },
-      { e: cc => cc.alg - cc.algFullFloat,    c: cc => cc.alg - cc.algFullFloat },
-      { e: cc => cc.alg - cc.algFullParity,   c: cc => cc.alg - cc.algFullParity },
+      { e: cc => cc.alg - cc.algFF,    c: cc => cc.alg - cc.algFF },
+      { e: cc => cc.alg - cc.algFFP,   c: cc => cc.alg - cc.algFFP },
     ];
 
     function savedDist(configs, fn, total) {

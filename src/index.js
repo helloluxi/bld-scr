@@ -60,15 +60,15 @@ function getSkills() {
 }
 
 function edgeAlg(cc, skills) {
-  if (skills.fullParity) return cc.algFullParity;
-  if (skills.fullEdge) return cc.algFullFloat;
+  if (skills.fullParity) return cc.algFFP;
+  if (skills.fullEdge) return cc.algFF;
   if (skills.naiveEdge) return cc.alg - cc.closed3;
   return cc.alg;
 }
 
 function cornerAlg(cc, skills) {
-  if (skills.fullParity) return cc.algFullParity;
-  if (skills.fullCorner) return cc.algFullFloat;
+  if (skills.fullParity) return cc.algFFP;
+  if (skills.fullCorner) return cc.algFF;
   if (skills.naiveCorner) return cc.alg - cc.closed3;
   return cc.alg;
 }

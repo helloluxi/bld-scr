@@ -194,7 +194,7 @@
           <ul>
             <li><strong>parity</strong> — 0 (even) or 1 (odd).</li>
             <li><strong>breaks</strong> — number of cycle breaks, i.e. how many times the memo had to jump to a new starting piece.</li>
-            <li><strong>algs</strong> — alg count under Floating plain 3-cycles only. For Basic 3-style use <strong>alg</strong>; for Full Floating use <strong>algFullFloat</strong>; for Full Floating Parity use <strong>algFullParity</strong>.</li>
+            <li><strong>algs</strong> — alg count under Floating plain 3-cycles only. For Basic 3-style use <strong>alg</strong>; for Full Floating use <strong>algFF</strong>; for Full Floating Parity use <strong>algFFP</strong>.</li>
             <li><strong>closed1</strong> — solved pieces in-place with correct orientation (free, no alg needed).</li>
             <li><strong>open1</strong> — pieces in-place but misoriented: flipped edges or twisted corners.</li>
             <li><strong>closed2 … closed5</strong> — clean k-cycles (correct orientation) that appear as secondary cycles.</li>
@@ -206,6 +206,10 @@
 
         <h3>Floating plain 3-cycle drill</h3>
         <div class="example">Edge: closed3&gt;0</div>
+
+        <h3>Cases where full floating saves</h3>
+        <div class="example">Edge:   alg&gt;algFF
+Corner: alg&gt;algFF</div>
 
         <h3>4-flip practice (edges)</h3>
         <div class="example">Edge: open1&gt;=3</div>
@@ -232,6 +236,7 @@ Corner: algs&lt;=3</div>
         <h3>Heavy memo — many cycle breaks</h3>
         <div class="example">Edge:   breaks&gt;=2
 Corner: breaks&gt;=2</div>
+
         <a class="collapse-link" href="#" onclick="this.closest('details').removeAttribute('open');return false;">▲ Collapse</a>
         </details>
         <div class="input-group">
@@ -280,7 +285,7 @@ Corner: breaks&gt;=2</div>
     </div>
 
     <footer>
-      &copy; 2025-<span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" target="_blank" underline>GitHub</a> | <a href="#" id="theme-toggle" underline>Dark Theme</a>
+      &copy; 2025-<span id="year"></span> Xi Lu | GPL-3.0 License | View on <a href="https://github.com/helloluxi/bld-scr" target="_blank" underline>GitHub</a> | <a href="help.html" target="_blank" underline>Help</a> | <a href="#" id="theme-toggle" underline>Dark Theme</a>
     </footer>
   </div>
   <script src="./src/index.js"></script>

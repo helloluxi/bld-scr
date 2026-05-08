@@ -102,17 +102,16 @@ const cycler = (() => {
             this.closed5 = closed5;
             this.open5 = open5;
             this.alg = algTw + baseLength * 0.5;
-            this.algs = algTw - closed3 + baseLength * 0.5;
             this.count = caseCount;
 
             // Full floating reduction
             const p0 = cycles[0].perm;
-            let algFullFloat = 0, r20 = 0, r21 = 0, r22 = 0, r11 = 0, r12 = 0;
+            let algFF = 0, r20 = 0, r21 = 0, r22 = 0, r11 = 0, r12 = 0;
             for (const cycle of otherCycles) {
                 let p = cycle.perm;
                 const o = cycle.ori;
                 if (p >= 3) {
-                    algFullFloat += Math.floor((p - 1) / 2);
+                    algFF += Math.floor((p - 1) / 2);
                     p = p % 2 === 0 ? 2 : 1;
                 }
                 if (p === 2) {
@@ -127,44 +126,43 @@ const cycler = (() => {
 
             if (O === 2) {
                 // Reduce (2, 0)*2 -> solved
-                algFullFloat += r20 >> 1 << 1; r20 %= 2;
+                algFF += r20 >> 1 << 1; r20 %= 2;
                 // Reduce (2, 1)*2 -> solved
-                algFullFloat += r21 >> 1 << 1; r21 %= 2;
+                algFF += r21 >> 1 << 1; r21 %= 2;
                 // Reduce (2, 0) + (2, 1) -> flipped
-                const mp = Math.min(r20, r21); algFullFloat += mp * 2; r20 -= mp; r21 -= mp; r11 += mp;
+                const mp = Math.min(r20, r21); algFF += mp * 2; r20 -= mp; r21 -= mp; r11 += mp;
                 // Count flip
-                algFullFloat += Math.ceil(r11 / 4);
-                // Finalize. algFullParity discounts the leftover (2,0) only when
+                algFF += Math.ceil(r11 / 4);
+                // Finalize. algFFP discounts the leftover (2,0) only when
                 // odd parity actually offers a slot to absorb it; for even
                 // parity the leftover stays in the basic stream as a full pair.
-                this.algFullFloat = (2 * algFullFloat + 3 * (r20 + r21) + (p0 - 1)) / 2;
-                this.algFullParity = this.parity === 1
-                  ? (2 * algFullFloat + r20 + 3 * r21 + (p0 - 1)) / 2
-                  : this.algFullFloat;
+                this.algFF = (2 * algFF + 3 * (r20 + r21) + (p0 - 1)) / 2;
+                this.algFFP = this.parity === 1
+                  ? (2 * algFF + r20 + 3 * r21 + (p0 - 1)) / 2
+                  : this.algFF;
             } else {
                 // Phase-2 corner mergers leave each head piece needing an
                 // ori-restoration twist (since emitPair drops both heads' ori
                 // closures). Each pair contributes two r-units (one per head).
-                // Reduce (2, 0)*2 -> solved
-                algFullFloat += r20 >> 1 << 1; r20 %= 2;
-                // Reduce (2, 1) + (2, 2) -> twisted (1) + twisted (2)
-                const mp = Math.min(r21, r22); algFullFloat += mp * 2; r21 -= mp; r22 -= mp; r11 += mp; r12 += mp;
-                // Reduce (2, 1 or 2)*2 -> twisted twice
-                const p21 = r21 >> 1; algFullFloat += p21 << 1; r11 += p21 * 2; r21 %= 2;
-                const p22 = r22 >> 1; algFullFloat += p22 << 1; r12 += p22 * 2; r22 %= 2;
+                algFF += r20 >> 1 << 1; r20 %= 2;
+                // Reduce (2, 1) + (2, 2) -> solved
+                const mp = Math.min(r21, r22); algFF += mp * 2; r21 -= mp; r22 -= mp;
+                // Reduce (2, 1 or 2)*2 -> twisted (2 or 1)
+                algFF += r21 >> 1 << 1; r12+=r21>>1; r21 %= 2;
+                algFF += r22 >> 1 << 1; r12+=r22>>1; r22 %= 2;
                 // Reduce (2, 0) + (2, 1 or 2) -> twisted (1 or 2)
-                const mp1 = Math.min(r20, r21); algFullFloat += mp1 * 2; r20 -= mp1; r21 -= mp1; r11 += mp1;
-                const mp2 = Math.min(r20, r22); algFullFloat += mp2 * 2; r20 -= mp2; r22 -= mp2; r12 += mp2;
+                const mp1 = Math.min(r20, r21); algFF += mp1 * 2; r20 -= mp1; r21 -= mp1; r11 += mp1;
+                const mp2 = Math.min(r20, r22); algFF += mp2 * 2; r20 -= mp2; r22 -= mp2; r12 += mp2;
                 // Count twist
-                algFullFloat += Math.floor(r11 / 3); r11 %= 3;
-                algFullFloat += Math.floor(r12 / 3); r12 %= 3;
-                algFullFloat += Math.ceil((r11 + r12) / 3);
+                algFF += Math.floor(r11 / 3); r11 %= 3;
+                algFF += Math.floor(r12 / 3); r12 %= 3;
+                algFF += Math.ceil((r11 + r12) / 3);
                 // Finalize. See O==2 branch above for parity-conditional
                 // discount on r20.
-                this.algFullFloat = (2 * algFullFloat + 3 * (r20 + r21 + r22) + (p0 - 1)) / 2;
-                this.algFullParity = this.parity === 1
-                  ? (2 * algFullFloat + r20 + 3 * (r21 + r22) + (p0 - 1)) / 2
-                  : this.algFullFloat;
+                this.algFF = (2 * algFF + 3 * (r20 + r21 + r22) + (p0 - 1)) / 2;
+                this.algFFP = this.parity === 1
+                  ? (2 * algFF + r20 + 3 * (r21 + r22) + (p0 - 1)) / 2
+                  : this.algFF;
             }
         }
     }
@@ -203,11 +201,11 @@ const cycler = (() => {
         for (const cc of allConfigs) {
             const expectInt = cc.parity === 0;
             if (expectInt) {
-                if (cc.algFullFloat !== Math.round(cc.algFullFloat)) { errors++; details.push({config: cc, field: 'algFullFloat', parity: cc.parity, got: cc.algFullFloat}); }
-                if (cc.algFullParity !== Math.round(cc.algFullParity)) { errors++; details.push({config: cc, field: 'algFullParity', parity: cc.parity, got: cc.algFullParity}); }
+                if (cc.algFF !== Math.round(cc.algFF)) { errors++; details.push({config: cc, field: 'algFF', parity: cc.parity, got: cc.algFF}); }
+                if (cc.algFFP !== Math.round(cc.algFFP)) { errors++; details.push({config: cc, field: 'algFFP', parity: cc.parity, got: cc.algFFP}); }
             } else {
-                if (cc.algFullFloat === Math.floor(cc.algFullFloat)) { errors++; details.push({config: cc, field: 'algFullFloat', parity: cc.parity, got: cc.algFullFloat}); }
-                if (cc.algFullParity === Math.floor(cc.algFullParity)) { errors++; details.push({config: cc, field: 'algFullParity', parity: cc.parity, got: cc.algFullParity}); }
+                if (cc.algFF === Math.floor(cc.algFF)) { errors++; details.push({config: cc, field: 'algFF', parity: cc.parity, got: cc.algFF}); }
+                if (cc.algFFP === Math.floor(cc.algFFP)) { errors++; details.push({config: cc, field: 'algFFP', parity: cc.parity, got: cc.algFFP}); }
             }
         }
         return { errors, details };

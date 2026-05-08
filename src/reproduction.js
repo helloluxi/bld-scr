@@ -51,7 +51,7 @@ console.log(`\n=== 4-flip / 3-twist Probability ===`);
 console.log(`Edge 4-flip\t${fourFlip}\t${(fourFlip/eT).toFixed(4)}`);
 console.log(`Corner 3-twist\t${threeTwist}\t${(threeTwist/cT).toFixed(4)}`);
 
-// Edge / Corner / Total Algs (Basic 3-style — other skill levels derive from cc.algFullFloat etc.)
+// Edge / Corner / Total Algs (Basic 3-style — other skill levels derive from cc.algFF etc.)
 show("Edge Algs (Basic)",   tally(allE, c => c.alg), eT);
 show("Corner Algs (Basic)", tally(allC, c => c.alg), cT);
 
@@ -59,8 +59,8 @@ show("Corner Algs (Basic)", tally(allC, c => c.alg), cT);
 const skillLevels = [
   { name: 'Basic 3-style',           e: cc => cc.alg,                c: cc => cc.alg },
   { name: 'Floating plain 3-cycles', e: cc => cc.alg - cc.closed3,   c: cc => cc.alg - cc.closed3 },
-  { name: 'Full Floating',           e: cc => cc.algFullFloat,       c: cc => cc.algFullFloat },
-  { name: 'Full Floating Parity',    e: cc => cc.algFullParity,      c: cc => cc.algFullParity },
+  { name: 'Full Floating',           e: cc => cc.algFF,       c: cc => cc.algFF },
+  { name: 'Full Floating Parity',    e: cc => cc.algFFP,      c: cc => cc.algFFP },
 ];
 
 function avg(configs, fn, total) {
