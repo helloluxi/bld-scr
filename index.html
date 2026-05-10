@@ -40,31 +40,7 @@
           <li><strong>Algs:</strong> estimated algorithm count (each 3-style pair = 1 alg; a float-3 / 3-twist / 4-flip saves 1; parity adds 0.5).</li>
         </ul>
         <p>The <em>Probability</em> line shows what fraction of all scrambles match your current filter — useful to gauge how rare your target case is. Hitting <em>Scramble!</em> updates the URL so you can bookmark or share your current setup.</p>
-
-        <h2>Skill Set</h2>
-        <p>Select the techniques you can execute. This adjusts the estimated alg count shown in the Basic and Advanced panels.</p>
-        <div class="skill-checkboxes">
-          <div class="setting-line"><span>Edge</span>
-            <div class="parity-checkbox-row tab-style">
-              <div class="parity-checkbox"><input type="checkbox" id="skill-basic-edge" checked><label for="skill-basic-edge">Basic 3-style</label></div>
-              <div class="parity-checkbox"><input type="checkbox" id="skill-naive-edge"><label for="skill-naive-edge">Floating plain 3-cycles only</label></div>
-              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-edge"><label for="skill-fullfloat-edge">Full Floating</label></div>
-            </div>
-          </div>
-          <div class="setting-line"><span>Corner</span>
-            <div class="parity-checkbox-row tab-style">
-              <div class="parity-checkbox"><input type="checkbox" id="skill-basic-corner" checked><label for="skill-basic-corner">Basic 3-style</label></div>
-              <div class="parity-checkbox"><input type="checkbox" id="skill-naive-corner"><label for="skill-naive-corner">Floating plain 3-cycles only</label></div>
-              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-corner"><label for="skill-fullfloat-corner">Full Floating</label></div>
-            </div>
-          </div>
-          <div class="setting-line"><span>Parity</span>
-            <div class="parity-checkbox-row tab-style">
-              <div class="parity-checkbox"><input type="checkbox" id="skill-basic-parity" checked><label for="skill-basic-parity">Basic 3-style</label></div>
-              <div class="parity-checkbox"><input type="checkbox" id="skill-fullfloat-parity"><label for="skill-fullfloat-parity">Full Floating Parity</label></div>
-            </div>
-          </div>
-        </div>
+        <p>The Basic panel's <em>Algs</em> slider counts under Basic 3-style. For Floating plain 3-cycles only, Full Floating, or Full Floating Parity counts, use the Advanced panel and write expressions over <code>alg</code>, <code>alg-closed3</code>, <code>algFF</code>, or <code>algFFP</code>.</p>
 
         <h2>How does it work?</h2>
         <p>For the full mathematical background — cycle structure counting, scramble weights, and sampling — see the <a href="help.html" target="_blank">How It Works</a> page (or <a href="help.cn.html" target="_blank">in Chinese</a>).</p>

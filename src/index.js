@@ -44,71 +44,6 @@ const cornerHistoryItems = JSON.parse(localStorage.getItem('scr.hc') || '[]');
 let edgeSelectedIndex   = -1;
 let cornerSelectedIndex = -1;
 
-// ── Skill set logic ──────────────────────────────────────────────────
-
-function getSkills() {
-  return {
-    basicEdge:   document.getElementById('skill-basic-edge').checked,
-    naiveEdge:   document.getElementById('skill-naive-edge').checked,
-    fullEdge:    document.getElementById('skill-fullfloat-edge').checked,
-    basicCorner: document.getElementById('skill-basic-corner').checked,
-    naiveCorner: document.getElementById('skill-naive-corner').checked,
-    fullCorner:  document.getElementById('skill-fullfloat-corner').checked,
-    basicParity: document.getElementById('skill-basic-parity').checked,
-    fullParity:  document.getElementById('skill-fullfloat-parity').checked,
-  };
-}
-
-function edgeAlg(cc, skills) {
-  if (skills.fullParity) return cc.algFFP;
-  if (skills.fullEdge) return cc.algFF;
-  if (skills.naiveEdge) return cc.alg - cc.closed3;
-  return cc.alg;
-}
-
-function cornerAlg(cc, skills) {
-  if (skills.fullParity) return cc.algFFP;
-  if (skills.fullCorner) return cc.algFF;
-  if (skills.naiveCorner) return cc.alg - cc.closed3;
-  return cc.alg;
-}
-
-function saveSkills() {
-  const skills = getSkills();
-  localStorage.setItem('scr.skills', JSON.stringify(skills));
-}
-
-function loadSkills() {
-  try {
-    const s = JSON.parse(localStorage.getItem('scr.skills') || '{}');
-    document.getElementById('skill-basic-edge').checked = s.basicEdge !== false;
-    document.getElementById('skill-naive-edge').checked = !!s.naiveEdge;
-    document.getElementById('skill-fullfloat-edge').checked = !!s.fullEdge;
-    document.getElementById('skill-basic-corner').checked = s.basicCorner !== false;
-    document.getElementById('skill-naive-corner').checked = !!s.naiveCorner;
-    document.getElementById('skill-fullfloat-corner').checked = !!s.fullCorner;
-    document.getElementById('skill-basic-parity').checked = s.basicParity !== false;
-    document.getElementById('skill-fullfloat-parity').checked = !!s.fullParity;
-  } catch {}
-}
-
-document.querySelectorAll('.skill-checkboxes .parity-checkbox-row').forEach(row => {
-  uiUtils.wireExclusiveGroup(row, cb => {
-    if (cb.id === 'skill-fullfloat-parity' && cb.checked) {
-      document.getElementById('skill-fullfloat-edge').checked = true;
-      document.getElementById('skill-naive-edge').checked = false;
-      document.getElementById('skill-basic-edge').checked = false;
-      document.getElementById('skill-fullfloat-corner').checked = true;
-      document.getElementById('skill-naive-corner').checked = false;
-      document.getElementById('skill-basic-corner').checked = false;
-    }
-    const pCb = document.getElementById('skill-fullfloat-parity');
-    if (pCb.checked && (!document.getElementById('skill-fullfloat-edge').checked || !document.getElementById('skill-fullfloat-corner').checked))
-      pCb.checked = false;
-    saveSkills(); updateProbability();
-  });
-});
-
 // ── Mini panel logic ──────────────────────────────────────────────────
 
 function updateProbability() {
@@ -140,20 +75,18 @@ function updateMiniProbability() {
   const cornerAlgsMin = Number(document.getElementById('corner-algs-min').value);
   const cornerAlgsMax = Number(document.getElementById('corner-algs-max').value);
 
-  const skills = getSkills();
-
   const edgeCond = x =>
     x.open1  >= edgeFlipsMin  && x.open1  <= edgeFlipsMax  &&
     x.breaks >= edgeBreaksMin && x.breaks <= edgeBreaksMax &&
     x.closed3 >= edgeClosed3Min && x.closed3 <= edgeClosed3Max &&
-    edgeAlg(x, skills) >= edgeAlgsMin - 0.01 && edgeAlg(x, skills) <= edgeAlgsMax + 0.01 &&
+    x.alg >= edgeAlgsMin - 0.01 && x.alg <= edgeAlgsMax + 0.01 &&
     (x.parity === 0 ? allowParityEven : allowParityOdd);
 
   const cornerCond = x =>
     x.open1  >= cornFlipsMin  && x.open1  <= cornFlipsMax  &&
     x.breaks >= cornBreaksMin && x.breaks <= cornBreaksMax &&
     x.closed3 >= cornClosed3Min && x.closed3 <= cornClosed3Max &&
-    cornerAlg(x, skills) >= cornerAlgsMin - 0.01 && cornerAlg(x, skills) <= cornerAlgsMax + 0.01 &&
+    x.alg >= cornerAlgsMin - 0.01 && x.alg <= cornerAlgsMax + 0.01 &&
     (x.parity === 0 ? allowParityEven : allowParityOdd);
 
   const prob = scrambler.getProbabilityFromBoolFunction(edgeCond, cornerCond);
@@ -446,7 +379,6 @@ scrambleButton.addEventListener('click', generateScramble);
 
 document.addEventListener('DOMContentLoaded', () => {
   loadMiniValues();
-  loadSkills();
   updateAmountSlider();
 
   // Restore URL params (set values before switchTab so probability is correct on first paint)
