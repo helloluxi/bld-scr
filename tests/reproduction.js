@@ -15,6 +15,19 @@ function loadIIFE(file, varName) {
 const cycler  = loadIIFE('cycler.js',  'cycler');
 const cycler4 = loadIIFE('cycler4.js', 'cycler4');
 
+// Print a table with header row, padding each column to its max width.
+// Numeric columns (all cells parse as a number, or are "—" / "#N") are right-aligned.
+function printTable(name, headers, rows) {
+  console.log(`\n=== ${name} ===`);
+  const isNum = s => s === '—' || /^#\d/.test(s) || (s !== '' && Number.isFinite(Number(s)));
+  const data = [headers, ...rows.map(r => r.map(c => String(c)))];
+  const numeric = headers.map((_, i) => rows.length > 0 && rows.every(r => isNum(String(r[i]))));
+  const widths = headers.map((_, i) => Math.max(...data.map(r => r[i].length)));
+  for (const r of data) {
+    console.log(r.map((c, i) => numeric[i] ? c.padStart(widths[i]) : c.padEnd(widths[i])).join('  '));
+  }
+}
+
 // ── 3BLD ──────────────────────────────────────────────────────────────
 
 const allE = [...cycler.evenEdges, ...cycler.oddEdges];
@@ -27,18 +40,18 @@ function tally(configs, keyFn) {
   return [...t].sort((a, b) => a[0] - b[0]);
 }
 
-function show(name, rows, total) {
-  console.log(`\n=== ${name} ===`);
+function show(name, keyLabel, rows, total) {
   let cum = 0;
-  for (const [k, v] of rows) {
+  const out = rows.map(([k, v]) => {
     cum += v;
-    console.log(`${k}\t${Math.round(v)}\t${(v / total).toFixed(4)}\t${(cum / total).toFixed(4)}`);
-  }
+    return [k, Math.round(v), (v / total).toFixed(4), (cum / total).toFixed(4)];
+  });
+  printTable(name, [keyLabel, 'Count', 'Prob', 'Cum'], out);
 }
 
 // ── 3BLD Algs ──
-show("Edge Algs (Basic)",   tally(allE, c => c.alg), eT);
-show("Corner Algs (Basic)", tally(allC, c => c.alg), cT);
+show("Edge Algs (Basic)",   'Algs', tally(allE, c => c.alg), eT);
+show("Corner Algs (Basic)", 'Algs', tally(allC, c => c.alg), cT);
 
 // Saved-alg means by skill level
 const skillLevels = [
@@ -69,11 +82,12 @@ function totalAvg(eFn, cFn) {
   return ws / w;
 }
 
-console.log('\n=== Saved-alg Means by Skill Level ===');
-console.log('Skill\tEdge\tCorner\tTotal');
-for (const lv of skillLevels) {
-  const eM = avg(allE, lv.e, eT), cM = avg(allC, lv.c, cT), tM = totalAvg(lv.e, lv.c);
-  console.log(`${lv.name}\t${eM.toFixed(2)}\t${cM.toFixed(2)}\t${tM.toFixed(2)}`);
+{
+  const rows = skillLevels.map(lv => {
+    const eM = avg(allE, lv.e, eT), cM = avg(allC, lv.c, cT), tM = totalAvg(lv.e, lv.c);
+    return [lv.name, eM.toFixed(2), cM.toFixed(2), tM.toFixed(2)];
+  });
+  printTable('Saved-alg Means by Skill Level', ['Skill', 'Edge', 'Corner', 'Total'], rows);
 }
 
 // ── Cascading Pseudo Swap ──
@@ -109,14 +123,15 @@ function computeCPS(even, odd, P, hNum, hDen) {
 }
 
 function showCPS(name, arr, P) {
-  console.log(`\n=== ${name} ===`);
   const t = arr.reduce((s, v) => s + v, 0);
+  const rows = [];
   let cum = 0;
   for (let k = 1; k <= P; k++) {
     cum += arr[k];
-    console.log(`#${k}\t${Math.round(arr[k])}\t${(arr[k] / t).toFixed(4)}\t${(cum / t).toFixed(4)}`);
+    rows.push([`#${k}`, Math.round(arr[k]), (arr[k] / t).toFixed(4), (cum / t).toFixed(4)]);
   }
-  console.log(`—\t${Math.round(arr[0])}\t${(arr[0] / t).toFixed(4)}\t1.0000`);
+  rows.push(['—', Math.round(arr[0]), (arr[0] / t).toFixed(4), '1.0000']);
+  printTable(name, ['Pos', 'Count', 'Prob', 'Cum'], rows);
 }
 
 const edgeCPS   = computeCPS(cycler.evenEdges,   cycler.oddEdges,   11, 1, 2);
@@ -127,12 +142,12 @@ showCPS("Cascading Pseudo Swap (Corners) — All Parities",   cornerCPS.all, 7);
 showCPS("Cascading Pseudo Swap (Corners) — Odd Parity Only", cornerCPS.odd, 7);
 
 // ── Cycle Breaks ──
-show("Edge Cycle Breaks",   tally(allE, c => c.breaks), eT);
-show("Corner Cycle Breaks", tally(allC, c => c.breaks), cT);
+show("Edge Cycle Breaks",   'Breaks', tally(allE, c => c.breaks), eT);
+show("Corner Cycle Breaks", 'Breaks', tally(allC, c => c.breaks), cT);
 
 // ── Flip / Twist ──
-show("Flipped Edges",   tally(allE, c => c.open1), eT);
-show("Twisted Corners", tally(allC, c => c.open1), cT);
+show("Flipped Edges",   'Flipped', tally(allE, c => c.open1), eT);
+show("Twisted Corners", 'Twisted', tally(allC, c => c.open1), cT);
 
 // 4-flip / 3-twist probability (no cumulative — single-row events)
 let fourFlip = 0, threeTwist = 0;
@@ -141,9 +156,10 @@ for (const cc of allC) {
   const cw = cc.cwTwist, ccw = cc.ccwTwist;
   if (cw >= 3 || ccw >= 3 || (cw === 2 && ccw === 0) || (ccw === 2 && cw === 0)) threeTwist += cc.count;
 }
-console.log(`\n=== 4-flip / 3-twist Probability ===`);
-console.log(`Edge 4-flip\t${fourFlip}\t${(fourFlip/eT).toFixed(4)}`);
-console.log(`Corner 3-twist\t${threeTwist}\t${(threeTwist/cT).toFixed(4)}`);
+printTable('4-flip / 3-twist Probability', ['Event', 'Count', 'Prob'], [
+  ['Edge 4-flip',    fourFlip,   (fourFlip / eT).toFixed(4)],
+  ['Corner 3-twist', threeTwist, (threeTwist / cT).toFixed(4)],
+]);
 
 // ── LTCT & T2C ──
 // LTCT: odd parity with exactly one twisted non-buffer corner (open1 == 1)
@@ -153,13 +169,16 @@ const ltctT2c = [
   ["LTCT", cc => cc.open1 === 1],
   ["T2C",  cc => cc.open2 >= 1],
 ];
-console.log(`\n=== LTCT & T2C ===`);
-for (const [name, pred] of ltctT2c) {
-  let all = 0, odd = 0;
-  for (const cc of allC) if (pred(cc)) all += cc.count;
-  for (const cc of oddC) if (pred(cc)) odd += cc.count;
-  console.log(`${name}\tAll\t${all}\t${(all/cT).toFixed(4)}`);
-  console.log(`${name}\tOdd\t${odd}\t${(odd/cT).toFixed(4)}`);
+{
+  const rows = [];
+  for (const [name, pred] of ltctT2c) {
+    let all = 0, odd = 0;
+    for (const cc of allC) if (pred(cc)) all += cc.count;
+    for (const cc of oddC) if (pred(cc)) odd += cc.count;
+    rows.push([name, 'All', all, (all / cT).toFixed(4)]);
+    rows.push([name, 'Odd', odd, (odd / cT).toFixed(4)]);
+  }
+  printTable('LTCT & T2C', ['Case', 'Parity', 'Count', 'Prob'], rows);
 }
 
 // ── Order of 3x3x3 Rubik's Cube Group Elements ──
@@ -201,12 +220,12 @@ addPairs(dist, evenEdges, evenCorners);
 addPairs(dist, oddEdges, oddCorners);
 
 let total = 0n;
-console.log("\n=== Order of 3x3x3 Rubik's Cube Group Elements ===");
-console.log("Order\tCount");
+const orderRows = [];
 for (const [order, count] of [...dist].sort((a, b) => a[0] - b[0])) {
   total += count;
-  console.log(`${order}\t${count}`);
+  orderRows.push([order, count]);
 }
+printTable("Order of 3x3x3 Rubik's Cube Group Elements", ['Order', 'Count'], orderRows);
 console.log(`Total states: ${total}`);
 
 // ── 4x4x4 ─────────────────────────────────────────────────────────────
@@ -219,19 +238,19 @@ function tally4(keyFn) {
   return [...t].sort((a, b) => a[0] - b[0]);
 }
 
-function show4(name, rows, denom, fmt = k => k) {
-  console.log(`\n=== ${name} ===`);
+function show4(name, keyLabel, rows, denom) {
   let cum = 0n;
-  for (const [k, v] of rows) {
+  const out = rows.map(([k, v]) => {
     cum += v;
     const p  = Number(v   * 100000n / denom) / 100000;
     const cp = Number(cum * 100000n / denom) / 100000;
-    console.log(`${fmt(k)}\t${v}\t${p.toFixed(4)}\t${cp.toFixed(4)}`);
-  }
+    return [k, v, p.toFixed(4), cp.toFixed(4)];
+  });
+  printTable(name, [keyLabel, 'Count', 'Prob', 'Cum'], out);
 }
 
 // Wing Algs
-show4('Wing Algs', tally4(c => c.algF3), WT);
+show4('Wing Algs', 'Algs', tally4(c => c.algF3), WT);
 
 // Wing alg means by skill level
 const wingTotalNum = Number(WT);
@@ -240,24 +259,27 @@ const wingLevels = [
   { name: 'Basic floating', fn: w => w.algF3 },
   { name: 'Full Floating',  fn: w => w.algFF },
 ];
-console.log('\n=== Wing Alg Means by Skill Level ===');
-console.log('Skill\tMean');
-for (const lv of wingLevels) {
-  let s = 0;
-  for (const w of cycler4.wings) s += lv.fn(w) * Number(w.count);
-  console.log(`${lv.name}\t${(s / wingTotalNum).toFixed(2)}`);
+{
+  const rows = wingLevels.map(lv => {
+    let s = 0;
+    for (const w of cycler4.wings) s += lv.fn(w) * Number(w.count);
+    return [lv.name, (s / wingTotalNum).toFixed(2)];
+  });
+  printTable('Wing Alg Means by Skill Level', ['Skill', 'Mean'], rows);
 }
 
-show4('Wing Cycle Breaks',       tally4(c => c.breaks),  WT);
-show4('Solved Wings',            tally4(c => c.closed1), WT);
-show4('Float 2-Cycles in Wings', tally4(c => c.closed2), WT);
-show4('Float 3-Cycles in Wings', tally4(c => c.closed3), WT);
+show4('Wing Cycle Breaks',       'Breaks',   tally4(c => c.breaks),  WT);
+show4('Solved Wings',            'Solved',   tally4(c => c.closed1), WT);
+show4('Float 2-Cycles in Wings', 'Cycles',   tally4(c => c.closed2), WT);
+show4('Float 3-Cycles in Wings', 'Cycles',   tally4(c => c.closed3), WT);
 
 const cd = cycler4.centers();
 const ctTotal = cd.reduce((s, [, v]) => s + v, 0);
-console.log('\n=== Unsolved x/t-Centers ===');
-let ctCum = 0;
-for (const [k, v] of cd) {
-  ctCum += v;
-  console.log(`${k}\t${v}\t${(v / ctTotal).toFixed(4)}\t${(ctCum / ctTotal).toFixed(4)}`);
+{
+  let ctCum = 0;
+  const rows = cd.map(([k, v]) => {
+    ctCum += v;
+    return [k, v, (v / ctTotal).toFixed(4), (ctCum / ctTotal).toFixed(4)];
+  });
+  printTable('Unsolved x/t-Centers', ['Unsolved', 'Count', 'Prob', 'Cum'], rows);
 }
