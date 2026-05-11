@@ -274,7 +274,7 @@
           </tbody>
         </table>
         <p id="saved-algs-quip" style="margin-top:1rem;font-style:italic;color:gray;">Bruh, would you really want to learn 2,768 full-floating 3-style algs just to save <span id="saved-full-num"></span> algs per scramble on average, and another 11,088 full-floating parity algs just to save <span id="saved-parity-num"></span> more algs per scramble? These are only theoretical upper bounds, without accounting for human-level practicality. Life is short, be happy :)</p>
-        <p style="margin-top:0.75rem;font-size:0.75rem;color:var(--text-secondary);">Just kidding, I speak for retired me but not top BLDers.</p>
+        <p style="margin-top:0.75rem;font-size:0.75rem;color:var(--text-secondary);">To be clear, I speak for retired me, not for top BLDers — and realistically only a fraction of those extra algs would cover most of the savings.</p>
         <p style="margin-top:1rem;">Distribution of algs saved per scramble by skill level (vs. Basic):</p>
         <h4>Edge</h4>
         <table id="saved-algs-edge-dist-table">
@@ -454,12 +454,12 @@
 
       <details>
         <summary>Results</summary>
-        <p><strong>LTCT</strong> (Last Target Corner Twist) combines solving the final corner target with twisting two misoriented corners into a single algorithm, saving one twist alg. It requires odd parity and at least one twisted non-buffer corner (<code>open1&gt;=1</code>).</p>
+        <p><strong>LTCT</strong> (Last Target Corner Twist) combines solving the final corner target with twisting two misoriented corners into a single algorithm, saving one twist alg. It requires odd parity and exactly one twisted non-buffer corner (<code>open1==1</code>). Cases with more than one twisted corner would be solved more efficiently without LTCT.</p>
 
         <p><strong>T2C</strong> (Twisted 2 Corners) solves the final corner target when the buffer corner is twisted and two remaining corners are swapped, combining the swap and buffer untwist into one algorithm. It requires odd parity and at least one misoriented non-buffer 2-cycle (<code>open2&gt;=1</code>).</p>
 
-        <p><strong>Note</strong>: In practice, most BLDers specialize in LTCT or T2C algorithms for a fixed edge pair (e.g., UF–UR), so the actual applicable cases are even fewer—roughly half of those shown above when using cascading pseudo/weak swap.</p>
-        
+        <p><strong>Note</strong>: In practice, most BLDers specialize in LTCT or T2C algorithms for a fixed edge pair (e.g., UF–UR), so the actual applicable cases are even fewer—roughly half of those shown above when using cascading pseudo/weak swap. Separately, these stats don't account for floating, which is intricate to combine with LTCT/T2C and would further raise the probabilities.</p>
+
         <table data-stat="ltct-t2c">
           <thead><tr><th>Technique</th><th>Count</th><th>Probability</th></tr></thead>
           <tbody>
@@ -586,7 +586,7 @@
       <p>All statistics on this page can be independently verified. Clone the repo and run with Node.js:</p>
       <pre><code>git clone https://github.com/helloluxi/bld-scr.git
 cd bld-scr
-node src/reproduction.js</code></pre>
+node tests/reproduction.js</code></pre>
       <p style="font-size:0.85rem; color:var(--text-secondary);">Requires Node.js &ge; 14 (for BigInt support).</p>
     </div>
 

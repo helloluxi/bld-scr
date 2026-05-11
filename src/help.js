@@ -166,11 +166,11 @@ function populateStaticTables() {
   fillRowCell('multi-flip-twist', 'corner-3twist', 'data-count', threeTwist.toLocaleString());
   fillRowCell('multi-flip-twist', 'corner-3twist', 'data-prob',  (threeTwist / cT).toFixed(4));
 
-  // LTCT / T2C (odd parity, with at least one open1 / open2 secondary cycle)
+  // LTCT (odd parity, exactly one twisted non-buffer corner) / T2C (odd parity, at least one open2)
   let ltct = 0, t2c = 0;
   for (const cc of cycler.oddCorners) {
-    if (cc.open1 >= 1) ltct += cc.count;
-    if (cc.open2 >= 1) t2c  += cc.count;
+    if (cc.open1 === 1) ltct += cc.count;
+    if (cc.open2 >= 1)  t2c  += cc.count;
   }
   fillRowCell('ltct-t2c', 'ltct', 'data-count', ltct.toLocaleString());
   fillRowCell('ltct-t2c', 'ltct', 'data-prob',  (ltct / cT).toFixed(4));

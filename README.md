@@ -31,7 +31,7 @@ Every cycle configuration of 12 edges and 8 corners is enumerated up front, with
 | `src/chart.js` | Bar-chart rendering helpers |
 | `src/min2phase.js` | Solver used to turn a cube state into a move sequence |
 | `src/theme.js` | Dark/light theme toggle |
-| `src/reproduction.js` | Node script that prints all reproduced statistics |
+| `tests/reproduction.js` | Node script that prints all reproduced statistics |
 | `styles.css` | Shared styles |
 
 ## Related

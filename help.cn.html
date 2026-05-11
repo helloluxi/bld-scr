@@ -277,7 +277,7 @@
           </tbody>
         </table>
         <p id="saved-algs-quip" style="margin-top:1rem;font-style:italic;color:gray;">老哥，你真的愿意为了平均每把少 <span id="saved-full-num"></span> 个公式就去背 2768 个全浮动三循环公式，再为了每把多省 <span id="saved-parity-num"></span> 个公式而多背 11088 个全浮动奇偶公式吗？这些都只是理论上界，没考虑人类的实际能力。人生苦短，别背了～</p>
-        <p style="margin-top:0.75rem;font-size:0.75rem;color:var(--text-secondary);">开玩笑的——我只代表退役的自己，不代表顶尖盲拧选手。</p>
+        <p style="margin-top:0.75rem;font-size:0.75rem;color:var(--text-secondary);">开玩笑的，我只代表退役的自己，不代表顶尖盲拧选手——实际上只需学其中一小部分公式就能覆盖大部分收益。</p>
         <p style="margin-top:1rem;">每把节省公式数的分布（相对基础）：</p>
         <h4>棱块</h4>
         <table id="saved-algs-edge-dist-table">
@@ -461,11 +461,11 @@
 
       <details>
         <summary>结果</summary>
-        <p><strong>LTCT</strong>（Last Target Corner Twist）将最后一个角目标的处理与两角翻转合并为一个公式，可节省 1 个翻角公式。要求奇偶为奇，且至少有一个非缓冲翻角（<code>open1&gt;=1</code>）。</p>
+        <p><strong>LTCT</strong>（Last Target Corner Twist）将最后一个角目标的处理与两角翻转合并为一个公式，可节省 1 个翻角公式。要求奇偶为奇，且恰好有一个非缓冲翻角（<code>open1==1</code>）。多于一个翻角时，不用 LTCT 反而更高效。</p>
 
         <p><strong>T2C</strong>（Twisted 2 Corners）用于缓冲角已翻且另外两角互换时，把交换与缓冲解翻合并为一个公式来处理最后角目标。要求奇偶为奇，且至少存在一个错朝向小循环 2-cycle（<code>open2&gt;=1</code>）。</p>
 
-        <p><strong>注</strong>：实际中多数 BLD 选手只专精固定棱对（如 UF-UR）下的 LTCT 或 T2C，因此真正可用的情况会更少；在固定借位法下，通常约为上表的一半。</p>
+        <p><strong>注</strong>：实际中多数 BLD 选手只专精固定棱对（如 UF-UR）下的 LTCT 或 T2C，因此真正可用的情况会更少；在固定借位法下，通常约为上表的一半。另外，本统计未计入浮动归约——浮动与 LTCT/T2C 的结合较为复杂，纳入后概率还会进一步提高。</p>
 
         <table data-stat="ltct-t2c">
           <thead><tr><th>技巧</th><th>计数</th><th>概率</th></tr></thead>
@@ -593,7 +593,7 @@
       <p>本页所有统计都可独立验证。克隆仓库后用 Node.js 运行：</p>
       <pre><code>git clone https://github.com/helloluxi/bld-scr.git
 cd bld-scr
-node src/reproduction.js</code></pre>
+node tests/reproduction.js</code></pre>
       <p style="font-size:0.85rem; color:var(--text-secondary);">需要 Node.js &ge; 14（支持 BigInt）。</p>
     </div>
 

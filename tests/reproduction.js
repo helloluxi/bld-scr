@@ -1,5 +1,5 @@
 // Reproduction code for all statistics shown on help.html.
-// Run with: node src/reproduction.js
+// Run with: node tests/reproduction.js
 //
 // Loads the browser-style IIFEs in cycler.js and cycler4.js without modifying
 // them, then prints every distribution (3BLD edges/corners and 4x4 wings/centers).
@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 function loadIIFE(file, varName) {
-  const src = fs.readFileSync(path.join(__dirname, file), 'utf8');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'src', file), 'utf8');
   return new Function(src.replace(`const ${varName} = `, 'return '))();
 }
 
@@ -29,29 +29,14 @@ function tally(configs, keyFn) {
 
 function show(name, rows, total) {
   console.log(`\n=== ${name} ===`);
-  for (const [k, v] of rows) console.log(`${k}\t${Math.round(v)}\t${(v / total).toFixed(4)}`);
+  let cum = 0;
+  for (const [k, v] of rows) {
+    cum += v;
+    console.log(`${k}\t${Math.round(v)}\t${(v / total).toFixed(4)}\t${(cum / total).toFixed(4)}`);
+  }
 }
 
-// Cycle Breaks
-show("Edge Cycle Breaks", tally(allE, c => c.breaks), eT);
-show("Corner Cycle Breaks", tally(allC, c => c.breaks), cT);
-
-// Flip / Twist
-show("Flipped Edges", tally(allE, c => c.open1), eT);
-show("Twisted Corners", tally(allC, c => c.open1), cT);
-
-// 4-flip / 3-twist Probability
-let fourFlip = 0, threeTwist = 0;
-for (const cc of allE) if (cc.open1 >= 3) fourFlip += cc.count;
-for (const cc of allC) {
-  const cw = cc.cwTwist, ccw = cc.ccwTwist;
-  if (cw >= 3 || ccw >= 3 || (cw === 2 && ccw === 0) || (ccw === 2 && cw === 0)) threeTwist += cc.count;
-}
-console.log(`\n=== 4-flip / 3-twist Probability ===`);
-console.log(`Edge 4-flip\t${fourFlip}\t${(fourFlip/eT).toFixed(4)}`);
-console.log(`Corner 3-twist\t${threeTwist}\t${(threeTwist/cT).toFixed(4)}`);
-
-// Edge / Corner / Total Algs (Basic 3-style — other skill levels derive from cc.algFF etc.)
+// ── 3BLD Algs ──
 show("Edge Algs (Basic)",   tally(allE, c => c.alg), eT);
 show("Corner Algs (Basic)", tally(allC, c => c.alg), cT);
 
@@ -91,7 +76,7 @@ for (const lv of skillLevels) {
   console.log(`${lv.name}\t${eM.toFixed(2)}\t${cM.toFixed(2)}\t${tM.toFixed(2)}`);
 }
 
-// Cascading Pseudo Swap (buffer index distribution)
+// ── Cascading Pseudo Swap ──
 function falling(x, k) {
   let r = 1;
   for (let i = 0; i < k; i++) r *= (x - i);
@@ -136,22 +121,48 @@ function showCPS(name, arr, P) {
 
 const edgeCPS   = computeCPS(cycler.evenEdges,   cycler.oddEdges,   11, 1, 2);
 const cornerCPS = computeCPS(cycler.evenCorners, cycler.oddCorners,  7, 1, 3);
-showCPS("Cascading Pseudo Swap (Edges) — No Parity Constraint", edgeCPS.all,   11);
-showCPS("Cascading Pseudo Swap (Edges) — Odd Parity Only",      edgeCPS.odd,   11);
-showCPS("Cascading Pseudo Swap (Corners) — No Parity Constraint", cornerCPS.all, 7);
-showCPS("Cascading Pseudo Swap (Corners) — Odd Parity Only",      cornerCPS.odd, 7);
+showCPS("Cascading Pseudo Swap (Edges) — All Parities",   edgeCPS.all,   11);
+showCPS("Cascading Pseudo Swap (Edges) — Odd Parity Only", edgeCPS.odd,  11);
+showCPS("Cascading Pseudo Swap (Corners) — All Parities",   cornerCPS.all, 7);
+showCPS("Cascading Pseudo Swap (Corners) — Odd Parity Only", cornerCPS.odd, 7);
 
-// LTCT & T2C
+// ── Cycle Breaks ──
+show("Edge Cycle Breaks",   tally(allE, c => c.breaks), eT);
+show("Corner Cycle Breaks", tally(allC, c => c.breaks), cT);
+
+// ── Flip / Twist ──
+show("Flipped Edges",   tally(allE, c => c.open1), eT);
+show("Twisted Corners", tally(allC, c => c.open1), cT);
+
+// 4-flip / 3-twist probability (no cumulative — single-row events)
+let fourFlip = 0, threeTwist = 0;
+for (const cc of allE) if (cc.open1 >= 3) fourFlip += cc.count;
+for (const cc of allC) {
+  const cw = cc.cwTwist, ccw = cc.ccwTwist;
+  if (cw >= 3 || ccw >= 3 || (cw === 2 && ccw === 0) || (ccw === 2 && cw === 0)) threeTwist += cc.count;
+}
+console.log(`\n=== 4-flip / 3-twist Probability ===`);
+console.log(`Edge 4-flip\t${fourFlip}\t${(fourFlip/eT).toFixed(4)}`);
+console.log(`Corner 3-twist\t${threeTwist}\t${(threeTwist/cT).toFixed(4)}`);
+
+// ── LTCT & T2C ──
+// LTCT: odd parity with exactly one twisted non-buffer corner (open1 == 1)
+// T2C:  odd parity with at least one misoriented non-buffer 2-cycle (open2 >= 1)
 const oddC = cycler.oddCorners;
-for (const [name, key] of [["LTCT", "open1"], ["T2C", "open2"]]) {
+const ltctT2c = [
+  ["LTCT", cc => cc.open1 === 1],
+  ["T2C",  cc => cc.open2 >= 1],
+];
+console.log(`\n=== LTCT & T2C ===`);
+for (const [name, pred] of ltctT2c) {
   let all = 0, odd = 0;
-  for (const cc of allC) if (cc[key] >= 1) all += cc.count;
-  for (const cc of oddC) if (cc[key] >= 1) odd += cc.count;
+  for (const cc of allC) if (pred(cc)) all += cc.count;
+  for (const cc of oddC) if (pred(cc)) odd += cc.count;
   console.log(`${name}\tAll\t${all}\t${(all/cT).toFixed(4)}`);
   console.log(`${name}\tOdd\t${odd}\t${(odd/cT).toFixed(4)}`);
 }
 
-// Order of 3x3x3 Rubik's Cube Group Elements
+// ── Order of 3x3x3 Rubik's Cube Group Elements ──
 const gcd = (a, b) => {
   while (b) [a, b] = [b, a % b];
   return a;
@@ -210,17 +221,17 @@ function tally4(keyFn) {
 
 function show4(name, rows, denom, fmt = k => k) {
   console.log(`\n=== ${name} ===`);
+  let cum = 0n;
   for (const [k, v] of rows) {
-    const p = Number(v * 100000n / denom) / 100000;
-    console.log(`${fmt(k)}\t${v}\t${p.toFixed(4)}`);
+    cum += v;
+    const p  = Number(v   * 100000n / denom) / 100000;
+    const cp = Number(cum * 100000n / denom) / 100000;
+    console.log(`${fmt(k)}\t${v}\t${p.toFixed(4)}\t${cp.toFixed(4)}`);
   }
 }
 
-show4('Wing Algs',               tally4(c => c.algF3),   WT);
-show4('Wing Cycle Breaks',       tally4(c => c.breaks),  WT);
-show4('Solved Wings',            tally4(c => c.closed1), WT);
-show4('Float 2-Cycles in Wings', tally4(c => c.closed2), WT);
-show4('Float 3-Cycles in Wings', tally4(c => c.closed3), WT);
+// Wing Algs
+show4('Wing Algs', tally4(c => c.algF3), WT);
 
 // Wing alg means by skill level
 const wingTotalNum = Number(WT);
@@ -237,7 +248,16 @@ for (const lv of wingLevels) {
   console.log(`${lv.name}\t${(s / wingTotalNum).toFixed(2)}`);
 }
 
+show4('Wing Cycle Breaks',       tally4(c => c.breaks),  WT);
+show4('Solved Wings',            tally4(c => c.closed1), WT);
+show4('Float 2-Cycles in Wings', tally4(c => c.closed2), WT);
+show4('Float 3-Cycles in Wings', tally4(c => c.closed3), WT);
+
 const cd = cycler4.centers();
 const ctTotal = cd.reduce((s, [, v]) => s + v, 0);
 console.log('\n=== Unsolved x/t-Centers ===');
-for (const [k, v] of cd) console.log(`${k}\t${v}\t${(v / ctTotal).toFixed(4)}`);
+let ctCum = 0;
+for (const [k, v] of cd) {
+  ctCum += v;
+  console.log(`${k}\t${v}\t${(v / ctTotal).toFixed(4)}\t${(ctCum / ctTotal).toFixed(4)}`);
+}
