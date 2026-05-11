@@ -619,15 +619,6 @@ window.applyLetterPreset = _applyLetterPreset;
 document.addEventListener('DOMContentLoaded', () => {
   let t3bld = 0, tBigBld = 0;
 
-  // Self-test
-  const test = cycler.selfTest();
-  if (test.errors > 0) {
-    const errEl = document.getElementById('algs-error');
-    errEl.style.display = '';
-    const cntEl = document.getElementById('algs-error-count');
-    if (cntEl) cntEl.textContent = test.errors;
-  }
-
   // Wire up 3BLD skill rows (row-exclusive)
   document.querySelectorAll('#algs-card .skill-checkboxes .parity-checkbox-row').forEach(row => {
     uiUtils.wireExclusiveGroup(row, cb => {

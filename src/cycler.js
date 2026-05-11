@@ -69,10 +69,6 @@ const cycler = (() => {
             let open2 = otherCycles.filter(cycle => cycle.perm == 2 && cycle.ori != 0).length;
             let closed3 = otherCycles.filter(cycle => cycle.perm == 3 && cycle.ori == 0).length;
             let open3 = otherCycles.filter(cycle => cycle.perm == 3 && cycle.ori != 0).length;
-            let closed4 = otherCycles.filter(cycle => cycle.perm == 4 && cycle.ori == 0).length;
-            let open4 = otherCycles.filter(cycle => cycle.perm == 4 && cycle.ori != 0).length;
-            let closed5 = otherCycles.filter(cycle => cycle.perm == 5 && cycle.ori == 0).length;
-            let open5 = otherCycles.filter(cycle => cycle.perm == 5 && cycle.ori != 0).length;
             let baseLength = otherCycles.reduce((sum, cycle) => sum + (cycle.perm > 1 ? cycle.perm + 1 : 0), 0) + cycles[0].perm - 1;
             let algTw = 0;
             let twist1Count = otherCycles.filter(cycle => cycle.perm == 1 && cycle.ori == 1).length;
@@ -97,10 +93,6 @@ const cycler = (() => {
             this.open2 = open2;
             this.closed3 = closed3;
             this.open3 = open3;
-            this.closed4 = closed4;
-            this.open4 = open4;
-            this.closed5 = closed5;
-            this.open5 = open5;
             this.alg = algTw + baseLength * 0.5;
             this.count = caseCount;
 
@@ -194,22 +186,5 @@ const cycler = (() => {
     const evenCorners = [], oddCorners = [];
     generateCycles(3, 8, oddCorners, evenCorners);
 
-    function selfTest() {
-        const allConfigs = [...evenEdges, ...oddEdges, ...evenCorners, ...oddCorners];
-        let errors = 0;
-        const details = [];
-        for (const cc of allConfigs) {
-            const expectInt = cc.parity === 0;
-            if (expectInt) {
-                if (cc.algFF !== Math.round(cc.algFF)) { errors++; details.push({config: cc, field: 'algFF', parity: cc.parity, got: cc.algFF}); }
-                if (cc.algFFP !== Math.round(cc.algFFP)) { errors++; details.push({config: cc, field: 'algFFP', parity: cc.parity, got: cc.algFFP}); }
-            } else {
-                if (cc.algFF === Math.floor(cc.algFF)) { errors++; details.push({config: cc, field: 'algFF', parity: cc.parity, got: cc.algFF}); }
-                if (cc.algFFP === Math.floor(cc.algFFP)) { errors++; details.push({config: cc, field: 'algFFP', parity: cc.parity, got: cc.algFFP}); }
-            }
-        }
-        return { errors, details };
-    }
-
-    return ({ evenEdges, oddEdges, evenCorners, oddCorners, selfTest });
+    return ({ evenEdges, oddEdges, evenCorners, oddCorners });
 })();

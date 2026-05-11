@@ -124,6 +124,25 @@ function trial() {
   };
 }
 
+// Parity-of-algFF check: even-parity configs must yield integer algFF/algFFP;
+// odd-parity configs must yield half-integer (non-integer) values. A mismatch
+// indicates a reduction-logic bug in cycler.js.
+{
+  const { cycler } = sandbox;
+  const all = [...cycler.evenEdges, ...cycler.oddEdges, ...cycler.evenCorners, ...cycler.oddCorners];
+  let errors = 0;
+  for (const cc of all) {
+    const isInt = v => v === Math.round(v);
+    const expectInt = cc.parity === 0;
+    if (expectInt !== isInt(cc.algFF)) errors++;
+    if (expectInt !== isInt(cc.algFFP)) errors++;
+  }
+  if (errors > 0) {
+    console.log(`algFF parity check: ${errors} reduction logic error(s)`);
+    process.exit(1);
+  }
+}
+
 const N = parseInt(process.argv[2] || '200', 10);
 let pass = 0, fail = 0;
 const failures = [];
